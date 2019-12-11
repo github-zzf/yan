@@ -1,0 +1,22 @@
+<#assign ctx=springMacroRequestContext.contextPath />
+<meta name=renderer content=webkit>
+<title>${title!}</title>
+<link rel="stylesheet" type="text/css" href="${ctx}/static/common/xui/xui.css?${v}" />
+<link rel="stylesheet" type="text/css" href="${ctx}/static/module/base/css/index.css?${v}" />
+<link rel="stylesheet" type="text/css" href="${ctx}/static/module/base/css/main.css?${v}" />
+<script type="text/javascript">var basePath = "${ctx}/"; var adminPath = "${ctx}${adminPath}";</script>
+<script type="text/javascript" src="${ctx}/static/common/jquery/jquery-1.9.1.min.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/jquery/jquery.cookie.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/xui/xui.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/module/base/base.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/xui/search.js?${v}"></script>
+<script type="text/javascript">
+$.ajaxSetup({
+	contentType : 'application/x-www-form-urlencoded;charset = utf-8', 
+	complete : function(xhr, textStatus) {
+		if (textStatus == "parsererror") { 
+			window.top.location.href = adminPath + '/login';
+		} 
+	} 
+});
+</script>

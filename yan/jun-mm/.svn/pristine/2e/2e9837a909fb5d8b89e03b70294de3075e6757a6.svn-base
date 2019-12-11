@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/sys/sysConfig.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">参数配置</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">参数名称</label>
+					<input type="text" name="cName" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<!-- <button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button> -->
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="sysConfig_xtable" style="width:1600px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>
+							<th width="400px">名称</th>
+							<th width="400px">参数值</th>
+							<th>说明</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnUpdate}</td>
+									<td>{configName}</td>
+									<td>{configValue}</td>
+									<td>{remark}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<#include "sysConfigForm.html">
+	<#include "sysConfigForm2.html">
+	
+</body>
+</html>

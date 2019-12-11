@@ -1,0 +1,70 @@
+<div class="xwindow" id="cardChange_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员卡消费明细表表单</div>
+		<form class="xform" id="cardChange_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">用户名<i>*</i></label>
+				<div class="g2">
+				<input type="text" name="memberName" id="f_memberName"/>
+				<input type="hidden" name="memberId" id="f_memberId"/> 
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">记录类型<i>*</i></label>
+				<div class="g2">
+				<div class="xcombo" data-name="type" id="f_record_type1">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{typeVal}">{typeName}</li>
+					   	</ul>
+				  	</div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">次数<i>*</i></label>
+				<div class="g2"><input type="text" name="storedNum"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">新次数<i>*</i></label>
+				<div class="g2"><input type="text" name="storedNew"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#cardChange_win').xwindow({width:500,height:350,open:false});
+app.form = $('#cardChange_form').xform({
+	url : adminPath + '/cardChange/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'用户名', name:'memberName', xcheck:'null'},
+		{label:'次数', name:'storedNum', xcheck:'null'},
+		{label:'新次数', name:'storedNew', xcheck:'null'}
+	],
+	xcombo:[
+			{id:'#f_record_type1',xdata:[{typeVal:'1',typeName:'消费'},{typeVal:'2',typeName:'储值'},{typeVal:'3',typeName:'赠送'},{typeVal:'4',typeName:'失效'}]},
+		],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+//会员ID
+$("#f_memberName").click(function(){
+	 member.callBack = function(row) {
+		$("#f_memberName").val(row.name);
+		$("#f_memberId").val(row.id);
+		$("#f_ratio").val(row.levelRatio);
+	};
+	member.open();
+}); 
+</script>

@@ -1,0 +1,54 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 意见反馈实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Table(name = "com_feedback", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "content", attrName = "content"),
+	}, orderBy = "a.id DESC"
+)
+public class Feedback extends DataEntity<Feedback> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String bizId; // 关联id
+	private String bizType; // 关联业务（1客户端）
+	private String content; // 留言内容
+
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+}

@@ -1,0 +1,44 @@
+<div class="xwindow" id="sysComMsgRecord_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">系统消息发送记录表单</div>
+		<form class="xform" id="sysComMsgRecord_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">标题<i>*</i></label>
+				<div class="g2"><input type="text" name="msgId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">阅读状态（1待发送、2未读、3已读）<i>*</i></label>
+				<div class="g2"><input type="text" name="readState"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">阅读时间<i>*</i></label>
+				<div class="g2"><input type="text" name="readTime"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysComMsgRecord_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysComMsgRecord_form').xform({
+	url : adminPath + '/sysComMsgRecord/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'标题', name:'msgId', xcheck:'null'},
+		{label:'阅读状态（1待发送、2未读、3已读）', name:'readState', xcheck:'null'},
+		{label:'阅读时间', name:'readTime', xcheck:'null'}	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

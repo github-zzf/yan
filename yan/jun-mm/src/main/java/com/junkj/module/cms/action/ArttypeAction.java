@@ -1,0 +1,139 @@
+package com.junkj.module.cms.action;
+
+import java.util.List;
+import java.util.Map;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.cms.biz.ArttypeBiz;
+import com.junkj.module.cms.entity.Arttype;
+import com.junkj.module.demo.entity.DemoTree;
+
+/**
+ * 栏目表action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月18日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/arttype")
+public class ArttypeAction extends BaseAction {
+
+	@Autowired
+	private ArttypeBiz arttypeBiz;
+
+	@RequiresPermissions("cms:arttype:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/cms/arttype";
+	}
+
+	/**
+	 * 树数据
+	 */
+	@RequiresPermissions("cms:arttype:view")
+	@RequestMapping(value = "treeData")
+	@ResponseBody
+	public JsonVo treeData(Arttype arttype) {
+		List<Map<String, Object>> mapList = ListUtils.newArrayList();
+		arttype.setStatus("0");
+		List<Arttype> list = arttypeBiz.findList(arttype);
+		for (Arttype tree : list) {
+			Map<String, Object> map = MapUtils.newHashMap();
+			map.put("id", tree.getId());
+			map.put("pId", tree.getParentId());
+			map.put("name", StrUtils.getTreeNodeName(null, tree.getId(), tree.getTypeName()));
+			mapList.add(map);
+		}
+		return sendData(mapList);
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("cms:arttype:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<Arttype> listPage(Arttype arttype) {
+		Page<Arttype> page = arttypeBiz.findPage(arttype);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("cms:arttype:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<Arttype> findList(Arttype arttype) {
+		if (StrUtils.isBlank(arttype.getParentId())) {
+			arttype.setParentId(DemoTree.ROOT_ID);
+		}
+		if (StrUtils.notBlank(arttype.getId())) {
+			arttype.setParentId(null);
+		}
+		if (StrUtils.notBlank(arttype.getTypeName())) {
+			arttype.setParentId(null);
+		}
+		List<Arttype> list = arttypeBiz.findList(arttype);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("cms:arttype:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated Arttype arttype, BindingResult result) {
+		if (result.hasErrors()) {
+			return sendError(result.getFieldError().getDefaultMessage());
+		}
+		if(!arttype.getTypeType().equals(Arttype.TYPE_4)){
+			Arttype where = new Arttype();
+			where.setTypeType(arttype.getTypeType());
+			List<Arttype> list = arttypeBiz.findList(where);
+			if(arttype.getIsNewT()){
+				if(list.size() > 0){
+					return sendError("除其他之外的栏目列类型只能添加一条!");
+				}
+			}else{
+				for (Arttype arttype2 : list) {
+					if(list.size() > 0 &&  !arttype2.getId().equals(arttype.getId())){
+						return sendError("除其他之外的栏目列类型只能添加一条!");
+					}
+				}
+			}
+		}
+		arttypeBiz.save(arttype);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("cms:arttype:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(Arttype arttype) {
+		arttypeBiz.delete(arttype);
+		return sendOk("删除成功！");
+	}
+
+}

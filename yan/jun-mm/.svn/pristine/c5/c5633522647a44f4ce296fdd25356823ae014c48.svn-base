@@ -1,0 +1,99 @@
+server:
+  port: 8088
+  
+#默认使用配置
+spring:
+  jackson2:
+    default-property-inclusion: non_null
+  freemarker:
+    suffix: .html
+    charset: UTF-8
+  datasource:
+    url: jdbc:mysql://192.168.0.200/jun_mm?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: junxiao
+    password: junxiao123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+
+# MyBatis 配置
+mybatis:
+  typeAliasesPackage: com.junkj.module.cms.entity,com.junkj.module.sys.entity
+  mapperLocations: classpath:mybatis/**/*Mapper.xml
+  
+# Web 相关
+web:
+  # token过期时间毫秒
+  tokenExpire: 5000
+  # MVC 拦截器
+  interceptor:
+    
+    # 后台管理日志记录拦截器
+    log:
+      enabled: true
+      addPaths: >
+        ${adminPath}/**
+      excludePaths: >
+        ${adminPath}/index,
+        ${adminPath}/login,
+        ${adminPath}/desktop,
+        ${adminPath}/combo/**,
+        ${adminPath}/tags/**,
+        ${adminPath}/msg/**
+    com:
+      addPaths: >
+        ${mobilePath}/**,
+        ${wxPath}/**,
+        ${staffPath}/**,
+        ${salePath}/**
+      excludePaths: >
+        ${wxPath}/getUserInfo/**,
+        ${wxPath}/payBack/**
+    mobile:
+      addPaths: >
+        ${mobilePath}/**,
+        ${wxPath}/pay,
+        ${staffPath}/**,
+        ${salePath}/**
+      excludePaths: >
+      
+    staff:
+      addPaths: >
+        ${staffPath}/**
+      excludePaths: >
+      
+    sale:
+      addPaths: >
+        ${salePath}/**
+      excludePaths: >
+      
+user:
+  superAdmin: junAdmin
+  resetPass: 123456
+
+upload:
+  basePath: "C:"
+
+# 开发模式  
+dev: true
+# SaaS开关
+isSaas: true
+
+# 管理端域名
+adminUri: http://mm.junkj.com
+# 文件域名
+fileUri: http://file.junkj.com
+# 移动端域名
+mobileUri: mm.junkj.com
+# 管理基础路径
+adminPath: /junkj
+# 用户端路径
+mobilePath: /m
+# 员端端路径
+staffPath: /staff
+# 导购端路径
+salePath: /sale
+# 微信路径
+wxPath: /wx
+
+

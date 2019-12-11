@@ -1,0 +1,89 @@
+package com.junkj.common.utils;
+
+import javax.servlet.http.HttpServletRequest;
+import org.apache.shiro.session.Session;
+
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.lang.ObjectUtils;
+import com.junkj.common.lang.StrUtils;
+
+public class ComUtils {
+
+	public static final String DEFAULT_COM_NAME = "junkj";
+	public static final String DEFAULT_COM_ID = "0";
+
+	@SuppressWarnings("unchecked")
+	public static <V> V getCache(String key) {
+		key = new StringBuilder(key).append("__").append(getCurrentComId()).toString();
+		return (V) CacheUtils.get(CacheUtils.COM_CACHE, key);
+	}
+
+	public static <V> V getCache(String key, V defaultValue) {
+		V a = getCache(key);
+		if (a != null) {
+			return a;
+		}
+		return defaultValue;
+	}
+
+	public static String getCurrentComName() {
+		String name = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				name = ObjectUtils.toString(request.getAttribute("comName__"));
+			} else {
+				name = "";
+			}
+
+			if (StrUtils.isBlank(name) && session != null) {
+				name = ObjectUtils.toString(session.getAttribute("comName"));
+			}
+
+			if (StrUtils.isBlank(name)) {
+				name = DEFAULT_COM_NAME;
+			}
+			if (request != null) {
+				request.setAttribute("comName__", name);
+			}
+		}
+		return ObjectUtils.toStringIgnoreNull(name);
+	}
+
+	public static String getCurrentComId() {
+		String id = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				id = ObjectUtils.toString(request.getAttribute("COM_ID__"));
+			} else {
+				id = "";
+			}
+
+			if (StrUtils.isBlank(id) && session != null) {
+				id = ObjectUtils.toString(session.getAttribute("COM_ID"));
+			}
+			if (StrUtils.isBlank(id)) {
+				id = DEFAULT_COM_ID;
+			}
+			if (request != null) {
+				request.setAttribute("COM_ID__", id);
+			}
+		}
+		return ObjectUtils.toStringIgnoreNull(id);
+	}
+
+	public static <V> void putCache(String key, V value) {
+		CacheUtils.put(CacheUtils.COM_CACHE, new StringBuilder(key).append("__").append(getCurrentComId()).toString(), value);
+	}
+
+	public static void removeCache(String key) {
+		CacheUtils.remove(CacheUtils.COM_CACHE, new StringBuilder(key).append("__").toString());
+	}
+
+}

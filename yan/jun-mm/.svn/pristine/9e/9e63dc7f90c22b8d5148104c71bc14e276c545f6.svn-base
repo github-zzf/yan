@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/leave.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">员工请假表</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">员工</label>
+					<input type="text" name="staffTxt" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">请假开始时间</label>
+					<input type="text" name="startTime" class="xw2 xdate" id="sf_startTime" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">请假结束时间</label>
+					<input type="text" name="endTime" class="xw2 xdate" id="sf_endTime" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="leave_xtable" style="min-width:1700px; width:1700px;">
+					<table class="xhead">
+						<tr>
+							<th width="160px">操作</th>
+							<th width="80px">请假类型</th>
+							<th width="100px">员工</th>
+							<th width="80px">是否取消</th>
+							<th width="140px">请假开始时间</th>
+							<th width="140px">请假结束时间</th>
+							<th>请假事由</th>
+							<th width="140px">审批状态</th>
+							<th width="140px">审批人</th>
+							<th width="140px">审批时间</th>
+							<th>审批意见</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnUpdate}{btnDelete}{btnCheck}{btnIsCancel}</td>
+									<td>{typeTxt}</td>
+									<td>{staffTxt}</td>
+									<td>{isCancelTxt}</td>
+									<td>{startTime}</td>
+									<td>{endTime}</td>
+									<td>{content}</td>
+									<td>{checkStateTxt}</td>
+									<td>{checkStaffName}</td>
+									<td>{checkTime}</td>
+									<td>{checkRemark}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="leave_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "leaveForm.html">
+	<#include "../link/link_sysUser.html">
+	<#include "/common/check_win.html">
+	
+</body>
+</html>

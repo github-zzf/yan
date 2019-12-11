@@ -1,0 +1,35 @@
+<div class="xwindow" id="cardsType_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员卡分类表单</div>
+		<form class="xform" id="cardsType_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">分类名称<i>*</i></label>
+				<div class="g2"><input type="text" name="typeName"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#cardsType_win').xwindow({width:500,height:350,open:false});
+app.form = $('#cardsType_form').xform({
+	url : adminPath + '/cardsType/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'分类名称', name:'typeName', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

@@ -1,0 +1,258 @@
+package com.junkj.common.entity;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.lang.ObjectUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.mybatis.MapperHelper;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.reflect.ReflectUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.sys.entity.SysUser;
+
+@Table(columns = { 
+	@Column(name = "com_id", attrName = "comId", isUpdate = false),
+	@Column(name = "com_name", attrName = "comName", isUpdate = false, isQuery = false) 
+})
+public abstract class BaseEntity<T> implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+	protected String id; // 编号（唯一标识）
+	protected String comId; // 企业编号
+	protected String comName; // 企业名称
+	protected SysUser currentUser; // 当前用户
+	protected Page<T> page;// 分页对象
+	protected Map<String, String> sqlMap;// 自定义SQL
+	protected boolean isNewT = false; // 新记录
+	protected boolean isDeleteDB = false; // 数据库删除
+	protected boolean disableComId = false; // 禁用企业编号
+	protected String search;
+
+	public BaseEntity() {
+		this(null);
+	}
+
+	public BaseEntity(final String id) {
+		if (id != null) {
+			this.setId(id);
+		}
+	}
+
+	public String getId() {
+		if (StrUtils.isBlank(id)) {
+			for (Column col : MapperHelper.getPk(this)) {
+				if (!col.attrName().equals("id")) {
+					this.id = ReflectUtils.invokeGetter(this, col.attrName());
+					break;
+				}
+			}
+		}
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+		for (Column col : MapperHelper.getPk(this)) {
+			if (!col.attrName().equals("id")) {
+				ReflectUtils.invokeSetter((Object) this, col.attrName(), id);
+				break;
+			}
+		}
+	}
+
+	public String getComId() {
+		if(disableComId){
+			return null;
+		}
+		if (StrUtils.isBlank(this.comId)) {
+			this.comId = ComUtils.getCurrentComId();
+		}
+		return comId;
+	}
+
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getComName() {
+		if(disableComId){
+			return null;
+		}
+		if (StrUtils.isBlank(this.comName)) {
+			this.comName = ComUtils.getCurrentComName();
+		}
+		return comName;
+	}
+
+	public void setComName(String comName) {
+		this.comName = comName;
+	}
+
+	@JsonIgnore
+	public SysUser getCurrentUser() {
+		if (currentUser == null) {
+			currentUser = UserUtils.getUser();
+		}
+		return currentUser;
+	}
+
+	public void setCurrentUser(SysUser currentUser) {
+		this.currentUser = currentUser;
+	}
+
+	@JsonIgnore
+	public Page<?> getPage() {
+		return page;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void setPage(final Page<?> page) {
+		this.page = (Page<T>) page;
+	}
+
+	@JsonIgnore
+	public Integer getPageNum() {
+		if (this.page != null) {
+			return Integer.valueOf(this.page.getPageNum());
+		}
+		return null;
+	}
+
+	public void setPageNum(Integer pageNum) {
+		if (pageNum != null) {
+			if (this.page == null) {
+				this.page = new Page<T>();
+			}
+			this.page.setPageNum(pageNum.intValue());
+		}
+	}
+
+	@JsonIgnore
+	public Integer getPageSize() {
+		if (this.page != null) {
+			return Integer.valueOf(this.page.getPageSize());
+		}
+		return null;
+	}
+
+	public void setPageSize(Integer pageSize) {
+		if (pageSize != null) {
+			if (this.page == null) {
+				this.page = new Page<T>();
+			}
+			this.page.setPageSize(pageSize.intValue());
+		}
+	}
+
+	@JsonIgnore
+	public String getOrderBy() {
+		if (this.page != null)
+			return this.page.getOrderBy();
+		return null;
+	}
+
+	public void setOrderBy(String orderBy) {
+		if (StrUtils.notBlank(orderBy)) {
+			if (this.page == null) {
+				this.page = new Page<T>();
+			}
+			this.page.setOrderBy(orderBy);
+		}
+	}
+
+	@JsonIgnore
+	public Map<String, String> getSqlMap() {
+		if (sqlMap == null) {
+			sqlMap = MapUtils.newHashMap();
+		}
+		return sqlMap;
+	}
+
+	public void setSqlMap(Map<String, String> sqlMap) {
+		this.sqlMap = sqlMap;
+	}
+
+	/**
+	 * 插入之前执行方法，子类实现
+	 */
+	public abstract void preInsert();
+
+	/**
+	 * 更新之前执行方法，子类实现
+	 */
+	public abstract void preUpdate();
+
+	@JsonIgnore
+	public boolean getIsNewT() {
+		return isNewT || StrUtils.isBlank(getId());
+	}
+	
+	/**
+	 * 是否是新记录（默认false，自动生成ID。设为true后，ID需从手动传入）
+	 */
+	public void setIsNewT() {
+		this.isNewT = true;
+	}
+	
+	public boolean getIsDeleteDB() {
+		return isDeleteDB;
+	}
+
+	public void setIsDeleteDB(boolean isDeleteDB) {
+		this.isDeleteDB = isDeleteDB;
+	}
+
+	@JsonIgnore
+	public boolean getDisableComId() {
+		return disableComId;
+	}
+
+	public void disableComId() {
+		this.disableComId = true;
+	}
+
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+
+	// /**
+	// * 全局变量对象
+	// */
+	// @JsonIgnore
+	// public Global getGlobal() {
+	// return Global.getInstance();
+	// }
+
+	@Override
+	public boolean equals(Object obj) {
+		if (null == obj) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (!getClass().equals(obj.getClass())) {
+			return false;
+		}
+		BaseEntity<?> that = (BaseEntity<?>) obj;
+		return null == this.getId() ? false : this.getId().equals(that.getId());
+	}
+
+	@Override
+	public String toString() {
+		return (getId() != null) ? getId() : Integer.toHexString(hashCode());
+	}
+
+	public Object clone() {
+		return ObjectUtils.cloneBean(this);
+	}
+}

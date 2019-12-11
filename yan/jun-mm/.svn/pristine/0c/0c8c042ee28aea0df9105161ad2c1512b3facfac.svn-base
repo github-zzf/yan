@@ -1,0 +1,50 @@
+package com.junkj.module.sys.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.sys.dao.SysComOrdersDao;
+import com.junkj.module.sys.entity.SysComOrders;
+
+/**
+ * 消费记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SysComOrdersBiz extends CrudBiz<SysComOrdersDao, SysComOrders> {
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<SysComOrders> findPage(SysComOrders sysComOrders) {
+		return super.findPage(sysComOrders);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<SysComOrders> findList(SysComOrders sysComOrders) {
+		return super.findList(sysComOrders);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(SysComOrders sysComOrders) {
+		super.save(sysComOrders);
+	}
+	
+}

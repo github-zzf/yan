@@ -1,0 +1,84 @@
+<div class="xwindow" id="card_xiaofei_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费表单</div>
+		<form class="xform" id="card_xiaofei_form" method="post" autocomplete="off" style="overflow-y:scroll; height: 410px;">			
+			<input type="hidden" name="mcId"/>
+			<input type="hidden" name="type"/>
+			<div class="xgroup">
+				<label class="g1">消费会员</label>
+				<div class="g2"><input style="background-color: #ccc;" type="text" name="memberName" readonly="readonly"/></div>
+			</div>
+			<div class="xgroup card_chuCi">
+				<label class="g1" id="txt_oldnum">剩余次数</label>
+				<div class="g2"><input style="background-color: #ccc;" type="text" name="oldNum" readonly="readonly"/></div>
+			</div>
+			<div class="xgroup card_chuCi">
+				<label class="g1" id="txt_num">消费次数</label>
+				<div class="g2"><input type="text" name="num"/></div>
+			</div>
+			<div class="xgroup card_table_cardUser">
+				<table class="xtable" id="cardXiaoFei_cardUser_xtable" style="width:100%;">
+					<tr>
+						<th width="40px">序号</th>
+						<th width="350px">人员</th>
+						<th class="js_edit_btn"><a class='edit_add fVoucher_edit_add'>添加</a></th>
+					</tr>
+					<tbody class="xtemplate">
+						<tr class="{isEdit} r_{index}">
+							<td>{no}</td>
+							<td style="display:none" data-edit="{name:'id',type:'text'}">{id}</td>
+							<td class="jstd_userName" data-edit="{name:'userName',type:'text',cls:'js_userName'}">{userName}</td>
+							<td class="jstd_userId" style="display:none; " data-edit="{name:'userId',type:'text',cls:'js_userId'}">{userId}</td>
+							<td class="js_td"><a class='edit_delete fVoucher_edit_delete'>删除</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_xiaofei_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win1 = $('#card_xiaofei_win').xwindow({width:500,height:500,open:false});
+app.form1 = $('#card_xiaofei_form').xform({
+	url : adminPath + '/card/xiaoFei',
+	xbtn:'#btn_xiaofei_submit',
+	submitBefore:function(){
+		$.log(app.form1.getData());
+	},
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win1.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+//人员
+$('#cardXiaoFei_cardUser_xtable').on('click', '.js_userName', function(){
+	var td = $(this).parent();
+	var tr = td.parent();
+	var index = tr.attr("class").split("_")[1];
+	var row = app.editTable.getRow(index);
+	
+	linkUser.callBack = function(data) {
+		tr.find(".js_userName").val(data.name);
+		tr.find(".js_userId").val(data.id);
+	}
+	linkUser.open();
+});
+app.editTable = $('#cardXiaoFei_cardUser_xtable').xtable({
+	url:adminPath + '/demoBase/listChild',
+	attrName:'cardUserItem',
+	load:false,
+	edit:true,
+	xnodata:'',
+	format:function(row){
+	}
+});
+</script>

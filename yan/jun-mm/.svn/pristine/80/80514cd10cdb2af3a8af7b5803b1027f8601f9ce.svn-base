@@ -1,0 +1,104 @@
+package com.junkj.module.company.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.HtmlUtils;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.module.company.dao.ActivityDao;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.file.utils.FileUploadUtils;
+
+/**
+ * 活动biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ */
+@Service
+@Transactional(readOnly = true)
+public class ActivityBiz extends CrudBiz<ActivityDao, Activity> {
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Activity> findPage(Activity activity) {
+		return super.findPage(activity);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Activity> findList(Activity activity) {
+		return super.findList(activity);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(Activity activity) {
+		setStatus(activity);
+		activity.setContent(HtmlUtils.htmlUnescape(activity.getContent()));
+		super.save(activity);
+		// 保存上传图片
+		String img = FileUploadUtils.saveFileUpload(activity.getId(), Activity.FILE_TYPE);
+		if (StrUtils.notBlank(img)) {
+			activity.setImg(img);
+			super.update(activity);
+		}
+	}
+
+	// 更新活动状态
+	public void setStatus(Activity activity) {
+		if (Activity.STATUS_4.equals(activity.getStatus())) {
+			return;
+		}
+		if (DateUtils.after(DateUtils.getDate(), DateUtils.format(activity.getEndTime()), "yyyy-MM-dd")) {
+			activity.setStatus(Activity.STATUS_3);
+		} else if (DateUtils.after(DateUtils.getDate(), DateUtils.format(activity.getEnrollEnd()), "yyyy-MM-dd")) {
+			activity.setStatus(Activity.STATUS_2);
+		} else if (DateUtils.after(DateUtils.getDate(), DateUtils.format(activity.getEnrollStart()), "yyyy-MM-dd")) {
+			activity.setStatus(Activity.STATUS_1);
+		} else {
+			activity.setStatus(Activity.STATUS_0);
+		}
+	}
+
+	/**
+	 * 清空会员卡
+	 */
+	@Transactional(readOnly = false)
+	public void updateActivityCardIdNull(Activity activity) {
+		dao.updateActivityCardIdNull(activity.getId());
+	}
+
+	/**
+	 * 我的活动
+	 */
+	public Page<Activity> pageMyActity(Activity activity) {
+		activity.setWhere(
+				"a.status <> 9 and a.id in (select DISTINCT activity_id from com_activity_enroll where member_id="
+						+ MemberUtils.getMemberId() + " and com_id = #{comId})");
+		return super.findPage(activity);
+	}
+
+	/**
+	 * 定时更新活动状态
+	 */
+	@Transactional(readOnly = false)
+	public void updateAllStatus() {
+		dao.updateAllStatus();
+	}
+
+}

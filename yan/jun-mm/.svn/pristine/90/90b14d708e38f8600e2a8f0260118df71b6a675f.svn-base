@@ -1,0 +1,31 @@
+package com.junkj.module.sys.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.sys.entity.SysUser;
+
+public class SysUserSql {
+
+	/**
+	 * 查询企业代码列表
+	 */
+	public String findComList(SysUser sysUser) {
+		String str = new SQL() {
+			{
+				SELECT("a.com_id as comId");
+				SELECT("max(a.com_name) as comName");
+				FROM("sys_user a");
+				WHERE("a.status = #{STATUS_NORMAL}");
+				if (StrUtils.notBlank(sysUser.getComId())) {
+					WHERE("a.com_id = #{comId}");
+				}
+				GROUP_BY("a.com_id");
+				ORDER_BY("a.com_id");
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

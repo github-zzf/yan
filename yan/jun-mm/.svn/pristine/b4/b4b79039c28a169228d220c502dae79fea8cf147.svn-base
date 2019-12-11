@@ -1,0 +1,71 @@
+package com.junkj.module.stock.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 出入库明细实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Table(name = "stock_record_item", alias = "a", columns = {
+		@Column(name = "record_id", attrName = "recordId"),
+		@Column(name = "goods_id", attrName = "goodsId"),
+		@Column(name = "num_type", attrName = "numType"),
+		@Column(name = "num", attrName = "num"),
+		@Column(name = "num_new", attrName = "numNew"),
+	}, orderBy = "a.id DESC"
+)
+public class StockRecordItem extends DataEntity<StockRecordItem> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String recordId; // 出入库id
+	private String goodsId; // 商品id
+	private String numType; // 类型（1增加、2减少）
+	private Double num; // 数量
+	private Double numNew; // 新数量
+
+
+	public String getRecordId() {
+		return recordId;
+	}
+	public void setRecordId(String recordId) {
+		this.recordId = recordId;
+	}
+
+	public String getGoodsId() {
+		return goodsId;
+	}
+	public void setGoodsId(String goodsId) {
+		this.goodsId = goodsId;
+	}
+
+	public String getNumType() {
+		return numType;
+	}
+	public void setNumType(String numType) {
+		this.numType = numType;
+	}
+
+	public Double getNum() {
+		return num;
+	}
+	public void setNum(Double num) {
+		this.num = num;
+	}
+
+	public Double getNumNew() {
+		return numNew;
+	}
+	public void setNumNew(Double numNew) {
+		this.numNew = numNew;
+	}
+
+}

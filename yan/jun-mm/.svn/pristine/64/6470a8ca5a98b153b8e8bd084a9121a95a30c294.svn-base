@@ -1,0 +1,149 @@
+package com.junkj.module.member.biz;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.module.company.biz.CardsBiz;
+import com.junkj.module.company.dao.CardsDao;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.member.dao.MemberCardDao;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.sys.dao.SysPayDao;
+import com.junkj.module.sys.entity.SysPay;
+
+import freemarker.template.utility.DateUtil;
+
+/**
+ * 会员卡记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class MemberCardBiz extends CrudBiz<MemberCardDao, MemberCard> {
+	
+	@Autowired
+	private MemberCardDao cardDao;
+	@Autowired
+	private SysPayDao sysPayDao;
+	@Autowired
+	private CardsBiz cardsBiz;
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<MemberCard> findPage(MemberCard card) {
+		return super.findPage(card);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<MemberCard> findList(MemberCard card) {
+		return super.findList(card);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(MemberCard card) {
+		super.save(card);
+	}
+	
+	/**
+	 * 查询会员会员卡
+	 */
+	public List<MemberCard> getMemberCardList(MemberCard card){
+		card.setComId(card.getComId());
+		return cardDao.getMemberCardList(card);
+	}
+
+	/**
+	 * 会员卡支付回调
+	 * @param payCode
+	 */
+	@Transactional(readOnly=false)
+	public void payBack(String payCode) {
+		SysPay where = new SysPay();
+		where.setPayCode(payCode);
+		//更新订单状态
+		SysPay pay =sysPayDao.getByEntity(where);
+		pay.setPayStatus(SysPay.PAY_STATUS_2);
+		pay.setPayTime(new Date());
+		sysPayDao.update(pay);
+		//添加会员卡记录
+		Cards cards = cardsBiz.get(pay.getBizId());
+		// 有效天数
+		Integer days = cards.getDays();
+		MemberCard cardWhere = new MemberCard();
+		cardWhere.setMemberId(pay.getMemberId());
+		cardWhere.setCardId(pay.getBizId());
+		MemberCard memberCard = cardDao.getByEntity(cardWhere);
+		if(memberCard!=null){
+			boolean temp = DateUtils.compareTime(memberCard.getInvalidTime().toString(), DateUtils.format(new Date()), "yyyy-MM-dd");
+			// 会员卡过期 
+			if(temp){
+				saveMemberCard(cards, days, memberCard);
+			}else{
+		        Date currdate = memberCard.getInvalidTime();
+		        Calendar ca = Calendar.getInstance();
+		        ca.add(Calendar.DATE, days);// num为增加的天数
+		        currdate = ca.getTime();
+		        String enddate = DateUtils.format(currdate);
+		        try {
+					memberCard.setInvalidTime(DateUtils.parseDate(enddate, "yyyy-MM-dd"));
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		        memberCard.setStoredAll(memberCard.getStoredAll()+cards.getStoredNum());
+				memberCard.setStoredNum(memberCard.getStoredNum()+cards.getStoredNum());
+				memberCard.setUpdateTime(new Date());
+				cardDao.update(memberCard);
+			}
+			
+		}else{
+			memberCard = new MemberCard();
+			saveMemberCard(cards, days, memberCard);
+		}
+		
+	}
+	private void saveMemberCard(Cards cards, Integer days, MemberCard memberCard) {
+		memberCard.setCardId(cards.getId());
+		memberCard.setCardName(cards.getName());
+		memberCard.setCreateTime(new Date());
+		memberCard.setMemberId(MemberUtils.getMemberId());
+		Date d = new Date();
+		Calendar ca = Calendar.getInstance();
+		ca.add(Calendar.DATE, days);// days为增加的天数，可以改变的
+		d = ca.getTime();
+		String endTime = DateUtils.format(d);
+		try {
+			memberCard.setInvalidTime(DateUtils.parseDate(endTime, "yyyy-MM-dd"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		memberCard.setStoredAll(cards.getStoredNum());
+		memberCard.setStoredNum(cards.getStoredNum());
+		
+		memberCard.setUpdateTime(new Date());
+		
+		super.save(memberCard);
+	}
+}

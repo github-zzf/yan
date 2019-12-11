@@ -1,0 +1,180 @@
+package com.junkj;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+
+import com.jagregory.shiro.freemarker.ShiroTags;
+import com.junkj.common.config.Global;
+import com.junkj.common.filter.ComFilter;
+import com.junkj.common.filter.MobileFilter;
+import com.junkj.common.filter.SaleFilter;
+import com.junkj.common.filter.StaffFilter;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.log.LogInterceptor;
+import com.junkj.common.mybatis.interceptor.SqlInterceptor;
+import com.junkj.common.utils.ConfigUtils;
+import com.junkj.common.utils.JsonUtils;
+
+@Configuration
+public class WebConfig extends WebMvcConfigurationSupport {
+
+	@Autowired
+	private freemarker.template.Configuration configuration;
+
+	/**
+	 * freemarker全局变量
+	 */
+	@PostConstruct
+	public void setConfigure() throws Exception {
+		configuration.setSharedVariable("v", ConfigUtils.getSysValByKey("V"));
+		configuration.setSharedVariable("isSaas", Global.isSaas().toString());
+		configuration.setSharedVariable("adminPath", Global.getAdminPath());
+		configuration.setSharedVariable("shiro", new ShiroTags());
+		if (Global.isDev()) {
+			configuration.setSharedVariable("devUser", "admin");
+			configuration.setSharedVariable("devPass", "admin");
+		}
+	}
+
+	/**
+	 * 路径转换
+	 */
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// 文件路径映射
+		// 其中upload表示访问的前缀。"file:C:/Temp/upload/"是文件真实的存储路径
+		registry.addResourceHandler("/upload/**").addResourceLocations("file:" + Global.getFilePath());
+		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+		registry.addResourceHandler("/mobile/**").addResourceLocations("classpath:/mobile/");
+		registry.addResourceHandler("/sale/**").addResourceLocations("classpath:/sale/");
+		registry.addResourceHandler("/staff/**").addResourceLocations("classpath:/staff/");
+	}
+
+	/**
+	 * 拦截
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		/**
+		 * 日志拦截
+		 */
+		InterceptorRegistration registration = registry.addInterceptor(new LogInterceptor());
+		String apps = Global.getConfig("web.interceptor.log.addPaths");
+		String epps = Global.getConfig("web.interceptor.log.excludePaths");
+		for (String uri : StrUtils.split(apps, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				registration.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(epps, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				registration.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+		
+		/**
+		 * 企业验证
+		 */
+		InterceptorRegistration com = registry.addInterceptor(new ComFilter());
+		String comAdd = Global.getConfig("web.interceptor.com.addPaths");
+		String comExc = Global.getConfig("web.interceptor.com.excludePaths");
+		for (String uri : StrUtils.split(comAdd, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				com.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(comExc, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				com.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+		/**
+		 * 客户端
+		 */
+		InterceptorRegistration mobile = registry.addInterceptor(new MobileFilter());
+		String mobileAdd = Global.getConfig("web.interceptor.mobile.addPaths");
+		String mobileExc = Global.getConfig("web.interceptor.mobile.excludePaths");
+		for (String uri : StrUtils.split(mobileAdd, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				mobile.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(mobileExc, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				mobile.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+		/**
+		 * 员工端
+		 */
+		InterceptorRegistration staff = registry.addInterceptor(new StaffFilter());
+		String staffAdd = Global.getConfig("web.interceptor.staff.addPaths");
+		String staffExc = Global.getConfig("web.interceptor.staff.excludePaths");
+		for (String uri : StrUtils.split(staffAdd, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				staff.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(staffExc, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				staff.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+		/**
+		 * 导购端
+		 */
+		InterceptorRegistration sale = registry.addInterceptor(new SaleFilter());
+		String saleAdd = Global.getConfig("web.interceptor.sale.addPaths");
+		String saleExc = Global.getConfig("web.interceptor.sale.excludePaths");
+		for (String uri : StrUtils.split(saleAdd, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				sale.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(saleExc, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				sale.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+	}
+
+	/**
+	 * sql拦截
+	 */
+	@Bean
+	public String myInterceptor(SqlSessionFactory sqlSessionFactory) {
+		sqlSessionFactory.getConfiguration().addInterceptor(new SqlInterceptor());
+		return "interceptor";
+	}
+
+	/**
+	 * 设置Json式转换器
+	 */
+	@Bean
+	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+		converter.setObjectMapper(JsonUtils.getMapper());
+		return converter;
+	}
+
+	/**
+	 * 添加转换器
+	 */
+	@Override
+	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+		converters.add(jackson2HttpMessageConverter());
+	}
+
+}

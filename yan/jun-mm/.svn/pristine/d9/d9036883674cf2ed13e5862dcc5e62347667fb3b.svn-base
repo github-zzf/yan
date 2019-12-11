@@ -1,0 +1,81 @@
+package com.junkj.module.company.entity;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 通知设置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月12日
+ */
+@Table(name = "com_staff_notice_setting", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "user_id", attrName = "userId"),
+		@Column(name = "enroll_msg", attrName = "enrollMsg"),
+		@Column(name = "census_msg", attrName = "censusMsg"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.user_id ", columns = {
+				@Column(name = "name", attrName = "userName", queryType = QueryType.LIKE) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "c", on = "c.id = a.create_id ", columns = {
+				@Column(name = "name", attrName = "createName") 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "d", on = "d.id = a.update_id ", columns = {
+				@Column(name = "name", attrName = "updateName") 
+		})
+		},orderBy = "a.update_time DESC"
+)
+public class StaffNoticeSetting extends DataEntity<StaffNoticeSetting> {
+
+	private static final long serialVersionUID = 1L;
+	
+	private String userId; // 员工
+	private String enrollMsg; // 预约通知(0不通知、1通知)
+	private String censusMsg; // 统计通知(0不通知、1通知)
+	//业务字段
+	private String userName;//服务人员
+
+	@NotEmpty(message = "员工不能为空")
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	@NotEmpty(message = "预约通知为空")
+	public String getEnrollMsg() {
+		return enrollMsg;
+	}
+	public void setEnrollMsg(String enrollMsg) {
+		this.enrollMsg = enrollMsg;
+	}
+
+	@NotEmpty(message = "统计通知为空")
+	public String getCensusMsg() {
+		return censusMsg;
+	}
+	public void setCensusMsg(String censusMsg) {
+		this.censusMsg = censusMsg;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+}

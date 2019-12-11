@@ -1,0 +1,121 @@
+package com.junkj.module.member.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.biz.CardChangeBiz;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.member.entity.CardChange;
+
+/**
+ * 会员卡记录action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/card")
+public class MemberCardAction extends BaseAction {
+
+	@Autowired
+	private MemberCardBiz cardBiz;
+	@Autowired
+	private CardChangeBiz cardChangeBiz;
+
+	@RequiresPermissions("member:card:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/member/memberCard";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("member:card:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<MemberCard> listPage(MemberCard card) {
+		Page<MemberCard> page = cardBiz.findPage(card);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("member:card:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<MemberCard> findList(MemberCard card) {
+		List<MemberCard> list = cardBiz.findList(card);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("member:card:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(MemberCard card) {
+		cardBiz.save(card);
+		return sendOk("保存成功！");
+	}
+	
+	/**
+	 * 消费
+	 */
+	@FormToken
+	@RequiresPermissions("member:card:edit")
+	@RequestMapping(value = "xiaoFei")
+	@ResponseBody
+	public JsonVo xiaoFei(CardChange cardChange) {
+		return cardChangeBiz.xiaoFei(cardChange);
+	}
+	
+	/**
+	 * 赠送
+	 */
+	@FormToken
+	@RequiresPermissions("member:card:edit")
+	@RequestMapping(value = "zengSong")
+	@ResponseBody
+	public JsonVo zengSong(CardChange cardChange) {
+		return cardChangeBiz.zengSong(cardChange);
+	}
+	
+	/**
+	 * 失效
+	 */
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "shiXiao")
+	@ResponseBody
+	public JsonVo shiXiao(CardChange cardChange) {
+		cardChangeBiz.shiXiao(cardChange);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("member:card:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(MemberCard card) {
+		cardBiz.delete(card);
+		return sendOk("删除成功！");
+	}
+
+}

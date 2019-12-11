@@ -1,0 +1,56 @@
+<div class="xwindow" id="link_course">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费明细<span class="title_close xclose">X</span></div>
+	    <div class="xtable" id="link_course_xtable">
+			<table class="xhead">
+				<tr>
+					<th>用户</th>
+					<th width="80px">类型</th>
+					<th width="80px">次数</th>
+					<th width="80px">余额/余次</th>
+					<th width="150px">更新者</th>
+					<th width="150px">更新时间</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td>{memberName}</td>
+							<td>{typeName}</td>
+							<td>{num}</td>
+							<td>{numNew}</td>
+							<td>{updateName}</td>
+							<td>{updateTime}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_course_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkCardChange = {
+	init:function(){
+		linkCardChange.load();
+	},
+	load:function(){
+		linkCardChange.win = $('#link_course').xwindow({width:760,height:550,open:false});
+		linkCardChange.table = $('#link_course_xtable').xtable({
+			url:adminPath + '/list/listCardChangePage',
+			paging:'.link_course_paging',
+			bodyHeight:440,
+			load:false
+		});
+	},
+	open:function(mcId){
+		linkCardChange.win.open();
+		linkCardChange.table.reload({mcId:mcId});
+	}
+}
+linkCardChange.init();
+</script>

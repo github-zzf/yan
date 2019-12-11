@@ -1,0 +1,89 @@
+package com.junkj.module.stock.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.stock.biz.StockBiz;
+import com.junkj.module.stock.entity.Stock;
+
+/**
+ * 库存action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/stock")
+public class StockAction extends BaseAction {
+
+	@Autowired
+	private StockBiz stockBiz;
+
+	@RequiresPermissions("stock:stock:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/stock/stock";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("stock:stock:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<Stock> listPage(Stock stock) {
+		Page<Stock> page = stockBiz.findPage(stock);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("stock:stock:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<Stock> findList(Stock stock) {
+		List<Stock> list = stockBiz.findList(stock);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("stock:stock:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated Stock stock, BindingResult result) {
+		if(result.hasErrors()){
+			return sendError(result.getFieldError().getDefaultMessage());
+        }
+		stockBiz.save(stock);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("stock:stock:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(Stock stock) {
+		stockBiz.delete(stock);
+		return sendOk("删除成功！");
+	}
+
+}

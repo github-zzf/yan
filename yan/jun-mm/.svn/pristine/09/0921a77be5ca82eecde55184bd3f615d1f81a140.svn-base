@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/member/points.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">会员积分</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">姓名</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">手机号</label>
+					<input type="text" name="phone" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="member_xtable"  style="width:600px;">
+					<table class="xhead">
+						<tr>
+							<th width="200px">操作</th>
+							<th >会员姓名</th>
+							<th width="100px">手机号</th>
+							<th width="100px">会员积分</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnDetailed}{btnExchange}{btnUpdate}</td>
+									<td>{name}</td>
+									<td>{phone}</td>
+									<td>{points}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="member_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "pointsForm.html">
+	<#include "pointsGiftForm.html">
+	<#include "../link/link_memberPoints.html">
+	
+</body>
+</html>

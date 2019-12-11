@@ -1,0 +1,95 @@
+<!-- 会员选择 -->
+<div class="xwindow" id="menber">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="menber_form">
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" placeholder="会员姓名" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_menber_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_menber_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="menber_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>				
+					<th width="80px">会员姓名</th>
+					<th width="80px">手机号</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{name}</td>
+							<td>{phone}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="menber_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var member = {
+	callBack:function(row){},
+	init:function(){
+		member.bind();
+		member.load();
+	},
+	bind:function(){
+		var sf = $("#menber_form").xform();
+		$("#btn_menber_search").xbtn(function(btn){
+			var data = sf.getData();
+			member.table.reload(data);
+		});
+		$("#btn_menber_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			member.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				member.table.reload(data);
+	        }
+	    });
+		$('#menber_xtable').on("click", '.js_menber_sel', function(){
+			var index = $(this).data("xv");
+			var row = member.table.getRow(index);
+			member.callBack(row);
+			member.win.close();
+		});
+	},
+	load:function(){
+		member.win = $('#menber').xwindow({width:500,height:550,open:false});
+		member.table = $('#menber_xtable').xtable({
+			url:adminPath + '/list/listPageMember',
+			paging:'.menber_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_menber_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	open:function(){
+		member.win.open();
+		member.table.reload();
+	}
+}
+member.init();
+</script>

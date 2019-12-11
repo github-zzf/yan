@@ -1,0 +1,32 @@
+<div class="xwindow" id="memberBind_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">绑定微信</div>
+		<form class="xform" id="memberBind_form" method="post" autocomplete="off">			
+			<div class="xgroup" id="code_box" style="text-align:center;">
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn xclose">关闭</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.memberBindWin = $('#memberBind_win').xwindow({width:500,height:500,open:false});
+app.memberBindOpen = function(row){
+	app.memberBindWin.open();
+	$.xpost({
+		url:adminPath + '/member/getBindCode',
+		data:{id:row.id},
+		success:function(e){
+			if(e.code==1){
+				var html = "<br/>请扫描二维码，绑定用户 “ "+row.name+" ”<br/>";
+				html +=  "二维码有效时间为30分钟！<br/>";
+				html +=  "绑定后微信会员将与当前会员合并，数据不可还原！<br/><br/>";
+				html += "<img class='code_img' src='"+e.data+"'/>"
+				$("#code_box").html(html);
+			}
+		}
+	})
+}
+</script>

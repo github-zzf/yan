@@ -1,0 +1,49 @@
+package com.junkj.module.company.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class CourseEnrollSql {
+	
+	public String countByMember(String keChengId, String memberId) {
+		
+		String str = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.course_id as courseId");
+				SELECT("a.member_id as memberId");
+				SELECT("a.sign_time as signTime");
+				SELECT("a.comment_time as commentTime");
+				SELECT("a.comment_level as commentLevel");
+				SELECT("a.comment_content as commentContent");
+				SELECT("a.status");
+				SELECT("a.status_remark as statusRemark");
+				SELECT("a.create_time as createTime");
+				FROM("com_course_enroll a");
+				WHERE("a.course_id = #{keChengId}");
+				WHERE("a.member_id = #{memberId}");
+				WHERE("a.status <> 2");
+				WHERE("a.status <> 3");
+				WHERE("a.status <> 9");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+	public String findUpperLimit(String courseId) {
+		
+		String str = new SQL() {
+			{
+				SELECT("count(*)");
+				FROM("com_course_enroll a");
+				WHERE("a.course_id = #{courseId}");
+				WHERE("a.status <> 2");
+				WHERE("a.status <> 3");
+				WHERE("a.status <> 9");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

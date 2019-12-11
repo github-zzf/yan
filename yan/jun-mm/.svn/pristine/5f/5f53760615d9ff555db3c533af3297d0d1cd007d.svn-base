@@ -1,0 +1,107 @@
+package com.junkj.module.sys.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 企业实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Table(name = "sys_company", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "contacts", attrName = "contacts"),
+		@Column(name = "phone", attrName = "phone"),
+		@Column(name = "x", attrName = "x"),
+		@Column(name = "y", attrName = "y"),
+		@Column(name = "area_id", attrName = "areaId"),
+		@Column(name = "address", attrName = "address"),
+		@Column(name = "remark", attrName = "remark"),
+	}, orderBy = "a.id DESC"
+)
+public class SysCompany extends DataEntity<SysCompany> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String id; // id
+	private String comId; // 企业编码
+	private String contacts; // 联系人
+	private String phone; // 联系电话
+	private Double x; // 经度
+	private Double y; // 纬度
+	private String areaId; // 行政区
+	private String address; // 详细地址
+	private String remark; // 备注
+
+
+	
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+	public String getContacts() {
+		return contacts;
+	}
+	public void setContacts(String contacts) {
+		this.contacts = contacts;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public Double getX() {
+		return x;
+	}
+	public void setX(Double x) {
+		this.x = x;
+	}
+
+	public Double getY() {
+		return y;
+	}
+	public void setY(Double y) {
+		this.y = y;
+	}
+
+	public String getAreaId() {
+		return areaId;
+	}
+	public void setAreaId(String areaId) {
+		this.areaId = areaId;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

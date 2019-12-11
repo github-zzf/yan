@@ -1,0 +1,70 @@
+<div class="xwindow" id="sysMenu_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">菜单管理表单</div>
+		<form class="xform" id="sysMenu_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">上级菜单<i>*</i></label>
+				<div class="g2">
+				<input type="text" name="parentName" id="f_parentName"/>
+				</div>
+				<input type="hidden" name="parentId" id="f_parentId"/>
+			</div>
+			<div class="xgroup">
+				<label class="g1">菜单名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">菜单类型<i>*</i></label>
+				<div class="g2">
+				<input type="radio" name="type" value="1" checked="checked">menu&nbsp;&nbsp;
+				<input type="radio" name="type" value="2">button
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">菜单地址<i>*</i></label>
+				<div class="g2"><input type="text" name="url"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">权限<i>*</i></label>
+				<div class="g2"><input type="text" name="permission"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">排序<i>*</i></label>
+				<div class="g2"><input type="text" name="sort"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysMenu_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysMenu_form').xform({
+	url : adminPath + '/sysMenu/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'菜单名称', name:'name', xcheck:'null'},
+		{label:'菜单类型', name:'type', xcheck:'null'},
+		{label:'权限', name:'permission', xcheck:'null'},
+		{label:'排序', name:'sort', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_parentName").click(function(){
+	linkSysMenu.open(function(treeId, treeNode){
+		$("#f_parentName").val(treeNode.name);
+		$("#f_parentId").val(treeNode.id);
+	})
+})
+</script>

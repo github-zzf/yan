@@ -1,0 +1,57 @@
+package com.junkj.module.sys.biz;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.module.sys.dao.SysOptionsDao;
+import com.junkj.module.sys.entity.SysOptions;
+
+/**
+ * 参数配置biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SysOptionsBiz extends CrudBiz<SysOptionsDao, SysOptions> {
+	
+	/**
+	 * 通过key查询
+	 */
+	public String getValByKey(String string) {
+		return dao.getValByKey(string);
+	}
+
+	/**
+	 * 通过key设置value
+	 */
+	public int setValByKey(String okey, String ovalue) {
+		return dao.setValByKey(okey, ovalue);
+	}
+
+	// // 数据处理
+	// private Map<String, Object> optionsHandle(List<Map<String, Object>>
+	// options) {
+	// Map<String, Object> results = new HashMap<String, Object>();
+	// for (Map<String, Object> map : options) {
+	// String okey = map.get("okey").toString();
+	// String ovalue = map.get("ovalue") == null ? "" :
+	// map.get("ovalue").toString();
+	// if ("json".equals(map.get("otype"))) {
+	// List<Map<String, Object>> list = JsonUtil.toObject(ovalue, List.class);
+	// results.put(okey, list);
+	// } else if ("jsonObj".equals(map.get("otype"))) {
+	// Map<String, Object> obj = JsonUtil.toObject(ovalue, Map.class);
+	// results.put(okey, obj);
+	// } else {
+	// results.put(okey, ovalue);
+	// }
+	// }
+	// return results;
+	// }
+
+}

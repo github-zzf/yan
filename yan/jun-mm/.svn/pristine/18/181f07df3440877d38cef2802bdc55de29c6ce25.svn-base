@@ -1,0 +1,291 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysBeanData;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 排课表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_course", alias = "a", columns = { 
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "teacher_id", attrName = "teacherId", queryType = QueryType.LIKE),
+		@Column(name = "assistant_id", attrName = "assistantId", queryType = QueryType.LIKE),
+		@Column(name = "parent_id", attrName = "parentId"),
+		@Column(name = "name", attrName = "name", queryType = QueryType.LIKE),
+		@Column(name = "course_date", attrName = "courseDate"), 
+		@Column(name = "start_time", attrName = "startTime"),
+		@Column(name = "end_time", attrName = "endTime"), 
+		@Column(name = "people_max", attrName = "peopleMax"),
+		@Column(name = "card_id", attrName = "cardId"), 
+		@Column(name = "card_num", attrName = "cardNum"),
+		@Column(name = "is_week", attrName = "isWeek"), 
+		@Column(name = "is_check", attrName = "isCheck"),
+		@Column(name = "create_id", attrName = "createId"), 
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"), 
+		@Column(name = "pid", attrName = "pid"), 
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.teacher_id ", columns = {
+				@Column(name = "name", attrName = "teacherName", queryType = QueryType.EQ) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "c", on = "c.id = a.assistant_id ", columns = {
+				@Column(name = "name", attrName = "assistantName", queryType = QueryType.EQ) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Cards.class, alias = "d", on = "d.id = a.card_id ", columns = {
+				@Column(name = "name", attrName = "cardName", queryType = QueryType.EQ)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "e", on = "e.bean_key='is_yes' and e.bean_val = a.is_week", columns = {
+				@Column(name = "bean_txt", attrName = "isWeekTxt", queryType = QueryType.LIKE) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "f", on = "f.bean_key='course_isCheck' and f.bean_val = a.is_check", columns = {
+				@Column(name = "bean_txt", attrName = "isCheckTxt", queryType = QueryType.LIKE) 
+		}) 
+	}, orderBy = "a.id DESC"
+)
+public class Course extends DataEntity<Course> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String teacherId; // 教师
+	private String assistantId; // 助教
+	private String parentId; // 复制课程id
+	private String name; // 课程名称
+	private Date courseDate; // 课程日期
+	private String startTime; // 开始时间
+	private String endTime; // 结束时间
+	private Long peopleMax; // 报名上限
+	private String cardId; // 会员卡
+	private Double cardNum; // 消耗数值
+	private String isWeek; // 每周重复
+	private String isCheck; // 预约验证
+	private String pid; // 复制课程id
+
+	// 业务字段
+	private String teacherName; // 教师
+	private String assistantName; // 助教
+	private String cardName; // 会员卡
+	private String isWeekTxt; // 每周重复
+	private String isCheckTxt; // 预约验证
+	private Integer bmnum; // 预约人数
+	
+	// 每周重复（1是、0否）
+	/**
+	 * 0否
+	 */
+	public static final String isWeek_0 = "0";
+	/**
+	 * 1是
+	 */
+	public static final String isWeek_1 = "1";
+	
+	// 预约验证预约（1开、0关）
+	/**
+	 * 0关
+	 */
+	public static final String isCheck_0 = "0";
+	/**
+	 * 1开
+	 */
+	public static final String isCheck_1 = "1";
+	
+	//（状态：0正常、6草稿、7冻结、8停用、9删除）
+	/**
+	 * 0正常
+	 */
+	public static final String STATUS_NORMAL = "0";
+	/**
+	 * 6草稿
+	 */
+	public static final String STATUS_DRAFT = "6";
+	/**
+	 * 9删除
+	 */
+	public static final String STATUS_DELETE = "9";
+
+	@NotEmpty(message = "教师不能为空")
+	@Length(min = 0, max = 32, message = "教师长度不能超过32个字符")
+	public String getTeacherId() {
+		return teacherId;
+	}
+
+	public void setTeacherId(String teacherId) {
+		this.teacherId = teacherId;
+	}
+
+	public String getAssistantId() {
+		return assistantId;
+	}
+
+	public void setAssistantId(String assistantId) {
+		this.assistantId = assistantId;
+	}
+
+	public String getParentId() {
+		return parentId;
+	}
+
+	public void setParentId(String parentId) {
+		this.parentId = parentId;
+	}
+
+	@NotEmpty(message = "课程名称不能为空")
+	@Length(min = 0, max = 30, message = "课程名称长度不能超过30个字符")
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@NotNull(message = "课程日期不能为空")
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	public Date getCourseDate() {
+		return courseDate;
+	}
+
+	public void setCourseDate(Date courseDate) {
+		this.courseDate = courseDate;
+	}
+
+	@NotNull(message = "开始时间不能为空")
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	@NotNull(message = "结束时间不能为空")
+	public String getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+
+	@NotNull(message = "报名上限不能为空")
+	public Long getPeopleMax() {
+		return peopleMax;
+	}
+
+	public void setPeopleMax(Long peopleMax) {
+		this.peopleMax = peopleMax;
+	}
+
+	public String getCardId() {
+		return cardId;
+	}
+
+	public void setCardId(String cardId) {
+		this.cardId = cardId;
+	}
+
+	public Double getCardNum() {
+		return cardNum;
+	}
+
+	public void setCardNum(Double cardNum) {
+		this.cardNum = cardNum;
+	}
+
+	@NotEmpty(message = "每周重复不能为空")
+	@Length(min = 0, max = 1, message = "每周重复长度不能超过1个字符")
+	public String getIsWeek() {
+		return isWeek;
+	}
+
+	public void setIsWeek(String isWeek) {
+		this.isWeek = isWeek;
+	}
+
+	@NotEmpty(message = "预约验证不能为空")
+	@Length(min = 0, max = 1, message = "预约验证长度不能超过1个字符")
+	public String getIsCheck() {
+		return isCheck;
+	}
+
+	public void setIsCheck(String isCheck) {
+		this.isCheck = isCheck;
+	}
+
+	public String getTeacherName() {
+		return teacherName;
+	}
+
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+
+	public String getAssistantName() {
+		return assistantName;
+	}
+
+	public void setAssistantName(String assistantName) {
+		this.assistantName = assistantName;
+	}
+
+	public String getCardName() {
+		return cardName;
+	}
+
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
+	}
+
+	public String getIsWeekTxt() {
+		return isWeekTxt;
+	}
+
+	public void setIsWeekTxt(String isWeekTxt) {
+		this.isWeekTxt = isWeekTxt;
+	}
+
+	public String getIsCheckTxt() {
+		return isCheckTxt;
+	}
+
+	public void setIsCheckTxt(String isCheckTxt) {
+		this.isCheckTxt = isCheckTxt;
+	}
+
+	public String getPid() {
+		return pid;
+	}
+
+	public void setPid(String pid) {
+		this.pid = pid;
+	}
+
+	public Integer getBmnum() {
+		return bmnum;
+	}
+
+	public void setBmnum(Integer bmnum) {
+		this.bmnum = bmnum;
+	}
+
+}

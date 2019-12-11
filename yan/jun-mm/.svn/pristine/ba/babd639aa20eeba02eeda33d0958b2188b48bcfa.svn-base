@@ -1,0 +1,129 @@
+package com.junkj.module.company.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.company.dao.LeaveDao;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.StaffNoticeSetting;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 员工请假表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class LeaveBiz extends CrudBiz<LeaveDao, Leave> {
+	
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+	@Autowired
+	private StaffNoticeSettingBiz staffNoticeSettingBiz;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Leave> findPage(Leave leave) {
+		return super.findPage(leave);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Leave> findList(Leave leave) {
+		return super.findList(leave);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(Leave leave) {
+		boolean tt = false;
+		if(leave.getIsNewT()){
+			tt = true;
+		}
+		super.save(leave);
+		if(tt){
+			/**
+			 * 发送请假审批
+			 */
+			WorkMsg workMsg = new WorkMsg();
+			workMsg.setUserId(leave.getStaffId());
+			workMsg.setStyle(WorkMsg.STYLE_2);
+			workMsg.setBizId(leave.getId());
+			workMsg.setBizType(WorkMsg.BIZTYPE_21);
+			workMsg.setUrl("../leave/leaveInfo?id="+leave.getId());
+			workMsg.setTitle("请假审批");
+			workMsg.setComId(workMsg.getComId());
+			workMsg.setCreateTime(new Date());
+			leave = this.get(leave.getId());
+			String content = "请假类型: "+leave.getTypeTxt()+"<br/>请假人: "+leave.getStaffTxt()+"<br/>请假时间: "+DateUtils.format(leave.getStartTime()) + " - " + DateUtils.format(leave.getEndTime());
+			workMsg.setContent(content);
+			// 查询
+			StaffNoticeSetting where = new StaffNoticeSetting();
+			where.setLeaveMsg(StaffNoticeSetting.TYPE_0);
+			where.setComId(where.getComId());
+			String checkUser = "";
+			for (StaffNoticeSetting staffNoticeSetting : staffNoticeSettingBiz.findList(where)) {
+				checkUser += staffNoticeSetting.getUserId() + ",";
+			}
+			workMsg.setCheckUser(checkUser);
+			workMsgBiz.save(workMsg);
+		}
+	}
+	
+	/**
+	 * 审批
+	 */
+	@Transactional(readOnly=false)
+	public void updateCheckState(Leave leave) {
+		leave.setCheckTime(new Date());
+		SysUser sysUser = UserUtils.getUser();
+		leave.setCheckStaffId(sysUser.getId());
+		super.update(leave);
+		
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setBizId(leave.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsg.setStyle(WorkMsg.STYLE_2);
+		workMsg = workMsgBiz.getByEntity(workMsg);
+		workMsg.setCheckRemark(leave.getCheckRemark());
+		workMsg.setCheckState(leave.getCheckState());
+		workMsg.setCheckTime(new Date());
+		workMsg.setCheckUser(MemberUtils.getStaffId());
+		workMsgBiz.update(workMsg);
+		
+		/**
+		 * 需要发送模板消息
+		 */
+	}
+	
+	/**
+	 * 取消
+	 */
+	@Transactional(readOnly=false)
+	public void updateIsCancel(Leave leave) {
+		leave.setIsCancel(Leave.isCancel_1);
+		super.update(leave);
+	}
+	
+}

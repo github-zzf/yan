@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: jun-mm
+Implementation-Version: 1.0.0
+Built-By: Administrator
+Implementation-Vendor-Id: com.main
+Build-Jdk: 1.8.0_101
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/jun-mm
+Created-By: Maven Integration for Eclipse
+

@@ -1,0 +1,31 @@
+package com.junkj.module.base;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.entity.SysUser;
+
+@Controller
+@RequestMapping(value = "${adminPath}/list")
+public class ListAction extends BaseAction {
+
+	@Autowired
+	private SysUserBiz sysUserBiz;
+
+	/**
+	 * 分页条件查询用户
+	 */
+	@PostMapping("/findSysUserPage")
+	@ResponseBody
+	public Page<SysUser> findSysUserPage(SysUser sysUser) {
+		Page<SysUser> page = sysUserBiz.findPage(sysUser);
+		return page;
+	}
+
+}

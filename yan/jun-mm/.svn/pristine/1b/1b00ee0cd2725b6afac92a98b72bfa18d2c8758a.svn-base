@@ -1,0 +1,17 @@
+package com.junkj.module.cms.sql;
+
+public class ArticlesSql {
+	
+	public String getArticlesSort(String sort, String upDown) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" select * from cms_articles where ");
+		if("up".equals(upDown)) {
+			sql.append(" sort < #{sort} ORDER BY sort desc ");
+		}else if("down".equals(upDown)) {
+			sql.append(" sort > #{sort} ORDER BY sort asc ");
+		}
+		sql.append(" LIMIT 1 ");
+		return sql.toString();
+	}
+
+}

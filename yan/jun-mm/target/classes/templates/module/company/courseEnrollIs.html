@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/courseEnrollIs.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">报名明细</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">课程名称</label>
+					<input type="text" name="courseName" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">课程时间</label>
+					<input type="text" name="courseDate" id="sf_courseDate" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">状态</label>
+					<div class="xcombo" data-name="status" id="sf_status">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup" style="float:left; font-size: 18px; margin-top: 20px;" id="courseEnroll_name">
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_fanHui">返回</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="courseEnroll_xtable" style="width:1700px;">
+					<table class="xhead">
+						<tr>
+							<th width="220px">操作</th>
+							<th width="150px">课程名称</th>
+							<th width="150px">课程时间</th>
+							<th width="150px">会员</th>
+							<th width="80px">状态</th>
+							<th>取消预约原因</th>
+							<th width="140px">签到时间</th>
+							<th width="140px">评价时间</th>
+							<th width="140px">评价等级</th>
+							<th>评价内容</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnQuXiao}{btnUpdate}{btnDelete}{btnTiaoKe}{btnQianDao}</td>
+									<td>{courseName}</td>
+									<td>{courseDate}</td>
+									<td>{memberName}</td>
+									<td>{statusTxt}</td>
+									<td>{statusRemark}</td>
+									<td>{signTime}</td>
+									<td>{commentTime}</td>
+									<td>{commentLevel}</td>
+									<td>{commentContent}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<#assign cls="courseEnroll_is_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "courseEnrollForm.html">
+	<#include "courseEnrollQuXiao.html">
+	<#include "courseEnrollTiaoke.html">
+	<#include "../link/link_course.html">
+	<#include "../link/link_member.html">
+	
+</body>
+</html>

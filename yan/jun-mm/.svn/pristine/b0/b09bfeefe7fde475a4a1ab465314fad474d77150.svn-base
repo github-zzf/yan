@@ -1,0 +1,48 @@
+package com.junkj.module.weixin.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class WxUserSql {
+
+	public String getByStaffId(String staffId) {
+		String str = new SQL() {
+			{
+				SELECT("company_id as 'companyId'");
+				SELECT("openid");
+				SELECT("appid");
+				SELECT("member_id as 'memberId'");
+				SELECT("staff_id as 'staffId'");
+				SELECT("sale_id as 'saleId'");
+				SELECT("phone");
+				SELECT("head_img as 'headImg'");
+				SELECT("nickname");
+				FROM("wx_user");
+				WHERE("staff_id=#{staffId}");
+			}
+		}.toString();
+
+		return str;
+	}
+
+	public String getBySaleId(String saleId) {
+		String str = new SQL() {
+			{
+				SELECT("company_id as 'companyId'");
+				SELECT("openid");
+				SELECT("appid");
+				SELECT("member_id as 'memberId'");
+				SELECT("staff_id as 'staffId'");
+				SELECT("sale_id as 'saleId'");
+				SELECT("phone");
+				SELECT("head_img as 'headImg'");
+				SELECT("nickname");
+				FROM("wx_user");
+				WHERE("sale_id=#{saleId}");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+
+}

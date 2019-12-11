@@ -1,0 +1,123 @@
+<div class="xwindow" id="link_sysCompanyCk">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_sysCompanyCk_form">
+			<div class="xgroup">
+				<input type="text" name="comName" class="xw2" autocomplete="off" placeholder="企业名称" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_sysCompanyCk_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_sysCompanyCk_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_sysCompanyCk_choice">
+					<b class="icon_reast icon_all">选择</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="link_sysCompanyCk_xtable">
+			<table class="xhead">
+				<tr>
+					<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+					<th width="80px">企业编码</th>
+					<th>企业名称</th>
+					<th>联系人</th>
+					<th width="120px">联系电话</th>
+					<th>详细地址</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{index}" data-id="{id}"/></td>
+							<td>{comId}</td>
+							<td>{comName}</td>
+							<td>{contacts}</td>
+							<td>{phone}</td>
+							<td>{address}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_sysCompany_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkSysCompanyCk = {
+	comId:null,
+	callBack:function(row){},
+	init:function(){
+		linkSysCompanyCk.bind();
+		linkSysCompanyCk.load();
+	},
+	bind:function(){
+		var sf = $("#link_sysCompanyCk_form").xform();
+		$("#btn_link_sysCompanyCk_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkSysCompanyCk.table.reload(data);
+		});
+		$("#btn_link_sysCompanyCk_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkSysCompanyCk.table.reload(data);
+		});
+		$("#btn_link_sysCompanyCk_choice").xbtn(function(btn){
+			var row = linkSysCompanyCk.table.getSelectedData();
+			var comId = [];
+			var comName = [];
+			$.each(row, function(index, item){
+				comId.push(item.id)
+				comName.push(item.comName)
+			});
+			if(comId.length<1){
+				$.xalert("请选择一个企业!");
+				return;
+			}
+			var comIds = comId.join(",");
+			var comNames = comName.join(",");
+			linkSysCompanyCk.callBack({comIds:comIds, comNames: comNames});
+			linkSysCompanyCk.win.close();
+		});
+	},	
+	load:function(){
+		linkSysCompanyCk.win = $('#link_sysCompanyCk').xwindow({width:800,height:550,open:false});
+		linkSysCompanyCk.table = $('#link_sysCompanyCk_xtable').xtable({
+			url:adminPath + '/list/listSysCompanyPage',
+			paging:'.link_sysCompany_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+			},
+			success:function(data){
+				if(linkSysCompanyCk.comId != null){
+					$.each(linkSysCompanyCk.comId,function(index,row){
+						$('#link_sysCompanyCk_xtable').find('.xtemplate .xcheckrow:checkbox').each(function(i,ck){
+							var ths = $(ck);
+							if(ths.data('id') == row){
+								ths.prop('checked',true)
+							}
+						});
+					});
+				}
+			}
+		});
+	},
+	open:function(comIds){
+		linkSysCompanyCk.win.open();
+		linkSysCompanyCk.table.reload();
+		if(comIds != ""){
+			linkSysCompanyCk.comId = comIds.split(",");
+		}
+	}
+}
+linkSysCompanyCk.init();
+</script>

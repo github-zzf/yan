@@ -1,0 +1,9 @@
+<#if code == '1'>
+<script type="text/javascript">
+alert("${data}");
+window.location = "${url}";
+</script>
+</#if>
+<#if code == '0'>
+${error}
+</#if>

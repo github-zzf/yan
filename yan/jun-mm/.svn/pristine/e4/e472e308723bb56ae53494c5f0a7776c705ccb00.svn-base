@@ -1,0 +1,75 @@
+package com.junkj.module.company.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+
+public class ActivitySql {
+
+	public String pageMyActity(String memberId, String comId) {
+
+		String str = new SQL() {
+			{
+				SELECT("a.id AS 'id'");
+				SELECT("a.status AS 'status'");
+				SELECT("a.pay_status AS 'payStatus'");
+				SELECT("a.name AS 'name'");
+				SELECT("a.img AS 'img'");
+				SELECT("a.start_time AS 'startTime'");
+				SELECT("a.end_time AS 'endTime'");
+				SELECT("a.enroll_start AS 'enrollStart'");
+				SELECT("a.enroll_end AS 'enrollEnd'");
+				SELECT("a.address AS 'address'");
+				SELECT("a.coordinate AS 'coordinate'");
+				SELECT("a.content AS 'content'");
+				SELECT("a.people_max AS 'people_max'");
+				SELECT("a.money AS 'money'");
+				SELECT("a.give_points AS 'givePoints'");
+				SELECT("a.card_id AS 'cardId'");
+				SELECT("a.card_num AS 'cardNum'");
+				SELECT("a.clicks AS 'clicks'");
+				SELECT("a.goods AS 'goods'");
+				SELECT("a.create_id AS 'createId'");
+				SELECT("a.create_time AS 'createTime'");
+				SELECT("a.update_id AS 'updateId'");
+				SELECT("a.update_time AS 'updateTime'");
+				SELECT("a.com_id AS 'comId'");
+				SELECT("a.com_name AS 'comName'");
+				SELECT("b.name AS 'cardName'");
+				SELECT("c.bean_txt AS 'payStatusTxt'");
+				SELECT("d.bean_txt AS 'statusTxt'");
+				FROM("com_activity a");
+				LEFT_OUTER_JOIN("com_cards b on b.id = a.card_id");
+				LEFT_OUTER_JOIN("sys_bean_data c on c.bean_key='activity_payStatus' and c.bean_val = a.pay_status");
+				LEFT_OUTER_JOIN("sys_bean_data d on d.bean_key='activity_status' and d.bean_val = a.status");
+				
+				if(StrUtils.notBlank(memberId)){
+					WHERE("a.id in (select DISTINCT activity_id from com_activity_enroll where member_id=#{memberId} and com_id = #{comId})");
+				}
+				if(StrUtils.notBlank(comId)){
+					WHERE("a.com_id = #{comId}");
+				}
+				WHERE("a.status <> 6 and a.status <> 9");
+
+				ORDER_BY("a.id DESC");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+	public String updateActivityCardIdNull(String id) {
+		
+		String str = new SQL() {
+			{
+				UPDATE("com_activity");
+				SET("card_id = null");
+				SET("card_num = 0");
+				WHERE("id = #{id}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

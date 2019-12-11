@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/cash/cashBuyUser.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">消费提成比例</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">查询参数名称</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="cashBuyUser_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="80px">操作</th>
+							<th>公司ID</th>
+							<th>消费记录主键</th>
+							<th>提成用户id</th>
+							<th>销售金额</th>
+							<th>员工提成比例</th>
+							<th>分成比例</th>
+							<th>提成金额</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+									<td class="tc">{btnUpdate}{btnDelete}</td>
+									<td>{comId}</td>
+									<td>{buyId}</td>
+									<td>{userId}</td>
+									<td>{payMoney}</td>
+									<td>{ratioUser}</td>
+									<td>{ratio}</td>
+									<td>{money}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="cashBuyUser_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "cashBuyUserForm.html">
+	
+</body>
+</html>

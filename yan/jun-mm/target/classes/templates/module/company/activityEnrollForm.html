@@ -1,0 +1,54 @@
+<div class="xwindow" id="activityEnroll_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">活动报名表单</div>
+		<form class="xform" id="activityEnroll_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<!-- 活动id -->
+			<input type="hidden" name="activityId"/>
+			<div class="xgroup">
+				<label class="g1">报名用户<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="memberName" id="ff_memberName"/>
+					<input type="hidden" name="memberId" id="ff_memberId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">报名日期<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" name="enrollTime" id="ff_enrollTime"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$("#ff_enrollTime").xdate({time:true});
+app.win = $('#activityEnroll_win').xwindow({width:500,height:350,open:false});
+app.form = $('#activityEnroll_form').xform({
+	url : adminPath + '/activityEnroll/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'报名用户', name:'memberId', xcheck:'null'},
+		{label:'报名日期', name:'enrollTime', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+// member
+$("#ff_memberName").click(function(){
+	member.callBack = function(data) {
+		$("#ff_memberName").val(data.name);
+		$("#ff_memberId").val(data.id);
+	}
+	member.open();
+});
+</script>

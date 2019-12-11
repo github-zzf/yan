@@ -1,0 +1,111 @@
+<div class="xwindow" id="excel_export_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">Excel导出<span class="title_close xclose">X</span></div>
+		<div class="excel_box" style="height:410px;overflow-y: auto;">
+			<table id="xlist_export" >
+				<tbody class="xtemplate">
+					<tr>
+						<td><input type="checkbox" name="check" class="col_menu" data-xv="{index}" /></td>
+						<td>{colName}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<div class="bottombar">
+			<span class="xbtn" id="menu_all">全选</span>
+			<span class="xbtn xgray" id="menu_no">反选</span>
+			<span class="xbtn btn_export_sure">导出</span>
+			<span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+
+<script>
+	$(function(){
+		exportWin.init();
+	});
+	var exportWin = {
+		init:function(){
+			exportWin.loadWin();
+			exportWin.loadList();
+			exportWin.bindMenu();
+		},
+		loadWin:function(){
+			exportWin.win = $('#excel_export_win').xwindow({width:500,height:500,open:false});
+		},
+		loadList:function(row){
+			exportWin.list=	$("#xlist_export").xlist({
+				load:false,	
+			});
+		},
+		bindSet:function(list){
+			exportWin.list.setData({total:list.length, list:list});
+			$('.col_menu').prop('checked',true);
+		},
+		bindMenu:function(){
+			//全选
+			$('#menu_all').click(function(){
+				$('.col_menu').prop('checked',true);
+			});
+			//反选
+			$("#menu_no").click(function(){
+				$('.col_menu').prop('checked',false);
+			});
+		},
+		bindFind:function(name){
+			$(".excel_box .xnodata").remove();
+			$.xpost({
+				url:adminPath + '/combo/findCols',
+				data:{tableCode:name},
+				success:function(data){
+					if (data!=null && data.length>0) {
+						exportWin.bindSet(data);
+					}else{
+						$(".excel_box").append('<div class="xnodata">暂无数据</div>');
+					}
+				}
+			});
+			exportWin.win.open();
+		},
+		bindExport:function(link, addData, table){
+			$('.btn_export_sure').xbtn(function(btn){
+				var data = $("#form_search").serialize();
+				data = data+"&cityCode="+top.cityCode;
+				var arr =[];
+				$("#xlist_export tr").each(function(i,v){
+					var check = $(v).children("td").children(".col_menu");
+					if (check.is(":checked")) {
+						var index = check.data("xv");
+						var row = exportWin.list.getRow(index);
+						arr.push({
+							col:row.colCode,
+							name:row.colName,
+							width:row.colWidth,
+							sort:row.colSort
+						});
+					}
+				});
+				if (arr.length>0 && arr!="") {
+					var str = encodeURIComponent( JSON.stringify(arr) );
+					var url = link+'?col='+str;
+					if (table) {
+						url += "&ids="+table.getSelectedId();
+					} else {
+						url += "&ids="+app.table.getSelectedId();
+					}
+					if (addData != null && addData != "" ) {
+						url += addData;
+					}
+					if (data != "") {
+						url += "&"+data;
+					}
+					base.download(url);
+					exportWin.win.close();
+				}else{
+					$.xalert("请至少选择一条导出数据");
+				}
+			})
+		}
+	};
+</script>

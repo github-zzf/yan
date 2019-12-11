@@ -1,0 +1,128 @@
+package com.junkj.module.base;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.codec.Md5Utils;
+import com.junkj.common.shiro.ShiroToken;
+import com.junkj.common.utils.PathUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.entity.SysMenu;
+import com.junkj.module.sys.entity.SysUser;
+
+@Controller
+public class AdminAction extends BaseAction {
+
+	@Autowired
+	private SysUserBiz sysUserBiz;
+	
+	@GetMapping("/MP_verify_KoGBT4J0XQeAowxk.txt")
+	public String MP_verify_KoGBT4J0XQeAowxk() {
+		return "/MP_verify_KoGBT4J0XQeAowxk";
+	}
+
+	@GetMapping({"/","${adminPath}/login"})
+	public String login(HttpServletRequest request, HttpServletResponse response) {
+		if(PathUtils.noAdminUri(request)){
+			return null;
+		}
+		
+		if (UserUtils.isLogin()) {
+			String queryString = request.getQueryString();
+			queryString = (queryString == null) ? "" : ("?" + queryString);
+			ServletUtils.redirectUrl(request, response, this.adminPath + "/index" + queryString);
+			return null;
+		}
+		return "/module/base/login";
+	}
+
+	@GetMapping("${adminPath}/index")
+	public String toIndex(HttpServletRequest request, HttpServletResponse response) {
+		if(PathUtils.noAdminUri(request)){
+			return null;
+		}
+		
+		if (UserUtils.isLogin()) {
+			request.setAttribute("username", UserUtils.getUser().getName());
+			return "/module/base/index";
+		}
+		return "/module/base/login";
+	}
+
+	/**
+	 * 退出登录
+	 */
+	@GetMapping("${adminPath}/logout")
+	@ResponseBody
+	public JsonVo logout() {
+		UserUtils.clearSessionCache();
+		SecurityUtils.getSubject().logout();
+		return sendOk();
+	}
+
+	@PostMapping("${adminPath}/login")
+	@ResponseBody
+	public JsonVo loginPost(HttpServletRequest request, String username, String password) throws Exception {
+
+		if (username == null || "".equals(username)) {
+			return sendError("用户名不能为空");
+		}
+		if (password == null || "".equals(password)) {
+			return sendError("密码不能为空");
+		}
+		try {
+			ShiroToken token = new ShiroToken(username, Md5Utils.md5Salt(password, username),
+					ServletUtils.getExtParams(request));
+			token.setRememberMe(true);
+			SecurityUtils.getSubject().login(token);
+		} catch (AuthenticationException e) {
+			return sendError(2, "密码错误");
+		}
+
+		return sendOk();
+	}
+
+	// 获取用户菜单
+	@PostMapping("${adminPath}/getMenus")
+	@ResponseBody
+	public Object getMenus() {
+		List<SysMenu> list = UserUtils.getMenuList();
+		return list;
+	}
+
+	/**
+	 * 修改密码
+	 */
+	@PostMapping("${adminPath}/updatePassword")
+	@ResponseBody
+	public JsonVo updatePassword(HttpServletRequest request, String oldPassword, String newPassword, String again)
+			throws Exception {
+		SysUser user = UserUtils.getUser();
+		String pw = user.getPassword();
+		String pw1 = Md5Utils.md5Salt(oldPassword, user.getUsername());
+		if (pw.equals(pw1)) {
+			user.setPassword(Md5Utils.md5Salt(newPassword, user.getUsername()));
+			sysUserBiz.update(user);
+
+			logout();
+			loginPost(request, user.getUsername(), newPassword);
+		} else {
+			return sendError("原密码不正确!");
+		}
+		return sendOk();
+	}
+}

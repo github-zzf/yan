@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/sys/sysTemplate.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">模板消息</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">查询参数名称</label>
+					<input type="text" name="name" class="xw2"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<@shiro.hasPermission name="sys:sysTemplate:edit">
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+					</@shiro.hasPermission>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="sysTemplate_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>
+							<th width="150px">模板编码</th>
+							<th width="100px">模板名称</th>
+							<th width="360px">参数值</th>
+							<th>参数说明</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">
+									<@shiro.hasPermission name="sys:sysTemplate:edit">
+									{btnUpdate}{btnDelete}
+									</@shiro.hasPermission>
+									</td>
+									<td>{tplCode}</td>
+									<td>{tplName}</td>
+									<td>{tplParams}</td>
+									<td><pre>{remark}</pre></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="sysTemplate_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "sysTemplateForm.html">
+	
+</body>
+</html>

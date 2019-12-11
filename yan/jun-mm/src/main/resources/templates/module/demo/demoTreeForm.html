@@ -1,0 +1,62 @@
+<div class="xwindow" id="demoTree_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">示例树表单</div>
+		<form class="xform" id="demoTree_form" method="post" autocomplete="off">			
+			<input type="hidden" name="comId"/>
+			<div class="xgroup">
+				<label class="g1">上级公司</label>
+				<div class="g2">
+					<input type="text" name="parentName" id="f_parentName"/>
+					<input type="hidden" name="parentId" id="f_parentId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">公司名称<i>*</i></label>
+				<div class="g2"><input type="text" name="comName"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">公司全称<i>*</i></label>
+				<div class="g2"><input type="text" name="fullName"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">排序</label>
+				<div class="g2"><input type="text" name="treeSort"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注信息</label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#demoTree_win').xwindow({width:500,height:350,open:false});
+app.form = $('#demoTree_form').xform({
+	url : adminPath + '/demoTree/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'公司名称', name:'comName', xcheck:'null'},
+		{label:'公司全称', name:'fullName', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.win.close();
+			app.table.treeAdd(app.clickIndex);
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_parentName").click(function(){
+	linkDemoTree.open(function(treeId, treeNode){
+		$("#f_parentName").val(treeNode.name);
+		$("#f_parentId").val(treeNode.id);
+	})
+})
+
+</script>

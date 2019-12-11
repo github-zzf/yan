@@ -1,0 +1,216 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotEmpty;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.sys.entity.SysBeanData;
+import com.junkj.module.sys.entity.SysUser;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 课程预约实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_course_enroll", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "course_id", attrName = "courseId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "status", attrName = "status"),
+		@Column(name = "status_remark", attrName = "statusRemark"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "sign_time", attrName = "signTime"),
+		@Column(name = "comment_time", attrName = "commentTime"),
+		@Column(name = "comment_level", attrName = "commentLevel"),
+		@Column(name = "comment_content", attrName = "commentContent"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "b", on = "b.id = a.member_id ", columns = {
+			@Column(name = "name", attrName = "memberName", queryType = QueryType.EQ),
+			@Column(name = "phone", attrName = "phone", isQuery = false)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = WxUser.class, alias = "wx", on = "wx.member_id = a.member_id", columns = {
+			@Column(name = "head_img", attrName = "headImg", isQuery = false) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Course.class, alias = "c", on = "c.id = a.course_id", columns = {
+			@Column(name = "name", attrName = "courseName", queryType = QueryType.EQ),
+			@Column(name = "course_date", attrName = "courseDate", queryType = QueryType.EQ),
+			@Column(name = "start_time", attrName = "startTime", queryType = QueryType.EQ),
+			@Column(name = "end_time", attrName = "endTime", queryType = QueryType.EQ)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "t", on = "t.id = c.teacher_id", columns = {
+			@Column(name = "name", attrName = "teacherName", queryType = QueryType.EQ)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "e", on = "e.bean_key='course_enroll_status' and e.bean_val = a.status", columns = {
+			@Column(name = "bean_txt", attrName = "statusTxt", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class CourseEnroll extends DataEntity<CourseEnroll> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String courseId; // 排课表ID
+	private String memberId; // 会员ID
+	private String statusRemark; // 不通过原因
+	private Date signTime; // 签到时间
+	private Date commentTime; // 评价时间
+	private String commentLevel; // 评价等级
+	private String commentContent; // 评价内容
+
+	// 业务字段
+	private String memberName;
+	private String statusTxt;
+	private String courseName; // 课程名称
+	private String teacherName;
+	private Date courseDate; // 课程日期
+	private Date startTime; // 开始时间
+	private String endTime; // 结束时间
+	private String headImg;// 会员头像
+	private String phone;// 会员电话
+	private String openId;// 会员openId
+	
+	// 1预约成功、2取消预约、 4已签到、5已完成
+	/**
+	 * 1预约成功
+	 */
+	public static final String status_1 = "1";
+	/**
+	 * 2取消预约
+	 */
+	public static final String status_2 = "2";
+	/**
+	 * 4已签到
+	 */
+	public static final String status_4 = "4";
+	/**
+	 * 5已完成
+	 */
+	public static final String status_5 = "5";
+
+	public String getCourseId() {
+		return courseId;
+	}
+	public void setCourseId(String courseId) {
+		this.courseId = courseId;
+	}
+
+	@NotEmpty(message="会员不能为空")
+	@Length(min=0, max=32, message="会员长度不能超过32个字符")
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getStatusRemark() {
+		return statusRemark;
+	}
+	public void setStatusRemark(String statusRemark) {
+		this.statusRemark = statusRemark;
+	}
+
+	public Date getSignTime() {
+		return signTime;
+	}
+	public void setSignTime(Date signTime) {
+		this.signTime = signTime;
+	}
+
+	public Date getCommentTime() {
+		return commentTime;
+	}
+	public void setCommentTime(Date commentTime) {
+		this.commentTime = commentTime;
+	}
+
+	public String getCommentLevel() {
+		return commentLevel;
+	}
+	public void setCommentLevel(String commentLevel) {
+		this.commentLevel = commentLevel;
+	}
+
+	public String getCommentContent() {
+		return commentContent;
+	}
+	public void setCommentContent(String commentContent) {
+		this.commentContent = commentContent;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	public String getStatusTxt() {
+		return statusTxt;
+	}
+	public void setStatusTxt(String statusTxt) {
+		this.statusTxt = statusTxt;
+	}
+	public String getCourseName() {
+		return courseName;
+	}
+	public void setCourseName(String courseName) {
+		this.courseName = courseName;
+	}
+	public String getTeacherName() {
+		return teacherName;
+	}
+	public void setTeacherName(String teacherName) {
+		this.teacherName = teacherName;
+	}
+	public Date getCourseDate() {
+		return courseDate;
+	}
+	public void setCourseDate(Date courseDate) {
+		this.courseDate = courseDate;
+	}
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
+		this.endTime = endTime;
+	}
+	public String getHeadImg() {
+		return headImg;
+	}
+	public void setHeadImg(String headImg) {
+		this.headImg = headImg;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getOpenId() {
+		return openId;
+	}
+	public void setOpenId(String openId) {
+		this.openId = openId;
+	}
+	
+	
+}

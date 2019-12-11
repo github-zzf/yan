@@ -1,0 +1,110 @@
+package com.junkj.module.weixin.entity;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysCompany;
+
+/**
+ * 微信公众号配置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月22日
+ * @version: 1.0.0
+ */
+@Table(name = "wx_config", alias = "a", columns = {
+		@Column(name = "appid", attrName = "appid", isPK = true, queryType = QueryType.LIKE),
+		@Column(name = "appname", attrName = "appname", queryType = QueryType.LIKE),
+		@Column(name = "appsecret", attrName = "appsecret"),
+		@Column(name = "mch_id", attrName = "mchId"),
+		@Column(name = "mch_key", attrName = "mchKey"),
+		@Column(name = "mch_cert", attrName = "mchCert"),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(includeEntity=DataEntity.class),
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysCompany.class, alias = "b", on = "b.com_id = a.com_id ", columns = {
+				@Column(name = "com_name", attrName = "comName", queryType = QueryType.LIKE) 
+		})
+	}, orderBy = "a.create_time DESC"
+)
+public class WxConfig extends DataEntity<WxConfig> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String appid; // 公众号appid
+	private String appname; // 公众号名称
+	private String appsecret; // 公众号AppSecret
+	private String mchId; // 商户号
+	private String mchKey; // 商户api密钥
+	private String mchCert; // 证书地址
+	private String remark; // 备注
+	protected String comId; // 企业编号
+	
+	// 业务字段
+	protected String comName; // 企业名称
+	
+	public String getAppid() {
+		return appid;
+	}
+	public void setAppid(String appid) {
+		this.appid = appid;
+	}
+
+	public String getAppname() {
+		return appname;
+	}
+	public void setAppname(String appname) {
+		this.appname = appname;
+	}
+
+	public String getAppsecret() {
+		return appsecret;
+	}
+	public void setAppsecret(String appsecret) {
+		this.appsecret = appsecret;
+	}
+
+	public String getMchId() {
+		return mchId;
+	}
+	public void setMchId(String mchId) {
+		this.mchId = mchId;
+	}
+
+	public String getMchKey() {
+		return mchKey;
+	}
+	public void setMchKey(String mchKey) {
+		this.mchKey = mchKey;
+	}
+
+	public String getMchCert() {
+		return mchCert;
+	}
+	public void setMchCert(String mchCert) {
+		this.mchCert = mchCert;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+	public String getComName() {
+		return comName;
+	}
+	public void setComName(String comName) {
+		this.comName = comName;
+	}
+
+}

@@ -1,0 +1,76 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 相册实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_album", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "name", attrName = "name"),
+		@Column(name = "img", attrName = "img"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "clicks", attrName = "clicks"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+	}, orderBy = "a.id DESC"
+)
+public class Album extends DataEntity<Album> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String comId; // 企业
+	private String name; // 相册名称
+	private String img; // 封面图片
+	private String content; // 相册描述
+	private Long clicks; // 浏览量
+
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public Long getClicks() {
+		return clicks;
+	}
+	public void setClicks(Long clicks) {
+		this.clicks = clicks;
+	}
+
+}

@@ -1,0 +1,75 @@
+<div class="xwindow" id="cards_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">储次卡表单</div>
+		<form class="xform" id="cards_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">卡名<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+				<label class="g1">卡类型<i>*</i></label>
+				<div class="g2">
+				<input type="radio" name="type" value="1" checked="checked">储值卡&nbsp;&nbsp;
+				<input type="radio" name="type" value="2">储次卡
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">销售价格<i>*</i></label>
+				<div class="g2"><input type="text" name="money"/></div>
+				<label class="g1">次数/金额<i>*</i></label>
+				<div class="g2"><input type="text" name="storedNum"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">有效天数<i>*</i></label>
+				<div class="g2"><input type="text" name="days"/></div>
+				<label class="g1">只限新会员<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="isNew" value="1" checked="checked">是&nbsp;&nbsp;
+					<input type="radio" name="isNew" value="0">否
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">是否周末卡<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="isWeek" value="0" checked="checked">不限&nbsp;&nbsp;
+					<input type="radio" name="isWeek" value="1">周末卡&nbsp;&nbsp;
+					<input type="radio" name="isWeek" value="2">非周末卡
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">描述</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#cards_win').xwindow({width:700,height:500,open:false});
+app.form = $('#cards_form').xform({
+	url : adminPath + '/cards/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'卡名', name:'name', xcheck:'null'},
+		{label:'卡类型', name:'type', xcheck:'null'},
+		{label:'销售价格', name:'money', xcheck:'null,'},
+		{label:'次数/金额', name:'storedNum', xcheck:'null'},
+		{label:'有效天数', name:'days', xcheck:'null'},
+		{label:'只限新会员', name:'isNew', xcheck:'null'},
+		{label:'是否周末卡', name:'isWeek', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

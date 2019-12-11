@@ -1,0 +1,347 @@
+package com.junkj.module.web.action;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.module.cms.entity.Articles;
+import com.junkj.module.cms.entity.Arttype;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.company.entity.ActivityEnroll;
+import com.junkj.module.company.entity.Album;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Feedback;
+import com.junkj.module.file.entity.FileUpload;
+import com.junkj.module.member.entity.Growup;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.web.biz.ApiBiz;
+
+/**
+ * 员工端action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${mobilePath}")
+public class ApiAction extends BaseAction {
+
+	@Autowired
+	private ApiBiz apiBiz;
+
+	/*******************************************************
+	 * 首页
+	 */
+	/**
+	 * 轮播
+	 */
+	@RequestMapping(value = "listHomeImg", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listHomeImg() {
+		return apiBiz.listHomeImg();
+	}
+	
+	// 电话导航
+	@RequestMapping(value = "sysInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Object sysInfo() {
+		return apiBiz.getSysInfo();
+	}
+	
+	/*******************************************************
+	 * 文章
+	 */
+	// 栏目
+	@RequestMapping(value = "pageArttype", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageArttype(Arttype arttype) {
+		return apiBiz.pageArttype(arttype);
+	}
+
+	// 文章
+	@RequestMapping(value = "pageArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageArticles(Articles activity) {
+		return apiBiz.pageArticles(activity);
+	}
+
+	// 文章详情
+	@RequestMapping(value = "infoArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoArticles(String id) {
+		return apiBiz.infoArticles(id);
+	}
+
+	/*******************************************************
+	 * 服务预约
+	 */
+	// 课程列表
+	@RequestMapping(value = "listCourse", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listCourse(Course course) {
+		return apiBiz.listCourse(course);
+	}
+
+	// 老师列表
+	@RequestMapping(value = "listTeacher", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listTeacher() {
+		return apiBiz.listTeacher();
+	}
+
+	// 我的预约
+	@RequestMapping(value = "pageMyCourse", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyCourse() {
+		return apiBiz.pageMyCourse();
+	}
+
+	// 保存评价
+	@FormToken
+	@RequestMapping(value = "saveComment", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveComment(CourseEnroll enroll) {
+		apiBiz.saveComment(enroll);
+		return sendOk();
+	}
+
+	// 取消预约
+	@FormToken
+	@RequestMapping(value = "cancelMyCourse", method = RequestMethod.GET)
+	@ResponseBody
+	public Object cancelMyCourse(CourseEnroll enroll) {
+		return apiBiz.cancelMyCourse(enroll);
+	}
+	
+	// 保存预约
+	@FormToken
+	@RequestMapping(value = "saveCourseEnroll", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveCourseEnroll(CourseEnroll enroll) {
+		return 	apiBiz.saveCourseEnroll(enroll);
+	}
+	/*******************************************************
+	 * 活动
+	 */
+
+	// 活动列表
+	@RequestMapping(value = "pageActity", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageActity(Activity activity) {
+		return apiBiz.pageActity(activity);
+	}
+	
+	// 我的活动
+	@RequestMapping(value = "pageMyActity", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyActity(Activity activity) {
+		return apiBiz.pageMyActity(activity);
+	}
+
+	// 活动详情
+	@RequestMapping(value = "infoActity", method = RequestMethod.GET)
+	@ResponseBody
+	public Object actityInfo(String id) {
+		return apiBiz.actityInfo(id);
+	}
+
+	// 活动报名列表
+	@RequestMapping(value = "pageActityEnroll", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageActityEnroll(ActivityEnroll activityEnroll) {
+		return apiBiz.pageActityEnroll(activityEnroll);
+	}
+
+	// 活动报名
+	@FormToken
+	@RequestMapping(value = "saveActityEnroll", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveActityEnroll(ActivityEnroll activityEnroll) {
+		return apiBiz.saveActityEnroll(activityEnroll);
+	}
+	
+	// 我的活动取消
+	@FormToken
+	@RequestMapping(value = "updateCancelMyEnroll", method = RequestMethod.GET)
+	@ResponseBody
+	public Object updateCancelMyEnroll(ActivityEnroll activityEnroll) {
+		return apiBiz.updateCancelMyEnroll(activityEnroll);
+	}
+
+	/*******************************************************
+	 * 会员卡
+	 */
+	// 会员卡
+	@RequestMapping(value = "pageCards", method = RequestMethod.GET)
+	@ResponseBody
+	public Page<Cards> pageCards(Cards cards) {
+		return apiBiz.pageCards(cards);
+	}
+
+	// 会员卡明细
+	@RequestMapping(value = "infoCards", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoCards(String id) {
+		return apiBiz.infoCards(id);
+	}
+
+	// // 会员卡购买
+	// @RequestMapping(value = "buyCards", method = RequestMethod.GET)
+	// @ResponseBody
+	// public Object buyCards() {
+	// apiBiz.infoCards(id);
+	// return super.sendOk();
+	// }
+
+	// 我的卡包
+	@RequestMapping(value = "pageMyCards", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyCards(MemberCard card) {
+		return apiBiz.pageMyCards(card);
+	}
+
+	// 我的会员卡详情
+	@RequestMapping(value = "infoMyCards", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyCards(String id) {
+		return apiBiz.infoMyCards(id);
+	}
+
+	// 我的会员卡消费记录
+	@RequestMapping(value = "pageMyCardsChange", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyCardsChange(String id) {
+		return apiBiz.pageMyCardsChange(id);
+	}
+
+	/*******************************************************
+	 * 相册
+	 */
+
+	// 相册
+	@RequestMapping(value = "pageAlbum", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageAlbum(Album album) {
+		return apiBiz.pageAlbum(album);
+	}
+
+	// 相册详情
+	@RequestMapping(value = "infoAlbum", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoAlbum(String id) {
+		return apiBiz.infoAlbum(id);
+	}
+
+	// 相册图片
+	@RequestMapping(value = "listAlbumImg", method = RequestMethod.GET)
+	@ResponseBody
+	public List<FileUpload> listAlbumImg(String id) {
+		return apiBiz.listAlbumImg(id);
+	}
+
+	/*******************************************************
+	 * 成长记录
+	 */
+	// 我的成长记录
+	@RequestMapping(value = "pageMyGrowup", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyGrowup() {
+		return apiBiz.pageMyGrowup();
+	}
+
+	// 保存成长记录
+	@FormToken
+	@RequestMapping(value = "saveGrowup", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveGrowup(Growup growup) {
+		String growId = apiBiz.saveGrowup(growup);
+		return sendData(growId);
+	}
+	// 保存成长记录
+	@FormToken
+	@RequestMapping(value = "saveGrowupImg", method = RequestMethod.POST)
+	@ResponseBody
+	public Object saveGrowupImg(@RequestParam String id, @RequestParam(required=false) MultipartFile files) {
+		apiBiz.saveGrowupImg(id,files);
+		return sendOk();
+	}
+	// 删除成长记录
+	@RequestMapping(value = "deletGropup", method = RequestMethod.GET)
+	@ResponseBody
+	public Object deletGropup(Growup growup) {
+		 apiBiz.deletGropup(growup);
+		 return sendOk();
+	}
+			
+	/*******************************************************
+	 * 我的
+	 */
+	//我的信息	
+	@RequestMapping(value = "infoMyData", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyData() {
+		return apiBiz.infoMyData();
+	}
+	// 我的数据
+	@RequestMapping(value = "memberInfo", method = RequestMethod.GET)
+	@ResponseBody
+	public Object memberInfo() {
+		return apiBiz.getMemberInfo();
+	}
+	// 修改我的数据
+	@FormToken
+	@RequestMapping(value = "updateMember", method = RequestMethod.GET)
+	@ResponseBody
+	public Object updateMember(Member member) {
+		apiBiz.updateMember(member);
+		return sendOk();
+	}
+
+	// 意见反馈
+	@FormToken
+	@RequestMapping(value = "saveFeedback", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveFeedback(Feedback feedback) {
+		String id = apiBiz.saveFeedback(feedback);
+		return sendData(id);
+	}
+	
+	// 保存意见反馈
+	@FormToken
+	@RequestMapping(value = "saveFeedbackImg", method = RequestMethod.POST)
+	@ResponseBody
+	public Object saveFeedbackImg(@RequestParam String id, @RequestParam(required=false) MultipartFile files) {
+		apiBiz.saveFeedbackImg(id,files);
+		return sendOk();
+	}
+	
+	// 上传头像
+	@FormToken
+	@RequestMapping(value = "uploadMemberHead", method = RequestMethod.POST)
+	@ResponseBody
+	public Object uploadMemberHead(Member member,@RequestParam(required=false) MultipartFile files) {
+		apiBiz.uploadMemberHead(member,files);
+		return sendOk();
+	}
+	// 我的积分
+	@RequestMapping(value = "pageMyPoints", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyPoints() {
+		return apiBiz.pageMyPoints();
+	}
+
+}

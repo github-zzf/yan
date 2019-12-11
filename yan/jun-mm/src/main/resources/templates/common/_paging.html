@@ -1,0 +1,17 @@
+<div class="xpaging ${cls!}">
+	<span class="xtemplate">
+		<span class="total">
+			<span>共{total}条，</span>
+			<span>每页</span><span class="xrows">{pageSize}</span><span>条</span>
+		</span>
+		<span class="xbtn xfirst" data-xv={first} title="首页"><span><i></i></span></span>
+		<span class="xbtn xprev" data-xv={prev} title="上一页"><i></i></span>
+		<span class="page">{pageNum} / {size}</span>
+		<span class="xbtn xnext" data-xv={next} title="下一页"><i></i></span>
+		<span class="xbtn xlast" data-xv={last} title="尾页"><span><i></i></span></span>
+		<span class="go">
+			<input type="text" class="input xpage" size="2" />
+			<span class="xbtn xgo">跳转</span>
+		</span>
+	</span>
+</div>

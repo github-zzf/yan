@@ -1,0 +1,51 @@
+package com.junkj.common.filter;
+
+import java.io.IOException;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.junkj.common.config.Global;
+import com.junkj.common.utils.JsonUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.weixin.entity.WxUser;
+
+public class BaseFilter {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * 用户验证
+	 */
+	public boolean checkUser(HttpServletResponse response) {
+		if (Global.isDev()) {
+			// oCj6KsyWMz2LpPU4SP2EOq_sVNsw
+			// ou5CDwJnp9ki2LFqvQwFirxtueP0
+			WxUser user = MemberUtils.getWxUser("ou5CDwJnp9ki2LFqvQwFirxtueP0");
+			MemberUtils.setWxUser(user);
+			return true;
+		}
+		String openid = MemberUtils.getOpenid();
+		if (null == openid) {
+			sendError(response, "登录失效", 402);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 输出错误信息
+	 */
+	public void sendError(HttpServletResponse response, String msg, int code) {
+		JsonVo vo = JsonVo.sendError(code, msg);
+		response.setContentType("application/json;charset=UTF-8");
+		try {
+			response.getWriter().write(JsonUtils.toString(vo));
+		} catch (IOException e) {
+			logger.error("过滤器返回信息失败:" + e.getMessage(), e);
+		}
+	}
+}

@@ -1,0 +1,82 @@
+package com.junkj.module.company.dao;
+
+import java.util.Map;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+
+public class CourseSql {
+
+	public String findWeekKecheng(Map<String, Object> params) {
+
+		String str = new SQL() {
+			{
+				SELECT("a.id AS 'id', a.teacher_id AS 'teacherId', a.assistant_id AS 'assistantId'");
+				SELECT("a.parent_id AS 'parentId', a.name AS 'name', a.course_date AS 'courseDate', a.start_time AS 'startTime', a.end_time AS 'endTime'");
+				SELECT("a.people_max AS 'peopleMax', a.card_id AS 'cardId', a.card_num AS 'cardNum', a.is_week AS 'isWeek', a.is_check AS 'isCheck', a.create_id AS 'createId'");
+				SELECT("a.create_time AS 'createTime', a.update_id AS 'updateId', a.update_time AS 'updateTime', a.pid AS 'pid', a.com_id AS 'comId', a.com_name AS 'comName'");
+				SELECT("b.name as teacherName ");
+				SELECT("(select COUNT(*) from com_course_enroll where course_id = a.id and status <> 9) as bmnum ");
+				SELECT("(select name from com_cards where id = a.card_id) as cardName ");
+				
+				FROM("com_course a");
+				LEFT_OUTER_JOIN("sys_user b on a.teacher_id=b.id");
+				
+				WHERE("a.com_id = #{companyId}");
+				WHERE("a.is_week=1");
+				OR();
+				WHERE("a.com_id = #{companyId}");
+				if(StrUtils.notBlank(params.get("name"))){
+					WHERE("a.name like #{name}");
+				}
+				if(StrUtils.notBlank(params.get("teacherId"))){
+					WHERE("a.teacher_id = #{teacherId}");
+				}
+				if(StrUtils.notBlank(params.get("startTime"))){
+					WHERE("a.course_date >= #{startTime}");
+				}
+				if(StrUtils.notBlank(params.get("endTime"))){
+					WHERE("a.course_date <= #{endTime}");
+				}
+				if(StrUtils.notBlank(params.get("courseDate"))){
+					WHERE(" and a.course_date = #{courseDate}");
+				}
+
+				ORDER_BY("course_date, start_time");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+	public String getByCate(String companyId, String cdate) {
+		
+		String str = new SQL() {
+			{
+				SELECT("a.staff_id");
+				FROM("com_leave a");
+				WHERE("a.com_id = #{companyId}");
+				WHERE("date_format(a.start_time,'%Y-%m-%d') <= #{cdate}");
+				WHERE("date_format(a.end_time,'%Y-%m-%d') >= #{cdate}");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+	public String updateCourseCardIdNull(String id) {
+		
+		String str = new SQL() {
+			{
+				UPDATE("com_course");
+				SET("card_id = null");
+				SET("card_num = 0");
+				WHERE("id = #{id}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

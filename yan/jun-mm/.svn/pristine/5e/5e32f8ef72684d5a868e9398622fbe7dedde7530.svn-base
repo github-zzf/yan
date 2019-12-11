@@ -1,0 +1,39 @@
+package com.junkj.module.company.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.HtmlUtils;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.ComConfigBiz;
+import com.junkj.module.company.entity.ComConfig;
+
+/**
+ * 积分比例设置	action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年11月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/sendPoints")
+public class SendPointsAction extends BaseAction {
+
+
+	@RequiresPermissions("company:sendPoints:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/company/sendPoints";
+	}
+}

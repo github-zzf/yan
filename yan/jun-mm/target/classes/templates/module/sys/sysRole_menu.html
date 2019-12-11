@@ -1,0 +1,107 @@
+<div class="xwindow" id="link_menu">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">公司选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_menu_form">
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="link_menu_save">保存</button>
+				<button type="button" class="xbtn xclose">取消</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="sysMenu_tree" class="ztree" style="width:400px;height: 500px;overflow-y: auto"></div>
+	</div>
+	
+</div>
+<script>
+var linkMenu = {
+	id:null,
+	callBack:function(row){},
+	init:function(){
+		linkMenu.bind();
+		linkMenu.load();
+	},
+	bind:function(){
+		$('#link_menu').on("click",".js_link_menu_sel", function(){
+			var index = btn.xv;
+			var row = linkMenu.table.getRow(index);
+			linkMenu.callBack(row);
+			linkMenu.win.close();
+		});
+
+		$('#link_menu_save').click(function(){
+			var treeObj = $.fn.zTree.getZTreeObj("sysMenu_tree");
+			var nodes = treeObj.getCheckedNodes(true);
+			var menus = [];
+			for (var i=0, l=nodes.length; i < l; i++) {
+				menus.push(nodes[i].id);
+			}
+			$.xpost({
+				url : adminPath + '/sysRole/save',
+				data:{
+					id:linkMenu.id,
+					menus:menus.join(',')
+				},
+				success:function(e){
+					if(e.code==1){
+						app.table.reload();
+						linkMenu.win.close();
+						$.ok('操作成功');
+					}else{
+						$.xalert(e.msg);
+					}
+				}
+			})
+		});
+		
+	},
+	load:function(){
+		linkMenu.win = $('#link_menu').xwindow({width:400,height:600,open:false});
+		var tree = $.ztree({
+			id:"sysMenu_tree",
+			url:adminPath + '/list/treeSysMenu',
+			click:function(treeId, treeNode){
+				linkMenu.win.close();
+				linkMenu.callBack(treeId, treeNode);
+			}
+		},{
+			view: {
+			    dblClickExpand: true,
+				selectedMulti : true,//可以多选
+				showLine: true
+			},
+			check: {  
+			    enable: true ,//显示复选框  
+			    chkStyle : "checkbox"
+			}
+		})
+	},
+	open:function(callBack,row){
+		if(row.menus){
+			// 选中节点
+			var ids = row.menus.split(',');
+			var treeObj = $.fn.zTree.getZTreeObj("sysMenu_tree");
+			treeObj.checkAllNodes(false);
+			var nodes = treeObj.getNodes();
+			linkMenu.checkNode(nodes, ids);
+		}
+		linkMenu.id = row.id;
+		linkMenu.callBack = callBack;
+		linkMenu.win.open();
+	},
+	checkNode(nodes, ids){
+		var treeObj = $.fn.zTree.getZTreeObj("sysMenu_tree");
+		for (var i=0; i < nodes.length; i++) {
+			var n = nodes[i];
+			if(ids.indexOf(n.id)!=-1){
+				treeObj.checkNode(nodes[i], true, false);
+			}
+			if(n.children){
+				linkMenu.checkNode(n.children, ids);
+			}
+		}
+	}
+}
+linkMenu.init();
+</script>

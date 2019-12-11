@@ -1,0 +1,50 @@
+<div class="xwindow" id="courseEnroll_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">课程预约表单</div>
+		<form class="xform" id="courseEnroll_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<!-- 排课Id -->
+			<input type="hidden" name="courseId"/>
+			<div class="xgroup">
+				<label class="g1">会员<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="memberName" id="ff_memberName"/>
+					<input type="hidden" name="memberId" id="ff_memberId"/>
+					<input type="hidden" name="cardId" id="ff_cardId"/>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#courseEnroll_win').xwindow({width:500,height:350,open:false});
+app.form = $('#courseEnroll_form').xform({
+	url : adminPath + '/courseEnroll/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'会员', name:'memberId', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+// member
+$("#ff_memberName").click(function(){
+	linkCardChange2.callBack = function(data) {
+		$("#ff_memberName").val(data.memberName);
+		$("#ff_memberId").val(data.memberId);
+		$("#ff_cardId").val(data.id);
+	}
+	linkCardChange2.open();
+});
+</script>

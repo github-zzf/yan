@@ -1,0 +1,45 @@
+<div class="xwindow" id="arttype_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">栏目表表单</div>
+		<form class="xform" id="arttype_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">栏目编码<i>*</i></label>
+				<div class="g2"><input type="text" name="typeCode"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">栏目名称<i>*</i></label>
+				<div class="g2"><input type="text" name="typeName"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#arttype_win').xwindow({width:500,height:350,open:false});
+app.form = $('#arttype_form').xform({
+	url : adminPath + '/arttype/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'栏目编码', name:'typeCode', xcheck:'null'},
+		{label:'栏目名称', name:'typeName', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

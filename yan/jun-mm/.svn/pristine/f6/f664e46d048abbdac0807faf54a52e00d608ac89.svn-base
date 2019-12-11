@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<#assign title="微营销平台">
+<#include "../../common/_admin.html">
+<#include "password.html">
+<script type="text/javascript">var comId="${comId}";</script>
+<script type="text/javascript" src="${ctx}/static/module/base/index.js?${v}"></script>
+<body>
+	<div class="jx_body">
+		<div class="jx_top" >
+			<div class="btn_left">
+				<span class="head_title" id="btn_home">微营销平台</span>
+				<div class="logo" id="btn_menu_close"><i></i></div>
+			</div>
+			<div class="top_center"> </div>
+				<div class="btn_right" style="position: relative">
+					<div class="top_message">
+						<div>
+							<div class="nav_right_message" id="mess_img">
+								<div class="nav_num" id="message_num">15</div>
+							</div>
+						</div>
+						<div>
+							<div class="nav_right"></div>
+							<div class="nav_box">
+								<div class="selected_box">
+									<a class="nav_title mack_wode">${username!}</a>
+								</div>
+								<div class="selected_box xsoft_update">
+									<a class="nav_title mack_xgmm">修改密码</a>
+								</div>
+								<div class="selected_box xsoft_logout">
+									<a class="nav_title mack_out">退出</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+			
+		</div>
+		<div class="jx_menu">
+			<div class="xaccordion parent_menu" id="jx_menu">
+				<ul class="xtemplate">
+					<li class="xparent">
+						<span class="parent" data-img="{img}" data-imgs="{imgs}">{imgText}{name}<i class="ar_mack plus"></i></span>
+						<ul class="xson">
+							<li class='son' data-id="{id}" data-url="{url}" >{name}</li>
+						</ul>
+					</li>
+				</ul>
+			</div>
+			<div class="son_menu">
+				<div class="son_menu_title"></div>
+				<div class="xaccordion" id="jx_son_menu">
+					<ul class="xtemplate">
+						<li class="xparent" data-id="{id}" data-url="{url}">
+							<span class="parent">{name}</span>
+							<ul class="xson">
+								<li class='son' data-url='{url}'>{name}</li>
+							</ul>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<div class="jx_center">
+			<iframe class="main_iframe" name="main_iframe"></iframe>
+		</div>
+	</div>
+	<iframe src="about:bland" name="downloadIframe" style="display: none"></iframe>
+	
+</body>
+</html>

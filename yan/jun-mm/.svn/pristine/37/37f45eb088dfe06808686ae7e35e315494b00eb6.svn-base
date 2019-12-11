@@ -1,0 +1,49 @@
+<div class="xwindow" id="sysConfig_win2">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">参数配置表单</div>
+		<form class="xform" id="sysConfig_form2" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">名称</label>
+				<div class="g2"><input type="text" name="configName" class="readonly" readonly="readonly" style="width:260px"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">说明</label>
+				<div class="g2">
+					<textarea name="remark" class="readonly" readonly="readonly" style="background-color: #F4F5F9; width:260px"></textarea>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">值<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="configValue" value="1" checked="checked">按课时提成&nbsp;&nbsp;
+					<input type="radio" name="configValue" value="2">按签到人数提成&nbsp;&nbsp;
+					<input type="radio" name="configValue" value="3">按评价提成&nbsp;&nbsp;
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit2">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win1 = $('#sysConfig_win2').xwindow({width:500,height:350,open:false});
+app.form1 = $('#sysConfig_form2').xform({
+	url : adminPath + '/sysConfig/save',
+	xbtn:'#btn_submit2',
+	xcheck:[
+		{label:'值', name:'configValue', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win1.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

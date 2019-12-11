@@ -1,0 +1,93 @@
+<div class="xwindow" id="goods_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费项目表单</div>
+		<form class="xform" id="goods_form" method="post" autocomplete="off" style="height:510px;overflow-y: auto">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">分类<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="typeName" id="f_typeName"/>
+					<input type="hidden" name="typeId" id="f_typeId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">产品名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+				<label class="g1">销售价格<i>*</i></label>
+				<div class="g2"><input type="text" name="price"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">排序<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="sort"/>
+				</div>
+				<label class="g1">是否上架<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="isShow" value="1">上架&nbsp;&nbsp;
+					<input type="radio" name="isShow" value="0">下架
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" >图片</label>
+				<div class="g2" style="width:550px">
+			        <div id="uploader" class="webuploader" biztype="shopGoods_image">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将照片拖到这里，单次最多可选300张</p>
+		                    </div>
+		                </div>
+			        </div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">描述</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#goods_win').xwindow({width:700,height:600,open:false});
+app.form = $('#goods_form').xform({
+	url : adminPath + '/goods/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'分类', name:'typeId', xcheck:'null'},
+		{label:'产品名称', name:'name', xcheck:'null'},
+		{label:'销售价格', name:'price', xcheck:'null'},
+		{label:'是否上架', name:'isShow', xcheck:'null'},
+		{label:'排序', name:'sort', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_typeName").click(function(){
+	linkGoodsType.open(function(treeId, treeNode){
+		$("#f_typeName").val(treeNode.name);
+		$("#f_typeId").val(treeNode.id);
+	})
+});
+</script>

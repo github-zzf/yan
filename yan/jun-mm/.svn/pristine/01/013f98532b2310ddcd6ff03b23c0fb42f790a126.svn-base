@@ -1,0 +1,206 @@
+package com.junkj.common.utils;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jfinal.weixin.sdk.api.ApiConfig;
+import com.jfinal.weixin.sdk.api.ApiConfigKit;
+import com.jfinal.weixin.sdk.api.ApiResult;
+import com.jfinal.weixin.sdk.api.TemplateMsgApi;
+import com.junkj.module.weixin.entity.WxConfig;
+
+/**
+ * 模板消息
+ */
+public class TplMsgUtils {
+	
+	protected static Logger logger = LoggerFactory.getLogger(TplMsgUtils.class);
+
+	/**
+	 * 消费通知
+	 * 
+	 * 标题  购买成功通知
+	 * {{first.DATA}}
+	 * 请假时间：{{keyword1.DATA}}
+	 * 审批结果：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_1 = "OPENTM414066453";
+	/**
+	 * 消耗通知
+	 * 
+	 * 标题  消费通知
+	 * {{first.DATA}}
+	 * 本次消费项目：{{keyword1.DATA}}
+	 * 剩余项目：{{keyword2.DATA}}
+	 * 消费时间：{{keyword3.DATA}}
+	 * 消费门店：{{keyword4.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_2 = "OPENTM205704113";
+	/**
+	 * 预约通知
+	 * 
+	 * 标题  预约成功通知
+	 * {{first.DATA}}
+	 * 预约内容：{{keyword1.DATA}}
+	 * 预约时间：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_3 = "OPENTM202193611";
+	/**
+	 * 取消预约通知
+	 * 
+	 * 标题  取消预约成功通知
+	 * {{first.DATA}}
+	 * 预约日期：{{keyword1.DATA}}
+	 * 预约时间：{{keyword2.DATA}}
+	 * 预约单号：{{keyword3.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_4 = "OPENTM417879714";
+	/**
+	 * 签到通知
+	 * 
+	 * 标题  签到成功通知
+	 * {{first.DATA}}
+	 * 签到人：{{keyword1.DATA}}
+	 * 签到时间：{{keyword2.DATA}}
+	 * 签到状态：{{keyword3.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_5 = "OPENTM412181252";
+	/**
+	 * 调课通知
+	 * 
+	 * 标题  调课通知
+	 * {{first.DATA}}
+	 * 事由：{{keyword1.DATA}}
+	 * 上课时间：{{keyword2.DATA}}
+	 * 调课时间：{{keyword3.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_6 = "OPENTM207719530";
+	/**
+	 * 评价通知
+	 * 
+	 * 标题  服务评价通知
+	 * {{first.DATA}}
+	 * 服务项目：{{keyword1.DATA}}
+	 * 完成时间：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_7 = "OPENTM417733499";
+	/**
+	 * 时光日历通知
+	 */
+	public static final String TPL_8 = "";
+	/**
+	 * 客户报名提醒
+	 * 
+	 * 标题  报名提醒
+	 * {{first.DATA}}
+	 * 姓名：{{keyword1.DATA}}
+	 * 电话：{{keyword2.DATA}}
+	 * 项目：{{keyword3.DATA}}
+	 * 时间：{{keyword4.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_9 = "OPENTM400417088";
+	/**
+	 * 每日统计
+	 * 
+	 * 标题  营业情况明细通知
+	 * {{first.DATA}}
+	 * 统计时间：{{keyword1.DATA}}
+	 * 营业简报：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_10 = "OPENTM401155654";
+	/**
+	 * 请假申请通知
+	 * 
+	 * 标题  请假申请通知
+	 * {{first.DATA}}
+	 * 申请时间：{{keyword1.DATA}}
+	 * 申请人：{{keyword2.DATA}}
+	 * 请假类型：{{keyword3.DATA}}
+	 * 请假开始时间：{{keyword4.DATA}}
+	 * 请假结束时间：{{keyword5.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_11 = "OPENTM417813504";
+	/**
+	 * 请假审批通知
+	 * 
+	 * 标题  审批结果通知
+	 * {{first.DATA}}
+	 * 请假时间：{{keyword1.DATA}}
+	 * 审批结果：{{keyword2.DATA}}
+	 * {{remark.DATA}}
+	 */
+	public static final String TPL_12 = "OPENTM412898512";
+
+	/**
+	 * 发送模板消息
+	 * 
+	 * @param openId
+	 *            微信openId
+	 * @param url
+	 *            消息跳转连接
+	 * @param tpl_code
+	 *            模板编码
+	 * @param data
+	 * @return
+	 */
+	public static void sendMsg(String openId, String url, String tpl_code, List<String> data) {
+		List<Template> tpls = ComUtils.getCache(tpl_code);
+		if (tpls != null) {
+			if (tpls.size() != data.size()) {
+				throw new RuntimeException("模板参数数量应为：" + tpls.size());
+			}
+
+			for (int i = 0; i < tpls.size(); i++) {
+				tpls.get(i).setValue(data.get(i));
+			}
+			String str = getMsg(openId, tpls.get(0).getId(), url, tpls);
+
+			WxConfig c = ComUtils.getWxConfig();
+			ApiConfig ac = new ApiConfig();
+			ac.setAppId(c.getAppid());
+			ac.setAppSecret(c.getAppsecret());
+			ApiConfigKit.putApiConfig(ac);
+
+			ApiConfigKit.setThreadLocalAppId(c.getAppid());
+			try {
+				ApiResult apiResult = TemplateMsgApi.send(str);
+				if (apiResult.isSucceed()) {
+					logger.error(apiResult.getErrorMsg());
+				}
+			} finally {
+				ApiConfigKit.removeThreadLocalAppId();
+			}
+		}
+	}
+
+	public static String getMsg(String openId, String templateId, String url, List<Template> templates) {
+		StringBuffer msgBuf = new StringBuffer("{");
+		msgBuf.append("\"touser\":\"").append(openId).append("\",");
+		msgBuf.append("\"template_id\":\"").append(templateId).append("\",");
+		if (url != null) {
+			msgBuf.append("\"url\":\"").append(url).append("\",");
+		}
+		msgBuf.append("\"topcolor\":\"").append("#333333").append("\",");
+		msgBuf.append("\"data\":{");
+		StringBuffer data = new StringBuffer("");
+		for (Template t : templates) {
+			data.append(t.templateData()).append(",");
+		}
+		msgBuf.append(data.substring(0, data.lastIndexOf(",")));
+		msgBuf.append("}");
+		msgBuf.append("}");
+		return msgBuf.toString();
+	}
+}

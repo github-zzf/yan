@@ -1,0 +1,76 @@
+package com.junkj.module.web.action;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.codec.Md5Utils;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.shiro.ShiroToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.web.biz.SaleApiBiz;
+
+/**
+ * 导购端action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${mobilePath}")
+public class SaleApiAction extends BaseAction {
+
+	@Autowired
+	private SaleApiBiz saleApiBiz;
+	// 导购我的业绩
+	@RequestMapping(value = "listSalePer", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Map<String, Object>> listSalePer(@RequestParam Map<String, Object> map) {
+		List<Map<String, Object>> list = saleApiBiz.listSalePer(map);
+		return list;
+	}
+	// 导购我的团队业绩
+	@RequestMapping(value = "listTeamSalePer", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Map<String, Object>> listTeamSalePer(@RequestParam Map<String, Object> map) {
+		List<Map<String, Object>> list = saleApiBiz.listTeamSalePer(map);
+		return list;
+	}
+	// 导购登录验证
+	@RequestMapping(value = "saleLogin", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonVo saleLogin(HttpServletRequest request, String account, String password) throws Exception {
+
+		if (account == null || "".equals(account)) {
+			return sendError("用户名不能为空");
+		}
+		if (password == null || "".equals(password)) {
+			return sendError("密码不能为空");
+		}
+		try {
+			ShiroToken token = new ShiroToken(account, Md5Utils.md5Salt(password, account),
+					ServletUtils.getExtParams(request));
+			token.setRememberMe(true);
+			SecurityUtils.getSubject().login(token);
+		} catch (AuthenticationException e) {
+			return sendError(2, "密码错误");
+		}
+
+		return sendOk();
+	}
+}

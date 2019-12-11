@@ -1,0 +1,31 @@
+package com.junkj.module.member.entity;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class MemberSql {
+	
+	public String getMemberInfo(String memberId) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" (select sum(stored_num) from member_card c where a.id=c.member_id and  ");
+		sql.append(" DATE_FORMAT(c.invalid_time,'%Y-%m-%d-%H-%i-%S')>date_format(now(),'%Y-%m-%d-%H-%i-%S') ");
+		sql.append(" and c.card_id in (select id from com_cards where type=1) ");
+		sql.append(" ) as chuzhi" );
+		
+		sql.append(" ,(select sum(stored_num) from member_card c where a.id=c.member_id and  ");
+		sql.append(" DATE_FORMAT(c.invalid_time,'%Y-%m-%d-%H-%i-%S')>date_format(now(),'%Y-%m-%d-%H-%i-%S') ");
+		sql.append(" and c.card_id in (select id from com_cards where type=2) ");
+		sql.append(" ) as chuci" );
+		
+		String str = new SQL() {
+			{
+				SELECT("a.points ");
+				SELECT(sql.toString());
+				FROM("member as a");
+				WHERE("a.id=#{memberId}");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+}

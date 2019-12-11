@@ -1,0 +1,26 @@
+package com.junkj.module.member.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.module.member.entity.MemberCard;
+
+public class MemberCardSql {
+
+	public String getMemberCardList(MemberCard card) {
+		String str = new SQL() {
+			{
+				SELECT("a.*");
+				SELECT("a.stored_num as storedNum");
+				FROM("member_card a");
+				WHERE("a.com_id = #{comId}");
+				WHERE("a.member_id = #{memberId}");
+				WHERE("a.card_id = #{cardId}");
+				WHERE("a.stored_num > 0");
+				ORDER_BY("a.create_time asc");
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

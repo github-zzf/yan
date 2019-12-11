@@ -1,0 +1,46 @@
+<div class="xwindow" id="sysOptions_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">系统配置表单<span class="title_close xclose">X</span></div>
+		<form class="xform" id="sysOptins_form" method="post">
+			<input type="hidden" name="id" id="sysOptions_id"/>
+			<input type="hidden" name="okey"/>
+			<div class="xgroup">
+				<label class="g1" style="width:70px;">名称</label>
+				 <div class="g2">
+					<input type="text" name="oname" id="oname" class="readonly" readonly="readonly" style="width:260px">
+				</div> 
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:70px;">值</label>
+				<div class="g2" id="ovalue_box">
+					<input type="text" name="ovalue" style="width: 260px;"></input>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysOptions_win').xwindow({width:500,height:450,open:false});
+app.form = $('#sysOptins_form').xform({
+	url : adminPath + '/sysOptions/save',
+	xbtn:'.btn_submit',
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else{
+			$.xalert('操作失败！');		
+		}
+	},
+	error:function(){$.xalert('请求失败！');}
+});
+$('#btn_add').click(function(){
+	app.form.clear();
+	app.win.open();
+});
+</script>

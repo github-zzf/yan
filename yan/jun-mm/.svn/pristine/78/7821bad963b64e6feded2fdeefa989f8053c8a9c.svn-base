@@ -1,0 +1,106 @@
+package com.junkj.module.company.action;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.ActivityEnrollBiz;
+import com.junkj.module.company.entity.ActivityEnroll;
+
+/**
+ * 活动报名action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/activityEnroll")
+public class ActivityEnrollAction extends BaseAction {
+
+	@Autowired
+	private ActivityEnrollBiz activityEnrollBiz;
+
+	@RequiresPermissions("company:activity:view")
+    @RequestMapping("")
+	public String index(HttpServletRequest request, String id, String name) {
+		request.setAttribute("id", id);
+		request.setAttribute("activityName", name);
+		return "/module/company/activityEnroll";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<ActivityEnroll> listPage(ActivityEnroll activityEnroll) {
+		Page<ActivityEnroll> page = activityEnrollBiz.findPage(activityEnroll);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<ActivityEnroll> findList(ActivityEnroll activityEnroll) {
+		List<ActivityEnroll> list = activityEnrollBiz.findList(activityEnroll);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("company:activity:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated ActivityEnroll activityEnroll, BindingResult result) {
+		if(result.hasErrors()){
+			return sendError(result.getFieldError().getDefaultMessage());
+        }
+		activityEnrollBiz.save(activityEnroll);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("company:activity:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(ActivityEnroll activityEnroll) {
+		activityEnrollBiz.delete(activityEnroll);
+		return sendOk("删除成功！");
+	}
+	
+	/**
+	 * 签到
+	 */
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "qiandao")
+	@ResponseBody
+	public JsonVo qiandao(ActivityEnroll activityEnroll) {
+		activityEnroll.setSignTime(new Date());
+		activityEnrollBiz.save(activityEnroll);
+		return sendOk("保存成功！");
+	}
+
+}

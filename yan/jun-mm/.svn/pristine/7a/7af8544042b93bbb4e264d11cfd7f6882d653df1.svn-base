@@ -1,0 +1,72 @@
+<div class="xwindow" id="link_giftType">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级分类<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_giftType_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" placeholder="关键字" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_giftType_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_giftType_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="demoTree_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkGiftType = {
+	callBack:function(row){},
+	init:function(){
+		linkGiftType.bind();
+		linkGiftType.load();
+	},
+	bind:function(){
+		var sf = $("#link_giftType_form").xform();
+		$("#btn_link_giftType_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkGiftType.table.reload(data);
+		});
+		$("#btn_link_giftType_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkGiftType.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				linkGiftType.table.reload(data);
+	        }
+	    });
+		$('#link_giftType').on("click",".js_link_giftType_sel", function(btn){
+			var index = btn.xv;
+			var row = linkGiftType.table.getRow(index);
+			linkGiftType.callBack(row);
+			linkGiftType.win.close();
+		});
+	},
+	load:function(){
+		linkGiftType.win = $('#link_giftType').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"demoTree_tree",
+			url:adminPath + '/giftType/treeData',
+			click:function(treeId, treeNode){
+				linkGiftType.win.close();
+				linkGiftType.callBack(treeId, treeNode);
+			}
+		})
+	},
+	open:function(callBack){
+		linkGiftType.callBack = callBack;
+		linkGiftType.win.open();
+	}
+}
+linkGiftType.init();
+</script>

@@ -1,0 +1,114 @@
+package com.junkj.module.company.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.company.dao.ActivityEnrollDao;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.company.entity.ActivityEnroll;
+import com.junkj.module.member.biz.CardChangeBiz;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.MemberCard;
+
+/**
+ * 活动报名biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class ActivityEnrollBiz extends CrudBiz<ActivityEnrollDao, ActivityEnroll> {
+
+	@Autowired
+	private ActivityEnrollDao activityEnrollDao;
+	@Autowired
+	private ActivityBiz activityBiz;
+	@Autowired
+	private CardChangeBiz cardChangeBiz;
+	@Autowired
+	private MemberCardBiz memberCardBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<ActivityEnroll> findPage(ActivityEnroll activityEnroll) {
+		return super.findPage(activityEnroll);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<ActivityEnroll> findList(ActivityEnroll activityEnroll) {
+		return super.findList(activityEnroll);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(ActivityEnroll activityEnroll) {
+		if (activityEnroll.getIsNewT()) {
+			activityEnroll.setStatus(ActivityEnroll.STATUS_ENROLLMENT);
+		}
+		super.save(activityEnroll);
+	}
+	
+	/**
+	 * 取消
+	 */
+	@Transactional(readOnly = false)
+	public void updateEnrollStatus(ActivityEnroll activityEnroll) {
+		activityEnroll.setEnrollStatus(ActivityEnroll.enrollStatus_0);
+		super.update(activityEnroll);
+	}
+
+	/**
+	 * 签到
+	 */
+	@Transactional(readOnly = false)
+	public void qiandao(ActivityEnroll activityEnroll, String mcId) {
+		// 改变签到状态
+		activityEnroll.setIsSign(ActivityEnroll.isSign_1);
+		activityEnroll.setSignTime(new Date());
+		super.update(activityEnroll);
+
+		// 课程有会员卡减少卡余额
+		Activity activity = activityBiz.get(activityEnroll.getActivityId());
+		if (StrUtils.notBlank(activity.getCardId()) && StrUtils.notBlank(mcId)) {
+			MemberCard mCard = memberCardBiz.get(mcId);
+			// 添加变更记录
+			CardChange cardChange = new CardChange();
+			cardChange.setMcId(mcId);
+			cardChange.setMemberId(mCard.getMemberId());
+			cardChange.setType(CardChange.TYPE_1);
+			cardChange.setStoredNum(activity.getCardNum());
+			cardChange.setStoredNew(mCard.getStoredNum());
+			cardChangeBiz.xiaoFei(cardChange);
+		}
+	}
+
+	/**
+	 * 查询是否重复预约
+	 */
+	public ActivityEnroll activityByMember(String activityId, String memberId) {
+		ActivityEnroll where = new ActivityEnroll();
+		where.setActivityId(activityId);
+		where.setMemberId(memberId);
+		return activityEnrollDao.getByEntity(where);
+	}
+
+}

@@ -1,0 +1,93 @@
+package com.junkj.module.web.biz;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.NumUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.company.biz.ComConfigBiz;
+import com.junkj.module.company.entity.ComConfig;
+import com.junkj.module.sale.dao.SalePerformanceDao;
+
+/**
+ * 导购端biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SaleApiBiz {
+	@Autowired
+	private SalePerformanceDao salePerformanceDao;
+	@Autowired
+	private ComConfigBiz comConfigBiz;
+
+	// 导购我的业绩
+	public List<Map<String, Object>> listSalePer(Map<String, Object> map) {
+		String ymDate = null;
+		if (map.get("type").equals("1")) {
+			ymDate = DateUtils.getDate("yyyy-MM");
+		} else if (map.get("type").equals("2")) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.MONTH, -1);
+			ymDate = DateUtils.format(calendar.getTime(), "yyyy-MM");
+		}
+		map.put("ymDate", ymDate);
+		
+		// 我的提成比例
+		Double ratio = 0D;
+		ComConfig where = new ComConfig();
+		where.setConfigKey("sale_ratio_1");
+		where.setComId(UserUtils.getUser().getComId());
+		ComConfig comConfig = comConfigBiz.getByEntity(where);
+		if (StrUtils.notBlank(comConfig)) {
+			ratio = NumUtils.toDouble(comConfig.getConfigValue(), 0)==0?0:NumUtils.toDouble(comConfig.getConfigValue(), 0)/100;
+		}
+		List<Map<String, Object>> list = salePerformanceDao.findSalePer(map);
+		for (Map<String, Object> map2 : list) {
+			map2.put("saleMoney", NumUtils.multiply(Double.valueOf(map2.get("xmoney").toString()), ratio));
+		}
+		return list;
+	}
+
+	// 导购我的团队业绩
+	public List<Map<String, Object>> listTeamSalePer(Map<String, Object> map) {
+		String ymDate = null;
+		if (map.get("type").equals("1")) {
+			ymDate = DateUtils.getDate("yyyy-MM");
+		} else if (map.get("type").equals("2")) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.MONTH, -1);
+			ymDate = DateUtils.format(calendar.getTime(), "yyyy-MM");
+		}
+		map.put("ymDate", ymDate);
+		
+		// 团队提成比例
+		Double ratio = 0D;
+		ComConfig where = new ComConfig();
+		where.setConfigKey("sale_ratio_2");
+		where.setComId(UserUtils.getUser().getComId());
+		ComConfig comConfig = comConfigBiz.getByEntity(where);
+		if (StrUtils.notBlank(comConfig)) {
+			ratio = NumUtils.toDouble(comConfig.getConfigValue(), 0)==0?0:NumUtils.toDouble(comConfig.getConfigValue(), 0)/100;
+		}
+
+		List<Map<String, Object>> list = salePerformanceDao.findTeamSalePer(map);
+		for (Map<String, Object> map2 : list) {
+			map2.put("saleMoney", NumUtils.multiply(Double.valueOf(map2.get("xmoney").toString()), ratio));
+		}
+		return list;
+	}
+
+}

@@ -1,0 +1,42 @@
+<div class="xwindow" id="openRemark_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">查看详细<span class="title_close xclose">X</span></div>
+		<div class="openRemark" id="openRemark_box" style="word-wrap:break-word;height: 450px;overflow-y: auto;padding: 10px;"></div>
+		<div class="bottombar">
+			<span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script>
+$(function() {
+	openRemark.init();
+});
+var openRemark = {
+	init : function() {
+		openRemark.loadWin();
+	},
+	loadWin : function() {
+		openRemark.win = $('#openRemark_win').xwindow({
+			width : 550,
+			height : 550,
+			open : false
+		});
+	},
+	getRemark:function(row,cls){
+		var html = "<a class='remark_style remark_btn "+cls+"' data-xv='"+row.index+"'>查看</a>";
+		return html;
+	},
+	open:function(html){
+		if (html ==null || html=="" ) {
+			$("#openRemark_box").html("<span class='remark_no'>暂无数据</span>");
+		}else{
+			$("#openRemark_box").html(html);
+		}
+		openRemark.win.open();
+	},
+	setTitle:function(title){
+		openRemark.win.setTitle(title);
+	}
+};
+</script>

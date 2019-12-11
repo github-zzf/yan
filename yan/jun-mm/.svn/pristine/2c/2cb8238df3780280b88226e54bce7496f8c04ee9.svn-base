@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/feedback.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">意见反馈</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">反馈人</label>
+					<input type="text" name="name" class="xw2"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">留言内容</label>
+					<input type="text" name="content" class="xw2"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">类型</label>
+					<div class="xcombo" data-name="type" id="sf_type">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<!-- <button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button> -->
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="feedback_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<!--<th width="80px">操作</th> -->
+							<th width="100px">反馈人</th>
+							<th width="100px">类型</th>
+							<th>留言内容</th>
+							<th width="140px">反馈时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<!--<td class="tc">{btnUpdate}{btnDelete}</td> -->
+									<td>{name}</td>
+									<td>{typeTxt}</td>
+									<td>{content}</td>
+									<td>{createTime}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="feedback_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "feedbackForm.html">
+	
+</body>
+</html>

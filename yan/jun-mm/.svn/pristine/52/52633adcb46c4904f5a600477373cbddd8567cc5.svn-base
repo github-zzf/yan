@@ -1,0 +1,160 @@
+package com.junkj.module.member.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.cash.biz.CashMoneyBiz;
+import com.junkj.module.cash.entity.CashMoney;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.member.dao.CardChangeDao;
+import com.junkj.module.member.dao.CardUserDao;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.CardUser;
+import com.junkj.module.member.entity.MemberCard;
+
+/**
+ * 会员卡消费明细表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ */
+@Service
+@Transactional(readOnly = true)
+public class CardChangeBiz extends CrudBiz<CardChangeDao, CardChange> {
+
+	@Autowired
+	private MemberCardBiz cardBiz;
+	@Autowired
+	private CardUserDao cardUserDao;
+	@Autowired
+	private CashMoneyBiz cashMoneyBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CardChange> findPage(CardChange cardChange) {
+		return super.findPage(cardChange);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CardChange> findList(CardChange cardChange) {
+		return super.findList(cardChange);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(CardChange cardChange) {
+		super.save(cardChange);
+	}
+
+	/**
+	 * 失效
+	 */
+	@Transactional(readOnly = false)
+	public void shiXiao(CardChange cardChange) {
+		MemberCard mCard = cardBiz.get(cardChange.getMcId());
+		cardChange.setStoredNum(mCard.getStoredNum());
+		// 更新卡余额
+		mCard.setStoredNum(0D);
+		cardBiz.update(mCard);
+
+		// 添加明细记录
+		cardChange.setMemberId(mCard.getMemberId());
+		cardChange.setType(CardChange.TYPE_4);
+		cardChange.setStoredNew(0D);
+		super.save(cardChange);
+	}
+
+	/**
+	 * 消费
+	 */
+	@Transactional(readOnly = false)
+	public JsonVo xiaoFei(CardChange cardChange) {
+		MemberCard mCard = cardBiz.get(cardChange.getMcId());
+		if (mCard.getStoredNum() < cardChange.getStoredNum()) {
+			return JsonVo.sendError("余额不足，请先充值");
+		}
+		if(!DateUtils.after(DateUtils.formatDate(mCard.getInvalidTime()), DateUtils.formatDate(new Date()), "yyyy-MM-dd")){
+			return JsonVo.sendError("卡已失效!");
+		}
+		// 更新卡余额
+		mCard.setStoredNum(mCard.getStoredNum() - cardChange.getStoredNum());
+		cardBiz.update(mCard);
+
+		// 添加明细记录
+		cardChange.setMemberId(mCard.getMemberId());
+		cardChange.setType(CardChange.TYPE_1);
+		cardChange.setStoredNew(mCard.getStoredNum());
+		super.save(cardChange);
+
+		// 保存子表
+		for (CardUser item : cardChange.getCardUserItem()) {
+			if (!CardUser.STATUS_DELETE.equals(item.getStatus())) {
+				item.setChangeId(cardChange.getId());
+				item.setStoredNum(cardChange.getStoredNum());
+				if (item.getIsNewT()) {
+					item.preInsert();
+					cardUserDao.insert(item);
+				} else {
+					item.preUpdate();
+					cardUserDao.update(item);
+				}
+			} else {
+				cardUserDao.delete(item);
+			}
+		}
+
+		// 销售金额
+		CashMoney cashMoney = new CashMoney();
+		cashMoney.setBizType("member_card_change");
+		cashMoney.setMoney(cardChange.getStoredNum());
+		cashMoney.setBizId(cardChange.getId());
+		if (Cards.CARDS_TYPE_1.equals(mCard.getCardsType())) {
+			cashMoney.setType(CashMoney.TYPE_2);
+		} else {
+			cashMoney.setType(CashMoney.TYPE_3);
+		}
+		cashMoneyBiz.save(cashMoney);
+
+		return JsonVo.sendOk();
+	}
+
+	/**
+	 * 赠送
+	 */
+	@Transactional(readOnly = false)
+	public JsonVo zengSong(CardChange cardChange) {
+		MemberCard mCard = cardBiz.get(cardChange.getMcId());
+		if(!DateUtils.after(DateUtils.formatDate(mCard.getInvalidTime()), DateUtils.formatDate(new Date()), "yyyy-MM-dd")){
+			return JsonVo.sendError("卡已失效!");
+		}
+		// 更新卡余额
+		mCard.setStoredNum(mCard.getStoredNum() + cardChange.getStoredNum());
+		cardBiz.update(mCard);
+
+		// 添加明细记录
+		cardChange.setMemberId(mCard.getMemberId());
+		cardChange.setType(CardChange.TYPE_3);
+		cardChange.setStoredNew(mCard.getStoredNum());
+		super.save(cardChange);
+
+		return JsonVo.sendOk();
+	}
+
+}

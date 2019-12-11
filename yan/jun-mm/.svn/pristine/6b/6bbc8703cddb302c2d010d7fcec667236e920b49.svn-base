@@ -1,0 +1,119 @@
+package com.junkj.common.utils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.session.Session;
+
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.common.lang.ObjectUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.sys.biz.SysCompanyBiz;
+import com.junkj.module.sys.entity.SysCompany;
+import com.junkj.module.weixin.biz.WxConfigBiz;
+import com.junkj.module.weixin.entity.WxConfig;
+
+public class ComUtils {
+
+	private static SysCompanyBiz sysCompanyBiz = SpringUtils.getBean(SysCompanyBiz.class);
+	private static WxConfigBiz wxConfigBiz = SpringUtils.getBean(WxConfigBiz.class);
+
+	public static final String DEFAULT_COM_NAME = "junkj";
+	public static final String DEFAULT_COM_ID = "0";
+	public static final String CACHE_COM_ID_ = "COM_ID_";
+	public static final String CACHE_COM_NAME_ = "COM_NAME_";
+	public static final String CACHE_COM_WXCONFIG = "WXCONFIG";
+
+	/**
+	 * 通过request、session获取公司名称
+	 */
+	public static String getCurrentComName() {
+		return getRSCach(CACHE_COM_NAME_, DEFAULT_COM_NAME);
+	}
+
+	/**
+	 * 通过request、session获取公司id
+	 */
+	public static String getCurrentComId() {
+		return getRSCach(CACHE_COM_ID_, DEFAULT_COM_ID);
+	}
+
+	private static String getRSCach(String key, String defaultVal) {
+		String value = null;
+		HttpServletRequest request = ServletUtils.getRequest();
+		if (request != null) {
+			value = ObjectUtils.toString(request.getAttribute(key));
+		}
+
+		if (StrUtils.isBlank(value)) {
+			Session session = UserUtils.getSubject().getSession(false);
+			if (session != null) {
+				value = ObjectUtils.toString(session.getAttribute(key));
+			}
+		}
+
+		if (value == null) {
+			value = defaultVal;
+		}
+
+		if (request != null) {
+			request.setAttribute(key, value);
+		}
+		return ObjectUtils.toStringIgnoreNull(value);
+	}
+
+	/**
+	 * 获取公司
+	 */
+	public static SysCompany getCurrentCom() {
+		return getById(getCurrentComId());
+	}
+
+	/**
+	 * 根据ID获取公司
+	 */
+	public static synchronized SysCompany getById(String id) {
+		SysCompany company = getCache(id);
+		if (company == null) {
+			company = sysCompanyBiz.get(id);
+			if (company != null) {
+				putCache(id, company);
+			}
+		}
+		return company;
+	}
+
+	/**
+	 * 根据ID获取公司
+	 */
+	public static WxConfig getWxConfig() {
+		WxConfig wxConfig = getCache(CACHE_COM_WXCONFIG);
+		if (wxConfig == null) {
+			wxConfig = wxConfigBiz.getByComId(getCurrentComId());
+			if (wxConfig != null) {
+				putCache(CACHE_COM_WXCONFIG, wxConfig);
+			}
+		}
+		return wxConfig;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <V> V getCache(String key) {
+		key = CACHE_COM_ID_.concat(getCurrentComId()).concat("__").concat(key);
+		return (V) CacheUtils.get(CacheUtils.COM_CACHE, key);
+	}
+
+	private static void putCache(String key, Object value) {
+		key = CACHE_COM_ID_.concat(getCurrentComId()).concat("__").concat(key);
+		CacheUtils.put(CacheUtils.COM_CACHE, key, value);
+	}
+
+	/**
+	 * 删除企业配置缓存
+	 */
+	public static void removeCache(String key) {
+		key = CACHE_COM_ID_.concat(getCurrentComId()).concat("__").concat(key);
+		CacheUtils.remove(CacheUtils.COM_CACHE, key);
+	}
+
+}

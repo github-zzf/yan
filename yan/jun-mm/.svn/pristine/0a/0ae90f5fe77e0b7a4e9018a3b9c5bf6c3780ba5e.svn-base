@@ -1,0 +1,47 @@
+package com.junkj.module.sys.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.module.sys.dao.SysRoleDao;
+import com.junkj.module.sys.entity.SysRole;
+
+/**
+ * 操作日志biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Service
+public class SysRoleBiz extends CrudBiz<SysRoleDao, SysRole> {
+	
+	/**
+	 * 查询角色列表
+	 */
+	public List<SysRole> findAll() {
+		List<SysRole> roleList = dao.findList(newEntity());
+		return roleList;
+	}
+	/**
+	 * 查询角色列表
+	 */
+	public List<SysRole> findByRoleIds(String roleIds) {
+		SysRole where = new SysRole();
+		where.setIds(roleIds);
+		where.disableComId();
+		List<SysRole> roleList = dao.findList(where);
+		return roleList;
+	}
+
+	/**
+	 * 查询角色用户
+	 */
+	public int countUsers(String roleId) {
+		return dao.countUsers(roleId);
+	}
+	
+}

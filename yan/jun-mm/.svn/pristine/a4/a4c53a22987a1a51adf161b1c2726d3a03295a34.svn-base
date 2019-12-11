@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/comConfig.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">参数配置</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">参数编码</label>
+					<input type="text" name="configKey" class="xw2"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">参数名称</label>
+					<input type="text" name="configName" class="xw2"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="comConfig_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>
+							<th width="100px">参数编码</th>
+							<th width="200px">参数名称</th>
+							<th width="300px">参数值</th>
+							<th>参数说明</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnUpdate}</td>
+									<td>{configKey}</td>
+									<td>{configName}</td>
+									<td>{configValue}</td>
+									<td>{remark}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="comConfig_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "comConfigForm.html">
+	
+</body>
+</html>

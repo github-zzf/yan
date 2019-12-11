@@ -1,0 +1,46 @@
+<div class="xwindow" id="user_set_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户</div>
+		<form class="xform search_box" id="user_set_form" method="post" style="padding:10px">
+			<div class="xgroup">
+				<label class="label">用户帐号/用户昵称</label>
+				<input type="text" name="username" class="xw2" id="search_nameCode" autocomplete="off"  />
+			</div>
+			<div class="xgroup change_label" style="margin-top: 20px">
+				<button type="button" class="xbtn" id="btn_search_set"><b class="icon_search icon_all">查询</b></button>
+				<button type="button" class="xbtn" id="btn_search_add"><b class="icon_add icon_all">添加</b></button>
+				<button type="button" class="xbtn" id="btn_reset_set"><b class="icon_reast icon_all">重置</b></button>
+			</div>
+			<div class="clear"></div>
+		</form>
+		<div class="xtable" id="user_set_xtable">
+			<table class="xhead">
+				<tr>
+					<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+					<th width="200px">用户帐号</th>
+					<th>用户昵称</th>
+					<th>操作</th>
+				</tr>
+			</table>
+			<div class="xbody" style="height: 300px;overflow: auto;">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+							<td>{username}</td>
+							<td>{name}</td>
+							<td>{deleteBtn}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="user_set_paging">
+		<#include "/common/_paging.html">
+		<div class="bottombar">
+			<!-- <span class="xbtn btn_submit_set">保存</span> -->
+			<span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>

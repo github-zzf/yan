@@ -1,0 +1,177 @@
+package com.junkj.common.entity;
+
+import java.util.Date;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.junkj.common.IdGen.IdGenerate;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.sys.entity.SysUser;
+
+@Table(columns = {
+	@Column(name = "status", attrName = "status"),
+	@Column(name = "create_id", attrName = "createId"),
+	@Column(name = "create_time", attrName = "createTime", isQuery = false),
+	@Column(name = "update_id", attrName = "updateId"),
+	@Column(name = "update_time", attrName = "updateTime", isQuery = false),
+	@Column(name = "remark", attrName = "remark", queryType = QueryType.LIKE) 
+})
+public class DataEntity<T extends DataEntity<?>> extends BaseEntity<T> {
+
+	private static final long serialVersionUID = 1L;
+    protected String status;
+	protected String createId;
+	protected String createName;
+	protected Date createTime;
+	protected String updateId;
+	protected String updateName;
+	protected Date updateTime;
+	protected String remark;
+	
+	/**
+	 * 0否
+	 */
+	public static final String IS_SYS_FALSE = "0";
+	/**
+	 * 1是
+	 */
+	public static final String IS_SYS_TRUE = "1";
+	
+	//（状态：0正常、6草稿、7冻结、8停用、9删除）
+	/**
+	 * 0正常
+	 */
+	public static final String STATUS_NORMAL = "0";
+	/**
+	 * 6草稿
+	 */
+	public static final String STATUS_DRAFT = "6";
+	/**
+	 * 7冻结
+	 */
+	public static final String STATUS_FREEZE = "7";
+	/**
+	 * 8停用
+	 */
+	public static final String STATUS_DISABLE = "8";
+	/**
+	 * 9删除
+	 */
+	public static final String STATUS_DELETE = "9";
+
+	public DataEntity() {
+		super();
+	}
+
+	public DataEntity(String id) {
+		super(id);
+	}
+	
+	/**
+	 * 插入之前执行方法，需要手动调用
+	 */
+	@Override
+	public void preInsert() {
+		// 调用setIsNewT()使用自定义ID
+		if (!this.isNewT) {
+			setId(IdGenerate.nextId());
+		}
+		SysUser user = this.currentUser;
+		if (user == null) {
+			user = UserUtils.getUser();
+		}
+		if (StringUtils.isNotBlank(user.getId())) {
+			this.updateId = user.getId();
+			this.updateName = user.getName();
+			this.createId = updateId;
+			this.createName = updateName;
+		}
+		this.updateTime = new Date();
+		this.createTime = this.updateTime;
+	}
+
+	/**
+	 * 更新之前执行方法，需要手动调用
+	 */
+	@Override
+	public void preUpdate() {
+		SysUser user = this.currentUser;
+		if (user == null) {
+			user = UserUtils.getUser();
+		}
+		if (StringUtils.isNotBlank(user.getId())) {
+			this.updateId = user.getId();
+			this.updateName = user.getName();
+		}
+		this.updateTime = new Date();
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+
+	public String getCreateId() {
+		return createId;
+	}
+
+	public void setCreateId(String createId) {
+		this.createId = createId;
+	}
+
+	public String getCreateName() {
+		return createName;
+	}
+
+	public void setCreateName(String createName) {
+		this.createName = createName;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public String getUpdateId() {
+		return updateId;
+	}
+
+	public void setUpdateId(String updateId) {
+		this.updateId = updateId;
+	}
+
+	public String getUpdateName() {
+		return updateName;
+	}
+
+	public void setUpdateName(String updateName) {
+		this.updateName = updateName;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

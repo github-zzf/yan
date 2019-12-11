@@ -1,0 +1,393 @@
+package com.junkj.module.company.biz;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.ObjectUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.TplMsgUtils;
+import com.junkj.module.company.dao.CourseDao;
+import com.junkj.module.company.dao.CourseEnrollDao;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.company.entity.ComConfig;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.StaffNoticeSetting;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.member.biz.CardChangeBiz;
+import com.junkj.module.member.biz.MemberBiz;
+import com.junkj.module.member.biz.PointsBiz;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.member.entity.Points;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 课程预约biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CourseEnrollBiz extends CrudBiz<CourseEnrollDao, CourseEnroll> {
+
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseDao courseDao;
+	@Autowired
+	private CardChangeBiz cardChangeBiz;
+	@Autowired
+	private MemberBiz memberBiz;
+	@Autowired
+	private PointsBiz pointsBiz;
+	@Autowired
+	private ComConfigBiz comConfigBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+	@Autowired
+	private StaffNoticeSettingBiz staffNoticeSettingBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CourseEnroll> findPage(CourseEnroll courseEnroll) {
+		return super.findPage(courseEnroll);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CourseEnroll> findList(CourseEnroll courseEnroll) {
+		return super.findList(courseEnroll);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(CourseEnroll courseEnroll) {
+		super.save(courseEnroll);
+
+		Course course = courseBiz.get(courseEnroll.getCourseId());
+		Member member = memberBiz.get(courseEnroll.getMemberId());
+		/**
+		 * 老师发送预约通知
+		 */
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setUserId(course.getTeacherId());
+		workMsg.setStyle(WorkMsg.STYLE_1);
+		workMsg.setBizId(course.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_1);
+		workMsg.setUrl("/pages/course/courseInfo?id=" + course.getId());
+		workMsg.setTitle("课程预约通知");
+		String content = "课程名称: " + course.getName() + "<br/>课程时间: " + DateUtils.format(course.getCourseDate())
+				+ "<br/>详细时间: ";
+		content += DateUtils.format(course.getStartTime(), "HH:mm") + " - "
+				+ DateUtils.format(course.getEndTime(), "HH:mm");
+		content += "<br/>教师: " + course.getTeacherName();
+		if (StrUtils.notBlank(course.getAssistantId())) {
+			content += "<br/>助教: " + course.getAssistantName();
+		}
+		content += "<br/>预约人: " + member.getName();
+		content += "<br/>预约时间: " + DateUtils.getDate();
+		workMsg.setContent(content);
+		workMsg.setComId(workMsg.getComId());
+		workMsg.setCreateTime(new Date());
+		workMsgBiz.save(workMsg);
+
+		/**
+		 * 给拥有通知权限的发送预约通知
+		 */
+		StaffNoticeSetting where = new StaffNoticeSetting();
+		where.setComId(course.getComId());
+		where.setEnrollMsg(StaffNoticeSetting.TYPE_0);
+		for (StaffNoticeSetting setting : staffNoticeSettingBiz.findList(where)) {
+			if (!course.getTeacherId().equals(setting.getUserId())) {
+				workMsg.setId(null);
+				workMsg.setUserId(setting.getUserId());
+				workMsgBiz.save(workMsg);
+				WxUser wxUser = wxUserBiz.getByStaffId(setting.getUserId());
+				if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+					String comId = ComUtils.getCurrentComId();
+					new Thread() {
+						public void run() {
+							try {
+								List<String> data = ListUtils.newArrayList();
+								data.add("学生预约课程通知");
+								data.add(member.getName());
+								data.add(ObjectUtils.toString(member.getPhone()));
+								data.add(course.getName());
+								data.add("课程" + course.getName() + "\n" + DateUtils.formatDate(course.getCourseDate())
+										+ "（" + DateUtils.getWeek(course.getCourseDate()) + "）"
+										+ DateUtils.formatDate(course.getStartTime(), "HH:mm"));
+								data.add("点击查看详情");
+								String url = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mstaff/infoMsg?id="+workMsg.getId();
+								TplMsgUtils.sendMsg(comId, wxUser.getOpenid(), url, TplMsgUtils.TPL_9, data);
+							} catch (Exception e) {
+								logger.error("预约通知失败", e);
+							}
+						}
+					}.start();
+				}
+			}
+		}
+
+		// 微信模板消息：会员报名通知
+		if (member != null && StrUtils.notBlank(member.getOpenId())) {
+			String comId = ComUtils.getCurrentComId();
+			new Thread() {
+				public void run() {
+					try {
+						List<String> data = ListUtils.newArrayList();
+						data.add("预约成功");
+						data.add("您预约的" + course.getName() + "课程在" + DateUtils.formatDate(course.getCourseDate()) + "（"
+								+ DateUtils.getWeek(course.getCourseDate()) + "）"
+								+ DateUtils.formatDate(course.getStartTime(), "HH:mm") + "。请提前半小时到达前台签到。");
+						data.add(DateUtils.getDateTime());
+						data.add("点击查看详情");
+						String html = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mobile/index.html/#/pages/nav/service/service?type=my";
+						TplMsgUtils.sendMsg(comId, member.getOpenId(), html, TplMsgUtils.TPL_3, data);
+					} catch (Exception e) {
+						logger.error("预约通知失败", e);
+					}
+				}
+			}.start();
+		}
+		// 微信模板消息：老师报名通知
+		WxUser wxUser = wxUserBiz.getByStaffId(course.getTeacherId());
+		if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+			String comId = ComUtils.getCurrentComId();
+			new Thread() {
+				public void run() {
+					try {
+						List<String> data = ListUtils.newArrayList();
+						data.add("教师您好,有学生预约您的课程啦!");
+						data.add(member.getName());
+						data.add(ObjectUtils.toString(member.getPhone()));
+						data.add(course.getName());
+						data.add(DateUtils.formatDate(course.getCourseDate())
+								+ DateUtils.formatDate(course.getStartTime(), " HH:mm"));
+						data.add("点击查看详情");
+						String url = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mstaff/infoMsg?id="+workMsg.getId();
+						TplMsgUtils.sendMsg(comId, wxUser.getOpenid(), url, TplMsgUtils.TPL_9, data);
+					} catch (Exception e) {
+						logger.error("预约通知失败", e);
+					}
+				}
+			}.start();
+		}
+	}
+
+	/**
+	 * 调课
+	 */
+	@Transactional(readOnly = false)
+	public void tiaoke(CourseEnroll courseEnroll) {
+		// 原预约
+		CourseEnroll old = get(courseEnroll.getId());
+		super.save(courseEnroll);
+
+		// 微信模板消息：调课通知
+		Member member = memberBiz.get(old.getMemberId());
+
+		if (member != null && StrUtils.notBlank(member.getOpenId())) {
+			Course course = courseBiz.get(courseEnroll.getCourseId());
+			String comId = ComUtils.getCurrentComId();
+			new Thread() {
+				public void run() {
+					try {
+						String oldTxt = old.getCourseName() + " " + DateUtils.format(old.getCourseDate())
+								+ DateUtils.format(old.getStartTime(), " HH:mm");
+						String newTxt = course.getName() + " " + DateUtils.format(course.getCourseDate())
+								+ DateUtils.format(course.getStartTime(), " HH:mm");
+
+						List<String> data = ListUtils.newArrayList();
+						data.add("您有一条调课通知");
+						data.add("临时有事");
+						data.add(oldTxt);
+						data.add(newTxt);
+						data.add("请按调课时间安排日程");
+						String html = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mobile/index.html/#/pages/nav/service/service?type=my";
+						TplMsgUtils.sendMsg(comId, member.getOpenId(), html, TplMsgUtils.TPL_6, data);
+
+					} catch (Exception e) {
+						logger.error("签到通知失败", e);
+					}
+				}
+			}.start();
+		}
+	}
+
+	/**
+	 * 签到
+	 */
+	@Transactional(readOnly = false)
+	public void qiandao(CourseEnroll courseEnroll, MemberCard mc) {
+		Member member = memberBiz.get(courseEnroll.getMemberId());
+
+		// 课程签到积分
+		ComConfig where = new ComConfig();
+		where.setConfigKey("sign_send_points");
+		where.setComId(ComUtils.getCurrentComId());
+		ComConfig comConfig = comConfigBiz.getByEntity(where);
+		if (comConfig != null && !"0".equals(comConfig.getConfigValue())) {
+			member.setPoints(member.getPoints() + Long.valueOf(comConfig.getConfigValue()));
+			memberBiz.save(member);
+			// 积分记录
+			Points points = new Points();
+			points.setMemberId(courseEnroll.getMemberId());
+			points.setBizId(courseEnroll.getId());
+			points.setType(Points.TYPE_1);
+			points.setBizType(Points.BIZTYPE_2);
+			points.setNum(Long.valueOf(comConfig.getConfigValue()));
+			pointsBiz.save(points);
+		}
+
+		// 修改记录为已签到
+		courseEnroll = this.get(courseEnroll.getId());
+		courseEnroll.setStatus(CourseEnroll.status_4);
+		courseEnroll.setSignTime(new Date());
+		super.update(courseEnroll);
+
+		// 课程有会员卡减少卡余额
+		Course course = courseBiz.get(courseEnroll.getCourseId());
+		if (StrUtils.notBlank(course.getCardsTypeId()) && StrUtils.notBlank(mc)) {
+			// 添加变更记录
+			CardChange cardChange = new CardChange();
+			cardChange.setMcId(mc.getId());
+			cardChange.setMemberId(mc.getMemberId());
+			cardChange.setType(CardChange.TYPE_1);
+			cardChange.setStoredNum(course.getCardNum());
+			cardChange.setStoredNew(mc.getStoredNum());
+			cardChangeBiz.saveCardChangeEnroll(cardChange);
+		}
+
+		// 微信模板消息：签到通知
+		if (member != null && StrUtils.notBlank(member.getOpenId())) {
+			String comId = ComUtils.getCurrentComId();
+			new Thread() {
+				public void run() {
+					try {
+						String k3 = "课程签到成功";
+						if (StrUtils.notBlank(mc)) {
+							if (Cards.CARDS_TYPE_1.equals(mc.getCardsType())) {
+								k3 = "消费" + course.getCardNum() + "元  剩余" + (mc.getStoredNum() - course.getCardNum())
+										+ "元";
+							} else if (Cards.CARDS_TYPE_2.equals(mc.getCardsType())) {
+								k3 = "消费" + course.getCardNum() + "次  剩余" + (mc.getStoredNum() - course.getCardNum())
+										+ "次";
+							}
+						}
+
+						List<String> data = ListUtils.newArrayList();
+						data.add("您有一条签到通知");
+						data.add(member.getName());
+						data.add(DateUtils.getDateTime());
+						data.add(k3);
+						data.add("签到课程：" + course.getName());
+						String html = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mobile/index.html/#/pages/nav/service/service?type=my";
+						TplMsgUtils.sendMsg(comId, member.getOpenId(), html, TplMsgUtils.TPL_5, data);
+
+					} catch (Exception e) {
+						logger.error("签到通知失败", e);
+					}
+				}
+			}.start();
+		}
+
+	}
+
+	/**
+	 * 取消预约
+	 */
+	@Transactional(readOnly = false)
+	public void quxiao(CourseEnroll courseEnroll) {
+		courseEnroll.setStatus(CourseEnroll.status_2);
+		super.update(courseEnroll);
+
+		// 微信模板消息：取消预约通知
+		CourseEnroll enroll = super.get(courseEnroll.getId());
+		Member member = memberBiz.get(enroll.getMemberId());
+		Course course = courseBiz.get(enroll.getCourseId());
+		if (member != null && StrUtils.notBlank(member.getOpenId())) {
+			String comId = ComUtils.getCurrentComId();
+			new Thread() {
+				public void run() {
+					try {
+						List<String> data = ListUtils.newArrayList();
+						data.add("您有一条取消课程预约通知!");
+						data.add(DateUtils.formatDate(course.getCourseDate()));
+						data.add(DateUtils.formatDate(course.getStartTime(), "HH:mm"));
+						data.add(course.getName());
+						data.add("点击查看详情");
+						String html = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/mobile/index.html/#/pages/nav/service/service?type=my";
+						TplMsgUtils.sendMsg(comId, member.getOpenId(), html, TplMsgUtils.TPL_4, data);
+
+					} catch (Exception e) {
+						logger.error("取消课程通知失败", e);
+					}
+				}
+			}.start();
+		}
+	}
+
+	/**
+	 * 复制课程
+	 */
+	public Course getCopyKc(String id, Date date) {
+		Course where = new Course();
+		where.setParentId(id);
+		where.setCourseDate(date);
+		return courseDao.getByEntity(where);
+	}
+
+	/**
+	 * 查询是否重复预约
+	 */
+	public CourseEnroll countByMember(String keChengId, String memberId) {
+		return dao.countByMember(keChengId, memberId);
+	}
+
+	/**
+	 * 查询人数上限
+	 */
+	public Double findUpperLimit(String courseId) {
+		return dao.findUpperLimit(courseId);
+	}
+
+	/**
+	 * 查询教师助教签到评价完成数量
+	 */
+	public Map<String, Object> getByWorkNum(String userId) {
+		return dao.getByWorkNum(userId);
+	}
+
+	/**
+	 * 查询待评价数据
+	 */
+	public List<CourseEnroll> findPingjia() {
+		return dao.findPingjia();
+	}
+}

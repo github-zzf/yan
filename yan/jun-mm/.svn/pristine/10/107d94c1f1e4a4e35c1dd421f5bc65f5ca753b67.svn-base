@@ -1,0 +1,50 @@
+package com.junkj.module.company.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.company.dao.StaffNoticeSettingDao;
+import com.junkj.module.company.entity.StaffNoticeSetting;
+
+/**
+ * 通知设置biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月12日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class StaffNoticeSettingBiz extends CrudBiz<StaffNoticeSettingDao, StaffNoticeSetting> {
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<StaffNoticeSetting> findPage(StaffNoticeSetting staffNoticeSetting) {
+		return super.findPage(staffNoticeSetting);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<StaffNoticeSetting> findList(StaffNoticeSetting staffNoticeSetting) {
+		return super.findList(staffNoticeSetting);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(StaffNoticeSetting staffNoticeSetting) {
+		super.save(staffNoticeSetting);
+	}
+	
+}

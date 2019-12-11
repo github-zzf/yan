@@ -1,0 +1,146 @@
+package com.junkj.module.sys.entity;
+
+import java.util.List;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+
+/**
+ * 用户角色实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Table(name = "sys_role", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "name", attrName = "name", queryType = QueryType.LIKE),
+		@Column(name = "menus", attrName = "menus"),
+		@Column(name = "user_type", attrName = "userType"),
+		@Column(name = "is_sys", attrName = "isSys"),
+		@Column(name = "id", attrName = "ids", isUpdate = false, queryType = QueryType.FIND_IN_SET),
+		@Column(includeEntity = DataEntity.class),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "b", on = "b.bean_key = 'sys_user_type' and b.bean_val = a.user_type", columns = {
+			@Column(name = "bean_txt", attrName = "userTypeTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "c", on = "c.bean_key = 'is_yes' and c.bean_val = a.is_sys", columns = {
+			@Column(name = "bean_txt", attrName = "isSysTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "s", on = "s.bean_key = 'sys_user_status' and s.bean_val = a.status", columns = {
+			@Column(name = "bean_txt", attrName = "statusTxt", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class SysRole extends DataEntity<SysRole> {
+
+	private static final long serialVersionUID = 1L;
+	private String name;// 角色名称
+	private String menus;// 系统菜单
+	private String userType; // 用户类型
+	private String isSys;// 系统角色
+
+	// 业务字段
+	private List<String> permissions;// 菜单权限列表
+	private String userTypeTxt; // 状态
+	private String isSysTxt; // 状态
+	private String statusTxt; // 状态
+	private String ids; // find_in_set查询id
+
+	/**
+	 * 系统角色：是
+	 */
+	public static final String IS_SYS_YES = "1";
+	/**
+	 * 系统角色：否
+	 */
+	public static final String IS_SYS_NO = "0";
+	/**
+	 * 用户类型：员工
+	 */
+	public static final String USER_TYPE_STAFF = "staff";
+	/**
+	 * 用户类型：无
+	 */
+	public static final String USER_TYPE_NONE = "none";
+	
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getMenus() {
+		return menus;
+	}
+
+	public void setMenus(String menus) {
+		this.menus = menus;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getIsSys() {
+		return isSys;
+	}
+
+	public void setIsSys(String isSys) {
+		this.isSys = isSys;
+	}
+
+	public List<String> getPermissions() {
+		return permissions;
+	}
+
+	public void setPermissions(List<String> permissions) {
+		this.permissions = permissions;
+	}
+
+	public String getUserTypeTxt() {
+		return userTypeTxt;
+	}
+
+	public void setUserTypeTxt(String userTypeTxt) {
+		this.userTypeTxt = userTypeTxt;
+	}
+
+	public String getIsSysTxt() {
+		return isSysTxt;
+	}
+
+	public void setIsSysTxt(String isSysTxt) {
+		this.isSysTxt = isSysTxt;
+	}
+
+	public String getStatusTxt() {
+		return statusTxt;
+	}
+
+	public void setStatusTxt(String statusTxt) {
+		this.statusTxt = statusTxt;
+	}
+
+	public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+
+}

@@ -1,0 +1,53 @@
+<div class="xwindow" id="link_commentContent">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">服务评价<span class="title_close xclose">X</span></div>
+	    <div class="xtable" id="link_commentContent_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="200px">课程名称</th>
+					<th width="90px">课程时间</th>
+					<th width="70px">评价等级</th>
+					<th>评价内容</th>
+					<th width="90px">评价时间</th>
+					<th width="150px">评价人</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td>{courseName}</td>
+							<td>{courseDate}</td>
+							<td>{commentLevel}</td>
+							<td>{commentContent}</td>
+							<td>{commentTime}</td>
+							<td>{memberName}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	
+</div>
+<script>
+var linkCommentContent = {
+	init:function(){
+		linkCommentContent.load();
+	},
+	load:function(){
+		linkCommentContent.win = $('#link_commentContent').xwindow({width:950,height:550,open:false});
+		linkCommentContent.table = $('#link_commentContent_xtable').xtable({
+			url:adminPath + '/list/findCommentContent',
+			bodyHeight:440,
+			load:false
+		});
+	},
+	open:function(id){
+		linkCommentContent.win.open();
+		linkCommentContent.table.reload({id:id});
+	}
+}
+linkCommentContent.init();
+</script>

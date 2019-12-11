@@ -1,0 +1,84 @@
+package com.junkj.module.company.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.FeedbackBiz;
+import com.junkj.module.company.entity.Feedback;
+
+/**
+ * 意见反馈action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/feedback")
+public class FeedbackAction extends BaseAction {
+
+	@Autowired
+	private FeedbackBiz feedbackBiz;
+
+	@RequiresPermissions("company:feedback:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/company/feedback";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("company:feedback:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<Feedback> listPage(Feedback feedback) {
+		Page<Feedback> page = feedbackBiz.findPage(feedback);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("company:feedback:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<Feedback> findList(Feedback feedback) {
+		List<Feedback> list = feedbackBiz.findList(feedback);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("company:feedback:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(Feedback feedback) {
+		feedbackBiz.save(feedback);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("company:feedback:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(Feedback feedback) {
+		feedbackBiz.delete(feedback);
+		return sendOk("删除成功！");
+	}
+
+}

@@ -1,0 +1,43 @@
+<div class="xwindow" id="comTemplate_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">企业模板消息表单</div>
+		<form class="xform" id="comTemplate_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<input type="hidden" name="tplCode"/>
+			<div class="xgroup">
+				<label class="g1">模板ID<i>*</i></label>
+				<div class="g2"><input type="text" name="tplId" class="xw7"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">详细内容</label>
+				<div class="g2" class="xinfo">
+					<textarea name="remark" class="readonly" readonly="readonly" style="width:530px;height:300px"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#comTemplate_win').xwindow({width:700,height:500,open:false});
+app.form = $('#comTemplate_form').xform({
+	url : adminPath + '/comTemplate/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'模板编码', name:'tplCode', xcheck:'null'},
+		{label:'模板ID', name:'tplId', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

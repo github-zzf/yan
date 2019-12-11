@@ -1,0 +1,65 @@
+package com.junkj.module.sys.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class ComboSql {
+
+	public String findCols(String tableCode) {
+		String str = new SQL() {
+			{
+				SELECT("a.tableCode");
+				SELECT("a.colCode");
+				SELECT("a.colName");
+				SELECT("a.colWidth");
+				SELECT("a.colSort");
+				FROM("excel_out a");
+				WHERE("a.tableCode = #{tableCode}");
+				ORDER_BY("a.colSort asc");
+			}
+		}.toString();
+
+		return str;
+	}
+
+	public String findBeanType(String tKey) {
+		String str = new SQL() {
+			{
+				SELECT("a.val");
+				SELECT("a.txt");
+				FROM("bean_type a");
+				WHERE("a.t_Key= #{tKey}");
+				ORDER_BY("a.sort asc");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+	public String findMemberLevel(String comId) {
+		String str = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.name");
+				FROM("member_level a");
+				WHERE("a.com_id=#{comId}");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+	public String findComCards(String comId) {
+		String str = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.name");
+				FROM("com_cards a");
+				WHERE("a.com_id=#{comId}");
+			}
+		}.toString();
+
+		return str;
+	
+	}
+
+}

@@ -1,0 +1,55 @@
+<link rel="stylesheet" type="text/css" href="${ctx}/static/common/zTree/css/metroStyle/metroStyle.css?${v}" />
+<link rel="stylesheet" type="text/css" href="${ctx}/static/common/zTree/css/style.css?${v}" />
+<script type="text/javascript" src="${ctx}/static/common/zTree/jquery.ztree.all.min.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/zTree/jquery.ztree.exhide.min.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/zTree/fuzzysearch.js?${v}"></script>
+<script type="text/javascript">
+$.ztree = function(options){
+	var defaults = {
+		id:'tree',
+		expand:0,
+		click:function(){}
+	}
+	var ops = $.extend(defaults, options)
+	var setting = {
+      view: {
+        dblClickExpand: false,
+        showLine: true,
+        selectedMulti: false
+      },
+      data: {
+        simpleData: {
+          enable: true,
+          idKey: "id",
+          pIdKey: "pId",
+          rootPId: ""
+        }
+      },
+      callback: {
+        beforeClick: function (treeId, treeNode) {
+          	var zTree = $.fn.zTree.getZTreeObj(ops.id);
+            zTree.expandNode(treeNode);
+            ops.click(treeId, treeNode);
+        }
+      }
+    };
+	var zNodes = [];
+	$.ajax({
+		url:ops.url,
+		async: false,
+		success:function(e){
+			if(e.code==1){
+				zNodes = e.data;
+				var t = $("#"+ops.id);
+			    t = $.fn.zTree.init(t, setting, zNodes);
+			}
+		}
+	})
+	var tree = $.fn.zTree.getZTreeObj(ops.id);
+	var nodes = tree.getNodesByParam("level", ops.expand);
+	for (var i = 0; i < nodes.length; i++) {
+		tree.expandNode(nodes[i], true, false, true);
+    }
+    return tree;
+}
+</script>

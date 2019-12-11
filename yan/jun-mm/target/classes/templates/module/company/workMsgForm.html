@@ -1,0 +1,90 @@
+<div class="xwindow" id="workMsg_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消息通知表单</div>
+		<form class="xform" id="workMsg_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">员工id<i>*</i></label>
+				<div class="g2"><input type="text" name="userId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">类型（1通知、2审批）<i>*</i></label>
+				<div class="g2"><input type="text" name="style"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">关联业务id<i>*</i></label>
+				<div class="g2"><input type="text" name="bizId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">分类（1预约通知、21请假审批）<i>*</i></label>
+				<div class="g2"><input type="text" name="bizType"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">连接地址<i>*</i></label>
+				<div class="g2"><input type="text" name="url"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">标题<i>*</i></label>
+				<div class="g2"><input type="text" name="title"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">内容<i>*</i></label>
+				<div class="g2"><input type="text" name="content"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">阅读状态（0未读取、1已读取）<i>*</i></label>
+				<div class="g2"><input type="text" name="readState"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">审批人<i>*</i></label>
+				<div class="g2"><input type="text" name="checkUser"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">审批状态（1待审批、2审批拒绝、3审批通过）<i>*</i></label>
+				<div class="g2"><input type="text" name="checkState"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">审批意见<i>*</i></label>
+				<div class="g2"><input type="text" name="checkRemark"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">审批时间<i>*</i></label>
+				<div class="g2"><input type="text" name="checkTime"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#workMsg_win').xwindow({width:500,height:350,open:false});
+app.form = $('#workMsg_form').xform({
+	url : adminPath + '/workMsg/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'员工id', name:'userId', xcheck:'null'},
+		{label:'类型（1通知、2审批）', name:'style', xcheck:'null'},
+		{label:'关联业务id', name:'bizId', xcheck:'null'},
+		{label:'分类（1预约通知、21请假审批）', name:'bizType', xcheck:'null'},
+		{label:'连接地址', name:'url', xcheck:'null'},
+		{label:'标题', name:'title', xcheck:'null'},
+		{label:'内容', name:'content', xcheck:'null'},
+		{label:'阅读状态（0未读取、1已读取）', name:'readState', xcheck:'null'},
+		{label:'审批人', name:'checkUser', xcheck:'null'},
+		{label:'审批状态（1待审批、2审批拒绝、3审批通过）', name:'checkState', xcheck:'null'},
+		{label:'审批意见', name:'checkRemark', xcheck:'null'},
+		{label:'审批时间', name:'checkTime', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

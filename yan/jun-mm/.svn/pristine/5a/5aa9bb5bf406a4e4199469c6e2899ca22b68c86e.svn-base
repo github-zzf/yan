@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/cards.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">储次卡</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">卡名</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">卡类型</label>
+					<div class="xcombo" data-name="type" id="sf_type">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<!-- <div class="xgroup">
+					<label class="label">只限新会员</label>
+					<div class="xcombo" data-name="isNew" id="sf_isNew">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div> -->
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="cards_xtable" style="width:1200px;">
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="80px">操作</th>
+							<th>卡名</th>
+							<th width="80px">卡类型</th>
+							<th width="80px">销售价格</th>
+							<th width="80px">次数/金额</th>
+							<th width="80px">有效天数</th>
+							<!-- <th width="80px">只限新会员</th> -->
+							<th width="80px">是否周末卡</th>
+							<th width="150px">更新者</th>
+							<th width="150px">更新时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+									<td class="tc">{btnUpdate}{btnDelete}</td>
+									<td>{name}</td>
+									<td>{typeName}</td>
+									<td>{money}</td>
+									<td>{storedNum}</td>
+									<td>{days}</td>
+									<!-- <td>{isNewName}</td> -->
+									<td>{isWeekName}</td>
+									<td>{updateName}</td>
+									<td>{updateTime}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="cards_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "cardsForm.html">
+	
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/sys/sysOptions.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">系统配置</b></span>
+		</div>
+		<div class="main_content main_change">
+			<div class="body_center">
+				<div class="xtable" id="sysOptions_xtable" style="min-width:800px;width:1500px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>	
+							<th width="160px">名称</th>	
+							<th>值</th>
+							<th>说明</th>	
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr >
+									<td class="tc">{btns}</td>
+									<td class="tl">{oname}</td>
+									<td class="tl">{ovalue}</td>
+									<td class="tl">{osm}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "sysOptionsForm.html">
+</body>
+</html>

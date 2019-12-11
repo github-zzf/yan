@@ -1,0 +1,74 @@
+<div class="xwindow" id="wxConfig_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">公众号管理表单</div>
+		<form class="xform" id="wxConfig_form" method="post" autocomplete="off">	
+			<input type="hidden" name="isNewT"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comName" id="f_comName"/></div>
+				<input type="hidden" name="comId" id="f_comId"/>
+			</div>
+			<div class="xgroup">
+				<label class="g1">公众号appid<i>*</i></label>
+				<div class="g2"><input type="text" name="appid" id="f_appid"/></div>
+				<label class="g1">公众号名称<i>*</i></label>
+				<div class="g2"><input type="text" name="appname"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">公众号AppSecret<i>*</i></label>
+				<div class="g2"><input type="text" name="appsecret"/></div>
+				<label class="g1">商户号<i>*</i></label>
+				<div class="g2"><input type="text" name="mchId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">商户api密钥<i>*</i></label>
+				<div class="g2"><input type="text" name="mchKey"/></div>
+				<label class="g1">证书地址<i>*</i></label>
+				<div class="g2"><input type="text" name="mchCert"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+				<textarea type="text" name="remark" style="width:530px;height:80px"/></textarea>
+				</div>
+			</div>
+			
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#wxConfig_win').xwindow({width:700,height:450,open:false});
+app.form = $('#wxConfig_form').xform({
+	url : adminPath + '/wxConfig/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'公众号appid', name:'appid', xcheck:'null'},
+		{label:'公众号名称', name:'appname', xcheck:'null'},
+		{label:'公众号AppSecret', name:'appsecret', xcheck:'null'},
+		{label:'商户号', name:'mchId', xcheck:'null'},
+		{label:'商户api密钥', name:'mchKey', xcheck:'null'},
+		{label:'证书地址', name:'mchCert', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_comName").click(function(){
+	linkSysCompany.callBack = function(row) {
+		$("#f_comName").val(row.comName);
+		$("#f_comId").val(row.id);
+	};
+	linkSysCompany.open();
+}); 
+</script>

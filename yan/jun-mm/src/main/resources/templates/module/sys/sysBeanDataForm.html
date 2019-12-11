@@ -1,0 +1,50 @@
+<div class="xwindow" id="sysBeanData_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">数据字典数据表单</div>
+		<form class="xform" id="sysBeanData_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1"><i>*</i></label>
+				<div class="g2"><input type="text" name="beanKey"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1"><i>*</i></label>
+				<div class="g2"><input type="text" name="beanVal"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1"><i>*</i></label>
+				<div class="g2"><input type="text" name="beanTxt"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">排序<i>*</i></label>
+				<div class="g2"><input type="text" name="beanSort"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysBeanData_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysBeanData_form').xform({
+	url : adminPath + '/sysBeanData/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'', name:'beanKey', xcheck:'null'},
+		{label:'', name:'beanVal', xcheck:'null'},
+		{label:'', name:'beanTxt', xcheck:'null'},
+		{label:'排序', name:'beanSort', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

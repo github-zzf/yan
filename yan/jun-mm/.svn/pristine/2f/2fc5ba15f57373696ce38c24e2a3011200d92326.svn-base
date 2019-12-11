@@ -1,0 +1,50 @@
+<div class="xwindow" id="sysTemplate_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">参数配置表单</div>
+		<form class="xform" id="sysTemplate_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">模板编码<i>*</i></label>
+				<div class="g2"><input type="text" name="tplCode"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">模板名称<i>*</i></label>
+				<div class="g2"><input type="text" name="tplName"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">参数值<i>*</i></label>
+				<div class="g2"><input type="text" name="tplParams"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">参数说明<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysTemplate_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysTemplate_form').xform({
+	url : adminPath + '/sysTemplate/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'模板编码', name:'tplCode', xcheck:'null'},
+		{label:'模板名称', name:'tplName', xcheck:'null'},
+		{label:'参数值', name:'tplParams', xcheck:'null'},
+		{label:'参数说明', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

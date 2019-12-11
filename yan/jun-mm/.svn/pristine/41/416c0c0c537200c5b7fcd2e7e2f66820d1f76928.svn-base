@@ -1,0 +1,70 @@
+$(function(){
+	app.init();
+})
+/**
+ * 系统配置
+ */
+var app = {
+	init:function(){
+		app.bind();
+		app.load();
+	},
+	bind:function(){
+		$('#sysOptions_xtable').on('click', ".btn_options", function(){
+			var index = $(this).data("xv");
+			var row = app.table.getRow(index);
+			
+			$.xpost({
+				url:adminPath + '/sysOptions/CashOnDelivery',
+				data : {
+					id : row.id,
+					okey : row.okey,
+					ovalue : row.ovalue
+				},
+				success : function(e) {
+					if(e.code==1){
+						app.table.reload();
+						optionsWin.win.close();
+						$.ok('操作成功');
+					}else if(e.code==2){
+						$.xalert(e.msg);
+					}else{
+						$.xalert('操作失败！');		
+					}
+				}
+			})
+		});
+	},
+	load:function(){
+		app.table = $('#sysOptions_xtable').xtable({
+			url:adminPath + '/sysOptions/findSysOptionList',
+			format:function(row){
+				var name = "";
+				if(row.okey != "printing_switch"){
+					if(row.oload==1){
+						row.btns = "<a class='xupdate' data-xv='"+row.index+"'>修改</a>&nbsp;"
+					}
+				}else{
+					if(row.ovalue==1){
+						name = "关闭";
+					}else{
+						name = "开启";
+					}
+					row.btns = "<a class='btn_options' data-xv='"+row.index+"'>"+name+"</a>&nbsp;"
+				}
+			},
+			update:function(row,b){
+				app.form.setData(row);
+                app.win.open();
+			},
+			deleteSuccess:function(d){
+				if (d.code==1){
+					app.table.reload();
+            		$.ok('删除成功');
+                } else {
+                	$.xalert({msg:'删除失败！'});
+                }
+			}
+		});
+	}	
+};

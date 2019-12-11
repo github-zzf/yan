@@ -1,0 +1,78 @@
+<div class="xwindow" id="staffMoneySetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">提成设置表单</div>
+		<form class="xform" id="staffMoneySetting_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id" />
+			<div class="xgroup">
+				<label class="g1" style="width:130px;">服务人员<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="userName" id="f_userName"/>
+					<input type="hidden" name="userId" id="f_userId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:130px;">消费项目提成比例%<i>*</i></label>
+				<div class="g2"><input type="text" name="ratio"/></div>
+				<label class="g1" style="width:130px;">会员卡提成比例%<i>*</i></label>
+				<div class="g2"><input type="text" name="cashRatio"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:130px;">课时奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="bonus"/></div>
+				<label class="g1" style="width:130px;">一星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star1"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:130px;">二星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star2"/></div>
+				<label class="g1" style="width:130px;">三星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star3"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:130px;">四星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star4"/></div>
+				<label class="g1" style="width:130px;">五星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star5"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#staffMoneySetting_win').xwindow({width:800,height:400,open:false});
+app.form = $('#staffMoneySetting_form').xform({
+	url : adminPath + '/staffMoneySetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'服务人员', name:'userId', xcheck:'null'},
+		{label:'消费项目提成比例', name:'ratio', xcheck:'null,int,maxNum:100'},
+		{label:'会员卡提成比例', name:'cashRatio', xcheck:'null,int,maxNum:100'},
+		{label:'课时奖金', name:'bonus', xcheck:'null,int'},
+		{label:'一星奖金', name:'star1', xcheck:'null,int'},
+		{label:'二星奖金', name:'star2', xcheck:'null,int'},
+		{label:'三星奖金', name:'star3', xcheck:'null,int'},
+		{label:'四星奖金', name:'star4', xcheck:'null,int'},
+		{label:'五星奖金', name:'star5', xcheck:'null,int'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+//服务人员
+$("#f_userName").click(function(){
+	linkUser.callBack = function(row) {
+		$("#f_userName").val(row.name);
+		$("#f_userId").val(row.id);
+	};
+	linkUser.open();
+});
+</script>

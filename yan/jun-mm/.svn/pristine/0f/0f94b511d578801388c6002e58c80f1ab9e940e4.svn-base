@@ -1,0 +1,97 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 员工请假表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_leave", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "staff_id", attrName = "staffId"),
+		@Column(name = "start_time", attrName = "startTime"),
+		@Column(name = "end_time", attrName = "endTime"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.staff_id ", columns = {
+			@Column(name = "name", attrName = "staffTxt", queryType = QueryType.EQ) 
+		})
+	}, orderBy = "a.id DESC"
+)
+public class Leave extends DataEntity<Leave> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String staffId; // 员工
+	private Date startTime; // 请假开始时间
+	private Date endTime; // 请假结束时间
+	private String content; // 请假事由
+	
+	// 业务字段
+	private String staffTxt;// 员工
+
+	@NotEmpty(message="员工不能为空")
+	@Length(min=0, max=32, message="员工长度不能超过32个字符")
+	public String getStaffId() {
+		return staffId;
+	}
+	public void setStaffId(String staffId) {
+		this.staffId = staffId;
+	}
+
+	@NotNull(message="请假开始时间级别不能为空")
+	@JsonFormat(pattern="yyyy-MM-dd")
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	@NotNull(message="请假结束时间不能为空")
+	@JsonFormat(pattern="yyyy-MM-dd")
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+	public String getStaffTxt() {
+		return staffTxt;
+	}
+	public void setStaffTxt(String staffTxt) {
+		this.staffTxt = staffTxt;
+	}
+	
+	@NotEmpty(message="请假事由不能为空")
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+}

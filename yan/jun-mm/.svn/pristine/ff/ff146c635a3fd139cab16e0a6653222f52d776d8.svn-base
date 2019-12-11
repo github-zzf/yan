@@ -1,0 +1,101 @@
+package com.junkj.module.cms.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.cms.dao.ArticlesDao;
+import com.junkj.module.cms.entity.Articles;
+import com.junkj.module.file.utils.FileUploadUtils;
+
+/**
+ * 文章表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月18日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class ArticlesBiz extends CrudBiz<ArticlesDao, Articles> {
+	
+	@Autowired
+	private ArticlesDao articlesDao;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Articles> findPage(Articles articles) {
+		return super.findPage(articles);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Articles> findList(Articles articles) {
+		return super.findList(articles);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(Articles articles) {
+		if(articles.getIsNewT()){
+			articles.setSendTime(new Date());
+		}
+		super.save(articles);
+		// 保存上传图片
+		String img = FileUploadUtils.saveFileUpload(articles.getId(), "articles_image");
+		if(StrUtils.notBlank(img)){
+			articles.setImg(img);
+			super.update(articles);
+		}
+	}
+
+	@Transactional(readOnly=false)
+	public JsonVo moveSetup(String id,String upDown) {
+		if("up".equals(upDown)) {
+			//获取要移动的数据
+			Articles articles1 = super.get(id);
+			//获取下一位的数据
+			Articles articles2 = articlesDao.getArticlesSort(articles1.getSort().toString(), upDown);
+			if(articles2==null) {
+				return JsonVo.sendError(2,"已经到顶部了");
+			}
+			Long sort1 = articles1.getSort();
+			Long sort2 = articles2.getSort();
+			articles1.setSort(sort2);
+			super.save(articles1);
+			articles2.setSort(sort1);
+			super.save(articles2);
+		}else if("down".equals(upDown)) {
+			//获取要移动的数据
+			Articles articles1 = super.get(id);
+			//获取下一位的数据
+			Articles articles2 = articlesDao.getArticlesSort(articles1.getSort().toString(), upDown);
+			if(articles2==null) {
+				return JsonVo.sendError(3,"已经到底部了");
+			}
+			Long sort1 = articles1.getSort();
+			Long sort2 = articles2.getSort();
+			articles1.setSort(sort2);
+			super.save(articles1);
+			articles2.setSort(sort1);
+			super.save(articles2);
+		}
+		return JsonVo.sendOk();
+	}
+	
+}

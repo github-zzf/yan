@@ -1,0 +1,177 @@
+package com.junkj.module.company.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.company.dao.CourseDao;
+import com.junkj.module.company.dao.CourseEnrollDao;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.member.biz.CardChangeBiz;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.MemberCard;
+
+/**
+ * 课程预约biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CourseEnrollBiz extends CrudBiz<CourseEnrollDao, CourseEnroll> {
+
+	@Autowired
+	private CourseEnrollDao courseEnrollDao;
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseDao courseDao;
+	@Autowired
+	private CardChangeBiz cardChangeBiz;
+	@Autowired
+	private MemberCardBiz memberCardBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CourseEnroll> findPage(CourseEnroll courseEnroll) {
+		return super.findPage(courseEnroll);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CourseEnroll> findList(CourseEnroll courseEnroll) {
+		return super.findList(courseEnroll);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(CourseEnroll courseEnroll) {
+		super.save(courseEnroll);
+		/**
+		 * 发送客户预约短信 您预约的课程在7月7日（周一）上午10:00。请于9:30到达前台签到。
+		 */
+
+		/**
+		 * 收费短信911：课程预约
+		 */
+
+		/**
+		 * 微信模板：预约成功通知
+		 * 
+		 * {{first.DATA}} 会员名：{{keyword1.DATA}} 会员手机：{{keyword2.DATA}}
+		 * 课程：{{keyword3.DATA}} 上课时间：{{keyword4.DATA}} 上课地点：{{keyword5.DATA}}
+		 * {{remark.DATA}}
+		 */
+
+		/**
+		 * 发送管理员预约短信 有客户预约{1}，请及时处理。
+		 */
+
+		/**
+		 * 收费短信911：课程预约
+		 */
+
+		/**
+		 * 微信模板：老师通知
+		 * 
+		 * 预约提醒
+		 * 
+		 * {{first.DATA}}
+		 * 
+		 * 学生姓名：{{keyword1.DATA}}
+		 * 
+		 * 预约课程：{{keyword2.DATA}}
+		 * 
+		 * 上课时间：{{keyword3.DATA}}
+		 * 
+		 * 该课人数：{{keyword4.DATA}}
+		 * 
+		 * {{remark.DATA}}
+		 */
+	}
+
+	/**
+	 * 调课
+	 */
+	@Transactional(readOnly = false)
+	public void tiaoke(CourseEnroll courseEnroll) {
+		super.save(courseEnroll);
+	}
+
+	/**
+	 * 签到
+	 */
+	@Transactional(readOnly = false)
+	public void qiandao(CourseEnroll courseEnroll, String mcId) {
+		// 修改记录为已签到
+		courseEnroll = this.get(courseEnroll.getId());
+		courseEnroll.setStatus(CourseEnroll.status_4);
+		super.update(courseEnroll);
+
+		// 课程有会员卡减少卡余额
+		Course course = courseBiz.get(courseEnroll.getCourseId());
+		if (StrUtils.notBlank(course.getCardId()) && StrUtils.notBlank(mcId)) {
+
+			// 更新卡余额
+			MemberCard mCard = memberCardBiz.get(mcId);
+			mCard.setStoredNum(mCard.getStoredNum() - course.getCardNum());
+			memberCardBiz.update(mCard);
+
+			// 添加变更记录
+			CardChange cardChange = new CardChange();
+			cardChange.setMcId(mcId);
+			cardChange.setMemberId(mCard.getMemberId());
+			cardChange.setType(CardChange.TYPE_1);
+			cardChange.setStoredNum(course.getCardNum());
+			cardChange.setStoredNew(mCard.getStoredNum());
+			cardChangeBiz.xiaoFei(cardChange);
+		}
+	}
+
+	/**
+	 * 取消预约
+	 */
+	@Transactional(readOnly = false)
+	public void quxiao(CourseEnroll courseEnroll) {
+		courseEnroll.setStatus(CourseEnroll.status_2);
+		super.update(courseEnroll);
+	}
+
+	/**
+	 * 复制课程
+	 */
+	public Course getCopyKc(String id, String now) {
+		Course where = new Course();
+		where.setPid(id);
+		where.setCourseDate(DateUtils.parseDate(now));
+		return courseDao.getByEntity(where);
+	}
+
+	/**
+	 * 查询是否重复预约
+	 */
+	public CourseEnroll countByMember(String keChengId, String memberId) {
+		CourseEnroll where = new CourseEnroll();
+		where.setCourseId(keChengId);
+		where.setMemberId(memberId);
+		return courseEnrollDao.getByEntity(where);
+	}
+}

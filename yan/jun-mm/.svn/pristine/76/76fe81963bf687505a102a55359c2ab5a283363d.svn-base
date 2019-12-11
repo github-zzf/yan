@@ -1,0 +1,71 @@
+package com.junkj.module.sys.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 平台产品实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Table(name = "sys_product", alias = "a", columns = {
+		@Column(name = "name", attrName = "name"),
+		@Column(name = "price", attrName = "price"),
+		@Column(name = "days", attrName = "days"),
+		@Column(name = "sort", attrName = "sort"),
+		@Column(name = "remark", attrName = "remark"),
+	}, orderBy = "a.id DESC"
+)
+public class SysProduct extends DataEntity<SysProduct> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String name; // 产品名称
+	private Double price; // 销售价格
+	private String days; // 产品天数
+	private Long sort; // 排序
+	private String remark; // 备注
+
+
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Double getPrice() {
+		return price;
+	}
+	public void setPrice(Double price) {
+		this.price = price;
+	}
+
+	public String getDays() {
+		return days;
+	}
+	public void setDays(String days) {
+		this.days = days;
+	}
+
+	public Long getSort() {
+		return sort;
+	}
+	public void setSort(Long sort) {
+		this.sort = sort;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

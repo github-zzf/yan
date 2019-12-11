@@ -1,0 +1,99 @@
+package com.junkj.module.sys.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sys.biz.SysMenuBiz;
+import com.junkj.module.sys.entity.SysMenu;
+
+/**
+ * 菜单管理action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/sysMenu")
+public class SysMenuAction extends BaseAction {
+	
+	@Autowired
+	private SysMenuBiz sysMenuBiz;
+	
+	@RequiresPermissions("sys:sysMenu:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/sys/sysMenu";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("sys:sysMenu:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<SysMenu> listPage(SysMenu sysMenu) {
+		Page<SysMenu> page = sysMenuBiz.findPage(sysMenu);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("sys:sysMenu:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<SysMenu> findList(SysMenu sysMenu) {
+		if (StrUtils.isBlank(sysMenu.getParentId())) {
+			sysMenu.setParentId(SysMenu.ROOT_ID);
+		}
+		if (StrUtils.notBlank(sysMenu.getId())){
+			sysMenu.setParentId(null);
+		}
+		if (StrUtils.notBlank(sysMenu.getName())){
+			sysMenu.setParentId(null);
+		}
+		List<SysMenu> list = sysMenuBiz.findList(sysMenu);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("sys:sysMenu:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated SysMenu sysMenu, BindingResult result) {
+		if(result.hasErrors()){
+			return sendError(result.getFieldError().getDefaultMessage());
+        }
+		sysMenuBiz.save(sysMenu);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("sys:sysMenu:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(SysMenu sysMenu) {
+		sysMenuBiz.delete(sysMenu);
+		return sendOk("删除成功！");
+	}
+
+}

@@ -1,0 +1,20 @@
+<div class="xwindow" id="excel_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">Excel导入表单</div>
+		<form class="xform" id="excel_form" method="post" enctype="multipart/form-data">	
+		  <div class="xgroup">
+			<div class="xupload" id="img_upload">
+				<label class="g1">导入Excel<i>*</i></label>
+				<div class="g2">
+					<input type="file" name="excelFile" id="ExeclFile"/>
+				</div>
+			</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<a id="btn_export_demo" style="color: #09c;cursor: pointer;">下载模版</a>
+			<span class="xbtn btn_submitExcel">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>

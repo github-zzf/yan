@@ -1,0 +1,84 @@
+package com.junkj.module.sys.entity;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 参数配置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月12日
+ * @version: 1.0.0
+ */
+@Table(name = "sys_config", alias = "a", columns = {
+		@Column(name = "c_name", attrName = "configName"),
+		@Column(name = "c_key", attrName = "configKey"),
+		@Column(name = "c_value", attrName = "configValue"),
+		@Column(name = "c_type", attrName = "configType"),
+		@Column(name = "c_load", attrName = "configLoad"),
+		@Column(name = "is_sys", attrName = "isSys"),
+		@Column(name = "remark", attrName = "remark")
+	}, orderBy = "a.id asc"
+)
+public class SysConfig extends DataEntity<SysConfig> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String configName; // 参数名称
+	private String configKey; // 参数key
+	private String configValue; // 参数值
+	private String configType; // 参数类型（text/img/json/jsonObj/post/get）
+	private String configLoad; // 自动加载（0否、1是）
+	private String isSys; // 系统配置（0否、1是）
+
+	public String getConfigName() {
+		return configName;
+	}
+
+	public void setConfigName(String configName) {
+		this.configName = configName;
+	}
+
+	public String getConfigKey() {
+		return configKey;
+	}
+
+	public void setConfigKey(String configKey) {
+		this.configKey = configKey;
+	}
+
+	public String getConfigValue() {
+		return configValue;
+	}
+
+	public void setConfigValue(String configValue) {
+		this.configValue = configValue;
+	}
+
+	public String getConfigType() {
+		return configType;
+	}
+
+	public void setConfigType(String configType) {
+		this.configType = configType;
+	}
+
+	public String getConfigLoad() {
+		return configLoad;
+	}
+
+	public void setConfigLoad(String configLoad) {
+		this.configLoad = configLoad;
+	}
+
+	public String getIsSys() {
+		return isSys;
+	}
+
+	public void setIsSys(String isSys) {
+		this.isSys = isSys;
+	}
+
+}

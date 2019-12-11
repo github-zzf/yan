@@ -1,0 +1,122 @@
+package com.junkj.common.utils;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.session.InvalidSessionException;
+import org.apache.shiro.session.Session;
+import org.apache.shiro.subject.Subject;
+
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.common.shiro.ShiroUser;
+import com.junkj.module.member.biz.MemberBiz;
+import com.junkj.module.member.entity.Member;
+
+/**
+ * 会员工具类
+ */
+public class MemberUtils {
+
+	private static MemberBiz memberBiz = SpringUtils.getBean(MemberBiz.class);
+
+	public static final String SESSION_MEMBER_ID = "member_id";
+	public static final String SESSION_COM_ID = "com_Id";
+
+	/**
+	 * 获取当前用户
+	 * 
+	 * @return 取不到返回 new User()
+	 */
+	public static Member getMember() {
+		ShiroUser principal = getPrincipal();
+		if (principal != null) {
+			Member member = memberBiz.get(principal.getId());
+			if (member != null) {
+				return member;
+			}
+		}
+		// 如果没有登录，则返回实例化空的Member对象。
+		return new Member();
+	}
+
+	/**
+	 * 获取会员id
+	 */
+	public static String getMemberId() {
+		return getMember().getId();
+	}
+
+	/**
+	 * 获取会员id
+	 */
+	public static String getComId() {
+		return getMember().getComId();
+	}
+
+	/**
+	 * 获取授权主要对象
+	 */
+	public static Subject getSubject() {
+		return SecurityUtils.getSubject();
+	}
+
+	/**
+	 * 获取当前登录者对象
+	 */
+	public static ShiroUser getPrincipal() {
+		try {
+			Subject subject = getSubject();
+			ShiroUser principal = (ShiroUser) subject.getPrincipal();
+			if (principal != null) {
+				return principal;
+			}
+		} catch (UnavailableSecurityManagerException e) {
+
+		} catch (InvalidSessionException e) {
+
+		}
+		return null;
+	}
+
+	// ============== User Session Cache ==============
+	public static Session getSession() {
+		try {
+			Subject subject = getSubject();
+			Session session = subject.getSession(false);
+			if (session == null) {
+				session = subject.getSession();
+			}
+			if (session != null) {
+				return session;
+			}
+		} catch (InvalidSessionException e) {
+
+		}
+		return null;
+	}
+
+	/**
+	 * 清除当前用户缓存
+	 */
+	public static void clearSessionCache() {
+		removeSessionCache(SESSION_MEMBER_ID);
+		removeSessionCache(SESSION_COM_ID);
+	}
+
+	public static Object getSessionCache(String key) {
+		return getSessionCache(key, null);
+	}
+
+	public static Object getSessionCache(String key, Object defaultValue) {
+		Object obj = getSession().getAttribute(key);
+		return obj == null ? defaultValue : obj;
+	}
+
+	public static void putSessionCache(String key, Object value) {
+		getSession().setAttribute(key, value);
+	}
+
+	public static void removeSessionCache(String key) {
+		getSession().removeAttribute(key);
+	}
+
+}

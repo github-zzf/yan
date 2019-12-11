@@ -1,0 +1,59 @@
+<div class="xwindow" id="cashBuyGoods_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费明细表单</div>
+		<form class="xform" id="cashBuyGoods_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">消费记录主键<i>*</i></label>
+				<div class="g2"><input type="text" name="buyId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">商品id<i>*</i></label>
+				<div class="g2"><input type="text" name="goodsId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">数量<i>*</i></label>
+				<div class="g2"><input type="text" name="num"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">单价<i>*</i></label>
+				<div class="g2"><input type="text" name="price"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">总价<i>*</i></label>
+				<div class="g2"><input type="text" name="money"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#cashBuyGoods_win').xwindow({width:500,height:350,open:false});
+app.form = $('#cashBuyGoods_form').xform({
+	url : adminPath + '/cashBuyGoods/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'消费记录主键', name:'buyId', xcheck:'null'},
+		{label:'商品id', name:'goodsId', xcheck:'null'},
+		{label:'数量', name:'num', xcheck:'null'},
+		{label:'单价', name:'price', xcheck:'null'},
+		{label:'总价', name:'money', xcheck:'null'}	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

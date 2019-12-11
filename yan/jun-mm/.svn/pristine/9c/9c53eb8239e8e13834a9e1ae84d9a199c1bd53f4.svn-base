@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/course.js?${v}"></script>
+	<style type="text/css">
+		.xsearchDiv_box{
+			width: 450px;
+			float:left;
+		}
+		.topbar{
+			float: left;
+			margin-top: 23px;
+		}
+	</style>
+<body>
+	<div class="main_body">
+		<div class="main_title">
+			<span class="content_titel"><b class="top_icon">排课表</b></span>
+		</div>
+	    <div class="main_hd main_hd_bd" style="margin-bottom: 10px;">
+			<ul class="ul_tab clearfix" data-index="0">
+				<li class="first">
+					<a href="${adminPath}/course">排课预约表</a>
+				</li>
+				<li class="selected">
+					<a href="${adminPath}/course/kc">排课预约管理</a>
+				</li>
+			</ul>
+	    </div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<input type="hidden" name="courseId" id="sf_courseId"/>
+				<div class="xgroup">
+					<label class="label">课程名称</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">教师</label>
+					<input type="text" class="xw2" id="sf_teacher" autocomplete="off"/>
+					<input type="hidden" name="teacherId" id="sf_teacherId" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">助教</label>
+					<input type="text" class="xw2" id="sf_assistant" autocomplete="off"/>
+					<input type="hidden" name="assistantId" id="sf_assistantId" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">会员卡</label>
+					<input type="text" class="xw2" id="sf_cardName" autocomplete="off"/>
+					<input type="hidden" name="cardId" id="sf_cardId" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">课程日期</label>
+					<input type="text" name="courseDate" class="xw2 xdate" id="sf_courseDate" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">开始时间</label>
+					<input type="text" name="startTime" class="xw2" id="sf_startTime" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">结束时间</label>
+					<input type="text" name="endTime" class="xw2" id="sf_endTime" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">每周重复</label>
+					<div class="xcombo" data-name="isWeek" id="sf_isWeek">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="xgroup">
+					<label class="label">预约验证</label>
+					<div class="xcombo" data-name="isCheck" id="sf_isCheck">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+					<button type="button" class="xbtn" id="btn_export"><b class="icon_add icon_all">导出课程</b></button>
+					<button type="button" class="xbtn" id="btn_courseEnroll_export"><b class="icon_add icon_all">导出课程明细</b></button>
+					<button type="button" class="xbtn" id="btn_gets"><b class="icon_add icon_all">导入</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="course_xtable" style="min-width:1700px; width:1700px;">
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="140px">操作</th>
+							<th>课程名称</th>
+							<th width="120px">教师</th>
+							<th width="120px">助教</th>
+							<th width="140px">课程日期</th>
+							<th width="140px">开始时间</th>
+							<th width="140px">结束时间</th>
+							<th width="100px">报名上限</th>
+							<th width="200px">会员卡</th>
+							<th width="80px">消耗数值</th>
+							<th width="80px">每周重复</th>
+							<th width="80px">预约验证</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{index}"/></td>
+									<td class="tc">{btnDetailed}{btnUpdate}{btnDelete}</td>
+									<td>{name}</td>
+									<td>{teacherName}</td>
+									<td>{assistantName}</td>
+									<td>{courseDate}</td>
+									<td>{startTime}</td>
+									<td>{endTime}</td>
+									<td>{peopleMax}</td>
+									<td>{cardName}</td>
+									<td>{cardNum}</td>
+									<td>{isWeekTxt}</td>
+									<td>{isCheckTxt}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="course_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "courseForm.html">
+	
+	<#include "/export_excel.html">
+	<#include "/import_export.ftl">
+	<#include "/import_export_error.ftl">
+	<#include "../link/link_sysUser.html">
+	<#include "../link/link_cards.html">
+</body>
+</html>

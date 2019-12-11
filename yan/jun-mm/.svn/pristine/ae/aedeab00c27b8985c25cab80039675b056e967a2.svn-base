@@ -1,0 +1,118 @@
+<div class="xwindow" id="role_menu_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">权限管理<span class="title_close xclose">X</span></div>
+		<form id="role-menu-fm" method="post">
+        	<div id="role_menu_tree"></div>
+        </form>
+		<div class="bottombar">
+	        <span class="xbtn xgray" id="menu_all">全选</span>
+	        <span class="xbtn xgray" id="menu_no">反选</span>
+			<span class="xbtn btn_code" id="btn_menu_submit">保存</span>
+			<span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.menuWin = $('#role_menu_win').xwindow({width:700,height:530,open:false});
+app.loadMenus = function(){
+	$.ajax({
+		url:adminPath+"/sysRole/findAllMenu",
+		type:'post',
+		dataType:'json',
+		success:function(data){
+			var menulist = '';
+	        $.each(data, function(i, n) {
+	        	menulist +='<div class="menu_box"><div class="menu_root"><input type="checkbox" class="roleMenu_check no_0"  id="ck_'+n.id+'" name="roleMenu" value="'+n.id+'"/>'+n.name+'&nbsp;</div>';
+	            if(n.son){
+	            	$.each(n.son, function(ni, o) {
+	            		menulist +='<div class="menu_row">';
+	            		menulist +='<div class="menu_left"><input type="checkbox" name="roleMenu" class="roleMenu_check pk_'+n.id+'" id="ck_'+o.id+'" value="'+o.id+'"/>'+o.name+'&nbsp;</div>';
+	            		if(o.son){
+				        	menulist +='<div class="menu_right">';
+	            			$.each(o.son, function(oi, s) {
+	            				menulist +='<div class="menu-item"><input type="checkbox" class="roleMenu_check  pk_'+n.id+' pk_'+o.id+'" id="ck_'+s.id+'" name="roleMenu" value="'+s.id+'"/>'+s.name+'&nbsp;</div>';
+	            			});
+			            	menulist +='</div>';
+	            		}
+	            		menulist +='</div>';
+	            	});
+	            }
+	           	menulist +='</div>';
+	        });
+			$('#role_menu_tree').html(menulist);
+			
+			//绑定状态改变
+			$('#role_menu_tree .roleMenu_check').change(function(){
+				var ths = $(this);
+				var id = ths.attr("id").split("_")[1];
+				if(ths.is(':checked')){
+					for (var i = id.length/2-1; i >= 0; i--) {
+						var pkid = id.substring(0,i*0+1);
+						$("#ck_"+pkid).prop('checked',true);
+					}
+					if(!$(".pk_"+id).is(':checked')){
+						$(".pk_"+id).prop('checked',true);
+					}
+				}else{
+					$(".pk_"+id).prop('checked',false);
+					for (var i = id.length/2-1; i >= 0; i--) {
+						var pkid = id.substring(0,i*0+1);
+						if(!$(".pk_"+pkid).is(':checked')){
+							$("#ck_"+pkid).prop('checked',false);
+						}
+					}
+				}
+			});
+			
+			$('input[name="roleMenu"]').prop('checked',false);
+			$('input[name="roleMenu"]').each(function(index,item){
+				if(app.menus.indexOf(','+item.value+',')!=-1){item.checked=true;}
+			});
+		},
+		error:function(){}
+	});
+}
+$('#menu_all').click(function(){
+	$('input[name="roleMenu"]').each(function(index,item){
+		item.checked=true;
+	})
+})
+$('#menu_no').click(function(){
+	$('input[name="roleMenu"]').each(function(index,item){
+		if(item.checked)item.checked=false;
+		else item.checked=true;
+	})
+})
+$('#btn_menu_submit').click(function(){
+	$.open();
+	var menus = '';
+	$('input[name="roleMenu"]').each(function(index,item){
+		if(item.checked){menus += item.value+',';}
+	})
+	if(menus){menus=menus.substring(0,menus.length-1)}
+	$.ajax({
+		url:adminPath+'/sysRole/updateRoleMenu',
+		type:'post',
+		dataType:'json',
+		data:{
+			roleId:app.roleId,
+			menus:menus
+		},
+		success:function(e){
+			$.close();
+			if (e.code==1){
+				$.ok('保存成功！');
+				app.menuWin.close();
+				app.table.reload();
+               } else {
+				$.error('保存失败！');
+               }
+		},
+		error:function(){
+			$.close();
+			$.xalert({msg:'请求失败！'});
+		}
+	});
+})
+</script>

@@ -1,0 +1,80 @@
+<div class="xwindow" id="mobileSetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">官网设置表单</div>
+		<form class="xform" id="mobileSetting_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">设置分类<i>*</i></label>
+				<div class="g2">
+					<div class="xcombo" data-name="type" id="f_type">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">图片</label>
+				<div class="g2" style="width:550px">
+			        <div id="uploader" class="webuploader" biztype="mobile_setting_image">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将照片拖到这里，单次最多可选300张</p>
+		                    </div>
+		                </div>
+			        </div>
+			    </div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">标签</label>
+				<div class="g2"><input type="text" name="name" class="xw5"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">连接</label>
+				<div class="g2"><input type="text" name="url" class="xw5"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px"/></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#mobileSetting_win').xwindow({width:700,height:550,open:false});
+app.form = $('#mobileSetting_form').xform({
+	url : adminPath + '/mobileSetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'设置分类', name:'type', xcheck:'null'},
+	],
+	xcombo:[
+	    {id:"#f_type", url:adminPath+"/combo/findBeanType?tKey=mobile_setting_type"}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

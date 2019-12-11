@@ -1,0 +1,62 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 企业会员实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年11月04日
+ * @version: 1.0.0
+ */
+@Table(name = "com_member", alias = "a", columns = {
+		@Column(name = "member_id", attrName = "memberId", isPK = true),
+		@Column(name = "com_id", attrName = "comId", isPK = true),
+		@Column(name = "points", attrName = "points"),
+		@Column(name = "source", attrName = "source"),
+		@Column(name = "level_id", attrName = "levelId")
+	}, orderBy = "a.id DESC"
+)
+public class ComMember extends DataEntity<ComMember> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String memberId; // 会员id
+	private Long points; // 积分
+	private String source; // 来源（1微信、2网页、3店内）
+	private String levelId; // 会员级别
+
+
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public String getLevelId() {
+		return levelId;
+	}
+	public void setLevelId(String levelId) {
+		this.levelId = levelId;
+	}
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public Long getPoints() {
+		return points;
+	}
+	public void setPoints(Long points) {
+		this.points = points;
+	}
+
+}

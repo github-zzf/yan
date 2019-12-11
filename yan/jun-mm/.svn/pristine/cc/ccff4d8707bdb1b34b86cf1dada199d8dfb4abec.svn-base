@@ -1,0 +1,138 @@
+package com.junkj.common.utils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.session.Session;
+
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.common.lang.ObjectUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.member.biz.MemberBiz;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 会员工具类
+ */
+public class MemberUtils {
+
+	private static MemberBiz memberBiz = SpringUtils.getBean(MemberBiz.class);
+
+	public static final String CACHE_WXUSER_ = "WXUSER_";
+	public static final String CACHE_MEMBER_ID_ = "MEMBER_ID_";
+	public static final String CACHE_STAFF_ID_ = "STAFF_ID_";
+	public static final String CACHE_SALE_ID_ = "SALE_ID_";
+
+	/**
+	 * 通过request、session获取会员id
+	 */
+	public static WxUser getWxUser() {
+		WxUser wxUser = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				Object obj = request.getAttribute(CACHE_WXUSER_);
+				if(obj!=null){
+					wxUser = (WxUser)obj;
+				}
+			}
+
+			if (StrUtils.isBlank(wxUser) && session != null) {
+				Object obj = session.getAttribute(CACHE_WXUSER_);
+				if(obj!=null){
+					wxUser = (WxUser)obj;
+				}
+			}
+
+			if (request != null) {
+				request.setAttribute(CACHE_WXUSER_, wxUser);
+			}
+		}
+		return wxUser;
+	}
+	
+	/**
+	 * 通过request、session获取会员
+	 */
+	public static Member getMember() {
+		
+		return memberBiz.get(getMemberId());
+	}
+	
+	/**
+	 * 通过request、session获取会员id
+	 */
+	public static String getMemberId() {
+		String memberId = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				memberId = ObjectUtils.toString(request.getAttribute(CACHE_MEMBER_ID_));
+			} else {
+				memberId = "";
+			}
+
+			if (StrUtils.isBlank(memberId) && session != null) {
+				memberId = ObjectUtils.toString(session.getAttribute(CACHE_MEMBER_ID_));
+			}
+
+			if (request != null) {
+				request.setAttribute(CACHE_MEMBER_ID_, memberId);
+			}
+		}
+		return ObjectUtils.toStringIgnoreNull(memberId);
+	}
+	
+	public static String getStaffId() {
+		String memberId = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				memberId = ObjectUtils.toString(request.getAttribute(CACHE_STAFF_ID_));
+			} else {
+				memberId = "";
+			}
+
+			if (StrUtils.isBlank(memberId) && session != null) {
+				memberId = ObjectUtils.toString(session.getAttribute(CACHE_STAFF_ID_));
+			}
+
+			if (request != null) {
+				request.setAttribute(CACHE_STAFF_ID_, memberId);
+			}
+		}
+		return ObjectUtils.toStringIgnoreNull(memberId);
+	}
+	
+	public static String getSaleId() {
+		String memberId = null;
+		if (Global.isSaas()) {
+			HttpServletRequest request = ServletUtils.getRequest();
+			Session session = UserUtils.getSubject().getSession(false);
+
+			if (request != null) {
+				memberId = ObjectUtils.toString(request.getAttribute(CACHE_SALE_ID_));
+			} else {
+				memberId = "";
+			}
+
+			if (StrUtils.isBlank(memberId) && session != null) {
+				memberId = ObjectUtils.toString(session.getAttribute(CACHE_SALE_ID_));
+			}
+
+			if (request != null) {
+				request.setAttribute(CACHE_SALE_ID_, memberId);
+			}
+		}
+		return ObjectUtils.toStringIgnoreNull(memberId);
+	}
+
+}

@@ -1,0 +1,92 @@
+<div class="xwindow" id="memberReducePoints_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">商品选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="memberReducePoints_win_form">
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" placeholder="姓名" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_memberReducePoints_win_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_memberReducePoints_win_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="memberReducePoints_win_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="100px">礼物类别</th>
+					<th >名称</th>
+					<th width="80px">所需积分</th>
+					<th width="80px">剩余数量</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{giftTypeName}</td>
+							<td>{name}</td>
+							<td>{points}</td>
+							<td>{num}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="memberReducePoints_win_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var memberReducePoints = {
+	callBack:function(row){},
+	init:function(){
+		memberReducePoints.bind();
+		memberReducePoints.load();
+	},
+	bind:function(){
+		var sf = $("#memberReducePoints_win_form").xform();
+		$("#btn_memberReducePoints_win_search").xbtn(function(btn){
+			var data = sf.getData();
+			memberReducePoints.table.reload(data);
+		});
+		$("#btn_memberReducePoints_win_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			memberReducePoints.table.reload(data);
+		});
+		$('#memberReducePoints_win_xtable').on("click", '.js_memberReducePoints_win_sel', function(){
+			var index = $(this).data("xv");
+			var row = memberReducePoints.table.getRow(index);
+			memberReducePoints.callBack(row);
+			memberReducePoints.win.close();
+		});
+	},
+	load:function(){
+		memberReducePoints.win = $('#memberReducePoints_win').xwindow({width:500,height:550,open:false});
+		memberReducePoints.table = $('#memberReducePoints_win_xtable').xtable({
+			url:adminPath + '/gift/listPage',
+			paging:'.memberReducePoints_win_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_memberReducePoints_win_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	open:function(){
+		memberReducePoints.win.open();
+		memberReducePoints.table.reload();
+	}
+}
+memberReducePoints.init();
+</script>

@@ -1,0 +1,77 @@
+$(function(){
+	app.init();
+})
+/**
+ * 销售团队
+ */
+var app = {
+	init:function(){
+		app.bind();
+		app.load();
+	},
+	bind : function() {
+		var sf = $("#form_search").xform();
+		$("#btn_search").xbtn(function() {
+			var data = sf.getData();
+			app.table.reload(data);
+		});
+		$("#btn_reset").xbtn(function() {
+			sf.clear();
+			var data = sf.getData();
+			app.table.reload(data);
+		});
+		$('#btn_add').click(function(){
+			app.form.clear();
+			app.win.open();
+		});
+		$('#btn_export').xbtn(function() {
+			var data = $("#form_search").serialize();
+			var url = adminPath + '/saleTeam/excelDownload?='+data;
+			linkExcel.open("sale_team", url);
+		})
+		// 添加子集
+		$('#saleTeam_xtable').on("click",".btn_addSon",function(){
+			var index = $(this).data('xv');
+			app.clickIndex = index;
+			var row = app.table.getRow(index);
+			app.form.clear();
+			$("#f_parentId").val(row.id);
+			$("#f_parentName").val(row.saleName);
+			app.win.open();
+		})
+	},
+	load:function(){
+		$.ztree({
+			id:"tree",
+			url:adminPath + '/saleTeam/treeData',
+			click:function(treeId, treeNode){
+				app.table.reload({id:treeNode.id});
+			}
+		})
+		app.table = $('#saleTeam_xtable').xtable({
+			url:adminPath + '/saleTeam/findList',
+			deleteUrl:adminPath + '/saleTeam/delete',
+			tree: true,
+			format:function(row){
+				row.btnUpdate = "&nbsp;<a class='xupdate' data-xv='"+row.index+"'>修改</a>&nbsp;";
+				row.btnDelete = "&nbsp;<a class='xdelete' data-xv='"+row.id+"'>删除</a>&nbsp;";
+				row.btnAddSon = "&nbsp;<a class='btn_addSon' data-xv='"+row.index+"'>添加</a>&nbsp;";
+			},
+			update:function(row){
+				app.form.setData(row);
+				app.win.open();
+			},
+			deleteSuccess:function(e){
+				if (e.code==1){
+					app.table.reload();
+            		$.ok('删除成功');
+                } else {
+                	$.xalert('删除失败！');
+                }
+			},
+			success:function(){
+				$('#saleTeam_xtable').find(".tree_click").trigger("click");
+			}
+		});
+	}
+};

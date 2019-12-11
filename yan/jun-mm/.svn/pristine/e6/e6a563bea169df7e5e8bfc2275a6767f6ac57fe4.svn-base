@@ -1,0 +1,184 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+import java.util.Map;
+
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 消息通知实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月23日
+ * @version: 1.0.0
+ */
+@Table(name = "work_msg", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "user_id", attrName = "userId"),
+		@Column(name = "style", attrName = "style"),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "url", attrName = "url"),
+		@Column(name = "title", attrName = "title"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "read_state", attrName = "readState"),
+		@Column(name = "check_user", attrName = "checkUser"),
+		@Column(name = "check_state", attrName = "checkState"),
+		@Column(name = "check_remark", attrName = "checkRemark"),
+		@Column(name = "check_time", attrName = "checkTime"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "com_id", attrName = "comId"),
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.user_id ", columns = {
+			@Column(name = "name", attrName = "userName", queryType = QueryType.EQ) 
+		})
+	}, orderBy = "a.read_state asc"
+)
+public class WorkMsg extends DataEntity<WorkMsg> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String userId; // 员工id
+	private String style; // 类型（1通知、2审批）
+	private String bizId; // 关联业务id
+	private String bizType; // 分类（1预约通知、21请假审批）
+	private String url; // 连接地址
+	private String title; // 标题
+	private String content; // 内容
+	private String readState; // 阅读状态（0未读取、1已读取）
+	private String checkUser; // 审批人
+	private String checkState; // 审批状态（1待审批、2审批拒绝、3审批通过）
+	private String checkRemark; // 审批意见
+	private Date checkTime; // 审批时间
+	
+	// 业务字段
+	private String userName; // 员工Name
+	
+	// 类型（1通知、2审批）
+	/**
+	 * 1通知
+	 */
+	public static final String STYLE_1 = "1";
+	/**
+	 * 2审批
+	 */
+	public static final String STYLE_2 = "2";
+	
+	// 阅读状态（0未读取、1已读取）
+	/**
+	 * 0未读取
+	 */
+	public static final String READSTATE_0 = "0";
+	/**
+	 * 1已读取
+	 */
+	public static final String READSTATE_1 = "1";
+	
+	// 分类
+	/**
+	 * 1预约通知
+	 */
+	public static final String BIZTYPE_1 = "1";
+	/**
+	 * 21请假审批
+	 */
+	public static final String BIZTYPE_21 = "21";
+
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getStyle() {
+		return style;
+	}
+	public void setStyle(String style) {
+		this.style = style;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getReadState() {
+		return readState;
+	}
+	public void setReadState(String readState) {
+		this.readState = readState;
+	}
+
+	public String getCheckUser() {
+		return checkUser;
+	}
+	public void setCheckUser(String checkUser) {
+		this.checkUser = checkUser;
+	}
+
+	public String getCheckState() {
+		return checkState;
+	}
+	public void setCheckState(String checkState) {
+		this.checkState = checkState;
+	}
+
+	public String getCheckRemark() {
+		return checkRemark;
+	}
+	public void setCheckRemark(String checkRemark) {
+		this.checkRemark = checkRemark;
+	}
+
+	public Date getCheckTime() {
+		return checkTime;
+	}
+	public void setCheckTime(Date checkTime) {
+		this.checkTime = checkTime;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+}

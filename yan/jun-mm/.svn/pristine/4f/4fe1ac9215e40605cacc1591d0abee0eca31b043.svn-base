@@ -1,0 +1,83 @@
+package com.junkj.module.sys.entity;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 参数配置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Table(name = "sys_options", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "oname", attrName = "oname"),
+		@Column(name = "okey", attrName = "okey"),
+		@Column(name = "ovalue", attrName = "ovalue"),
+		@Column(name = "otype", attrName = "otype"),
+		@Column(name = "oload", attrName = "oload"),
+		@Column(name = "osm", attrName = "osm")
+		}, orderBy = "a.id DESC"
+)
+public class SysOptions extends DataEntity<SysOptions> {
+	
+	private static final long serialVersionUID = 1L;
+	private String oname; // 参数key
+	private String okey; // 参数key
+	private String ovalue; // 参数值
+	private String otype; // 参数类型（text/img/json/jsonObj/post/get）
+	private Integer oload; // 自动加载（0否、1是）
+	private String osm; // 参数说明
+
+	public String getOname() {
+		return oname;
+	}
+
+	public void setOname(String oname) {
+		this.oname = oname;
+	}
+
+	public String getOkey() {
+		return okey;
+	}
+
+	public void setOkey(String okey) {
+		this.okey = okey;
+	}
+
+	public String getOvalue() {
+		return ovalue;
+	}
+
+	public void setOvalue(String ovalue) {
+		this.ovalue = ovalue;
+	}
+
+	public String getOtype() {
+		return otype;
+	}
+
+	public void setOtype(String otype) {
+		this.otype = otype;
+	}
+
+	public Integer getOload() {
+		return oload;
+	}
+
+	public void setOload(Integer oload) {
+		this.oload = oload;
+	}
+
+	public String getOsm() {
+		return osm;
+	}
+
+	public void setOsm(String osm) {
+		this.osm = osm;
+	}
+
+}

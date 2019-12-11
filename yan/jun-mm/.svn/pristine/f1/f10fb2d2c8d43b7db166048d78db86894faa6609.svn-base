@@ -1,0 +1,198 @@
+package com.junkj.module.company.action;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.HtmlUtils;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.JsonUtils;
+import com.junkj.common.utils.TplExcel;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.CourseBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+
+/**
+ * 排课表action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/course")
+public class CourseAction extends BaseAction {
+
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+
+	@RequiresPermissions("company:course:view")
+	@RequestMapping("")
+	public String index() {
+		return "/module/company/course_kecheng";
+	}
+
+	@RequiresPermissions("company:course:view")
+	@RequestMapping(value = "/kc")
+	public String kc() {
+		return "/module/company/course";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("company:course:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<Course> listPage(Course course) {
+		Page<Course> page = courseBiz.findPage(course);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("company:course:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<Course> findList(Course course) {
+		List<Course> list = courseBiz.findList(course);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated Course course, BindingResult result) {
+		if (result.hasErrors()) {
+			return sendError(result.getFieldError().getDefaultMessage());
+		}
+		courseBiz.save(course);
+		return sendOk("保存成功！");
+	}
+	
+	/**
+	 * 清空会员卡
+	 */
+	@FormToken
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "updateCourseCardIdNull")
+	@ResponseBody
+	public JsonVo updateCourseCardIdNull(Course course) {
+		courseBiz.updateCourseCardIdNull(course);
+		return sendOk("清空成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(Course course) {
+		CourseEnroll where = new CourseEnroll();
+		where.setCourseId(course.getId());
+		List<CourseEnroll> list = courseEnrollBiz.findList(where);
+		if(list.size() > 0){
+			return sendError("请先删除报名记录!");
+		}
+		courseBiz.delete(course);
+		return sendOk("删除成功！");
+	}
+
+	/**
+	 * 导出
+	 */
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "/excelDownload", method = RequestMethod.GET)
+	@ResponseBody
+	public void excelDownload(HttpServletResponse response, Course course, @RequestParam Map<String, Object> params) {
+		List<Course> list = courseBiz.findList(course);
+		if (StrUtils.notBlank(params.get("col"))) {
+			String data = HtmlUtils.htmlUnescape(params.get("col").toString());
+			List<Map<String, Object>> colList = JsonUtils.toObject(data, List.class);
+			String[] headerColumns = new String[colList.size()];
+			String[] fieldColumns = new String[colList.size()];
+			for (int index = 0; index < colList.size(); index++) {
+				Map<String, Object> map = colList.get(index);
+				headerColumns[index] = "" + map.get("name").toString() + "_#_" + map.get("width").toString() + "";
+				fieldColumns[index] = "" + map.get("col").toString();
+			}
+			excelDownloadT(response, list, "课程管理", headerColumns, fieldColumns);
+		}
+	}
+
+	/**
+	 * 导出Excelmo模版
+	 */
+	@RequestMapping("/excelDownloadDemo")
+	@ResponseBody
+	public void getExcelTemplate(HttpServletRequest request, HttpServletResponse response,
+			@RequestParam Map<String, Object> params) {
+
+		String fileName = "课程管理"; // 模板名称
+		String[] handers = { "课程名称", "教师", "助教", "课程日期(例:2019-01-30)", "开始时间(例:23:59)", "结束时间(例:23:59)", "报名上限", "每周重复",
+				"验证预约" }; // 列标题
+
+		// 下拉框数据
+		List<String[]> downData = new ArrayList<String[]>();
+
+		String[] isWeekTxt = { "是", "否" };
+		String[] isCheckTxt = { "是", "否" };
+		// 每周重复
+		downData.add(isWeekTxt);
+		// 验证预约
+		downData.add(isCheckTxt);
+		String[] downRows = { "7", "8" }; // 下拉的列序号数组(序号从0开始)
+		TplExcel.getExcelTemplate(request, response, fileName, handers, downData, downRows);
+
+	}
+
+	/**
+	 * 导入Excel
+	 */
+	@FormToken
+	@RequestMapping(value = "/importExcelDownload")
+	@ResponseBody
+	public Object importExcelDownload(@RequestParam MultipartFile excelFile) {
+		Map<String, Object> data = courseBiz.saveCourseGetList(excelFile);
+		return JsonUtils.toString(data);
+	}
+
+	/**
+	 * 查询一周的课程
+	 */
+	@RequestMapping(value = "/findWeekKecheng", method = RequestMethod.POST)
+	@ResponseBody
+	public Object findWeekKecheng(HttpServletRequest request, @RequestParam Map<String, Object> params) {
+		List<Map<String, Object>> list = courseBiz.findWeekKecheng(params);
+		return list;
+	}
+
+}

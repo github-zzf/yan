@@ -1,0 +1,73 @@
+package com.junkj.module.member.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.file.biz.FileUploadBiz;
+import com.junkj.module.file.entity.FileUpload;
+import com.junkj.module.file.utils.FileUploadUtils;
+import com.junkj.module.member.dao.GrowupDao;
+import com.junkj.module.member.entity.Growup;
+
+/**
+ * 成长记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class GrowupBiz extends CrudBiz<GrowupDao, Growup> {
+
+	@Autowired
+	private FileUploadBiz fileUploadBiz;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Growup> findPage(Growup growup) {
+		return super.findPage(growup);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Growup> findList(Growup growup) {
+		return super.findList(growup);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(Growup growup) {
+		super.save(growup);
+		// 保存上传图片
+		FileUploadUtils.saveFileUpload(growup.getId(), growup.FILE_TYPE);
+	}
+
+	/**
+	 * 我的成长数据
+	 */
+	public Page<Growup> findMyPage(Growup growup) {
+		Page<Growup> page = findPage(growup);
+		FileUpload where = new FileUpload();
+		where.setBizType(Growup.FILE_TYPE);
+		page.getList().forEach(row -> {
+			where.setBizId(row.getId());
+			row.setFileUpload(fileUploadBiz.findList(where));
+		});
+		return page;
+	}
+
+}

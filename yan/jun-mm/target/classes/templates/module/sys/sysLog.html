@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/sys/sysLog.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">基础设置</b> >操作日志</span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search" autocomplete="off">
+				<div class="xgroup">
+					<label class="label">操作人</label>
+					<input type="text" name="userName" class="xw2" />
+				</div>
+				<div class="xgroup">
+					<label class="label">操作时间</label>
+					<input type="text" name="begin_time" class="xdate" id="xdate_begin" style="width:160px"/>
+					<input type="text" name="end_time" class="xdate" id="xdate_end" style="margin-left: 5px;width:160px"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search"><b class="icon_search icon_all">查询</b></button>
+					<button type="button" class="xbtn" id="btn_reset"><b class="icon_reast icon_all">重置</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+				<div class="xtable" id="sys_log_xtable">
+					<table class="xhead">
+						<tr>
+							<th width="180px">日志标题</th>
+							<th width="250px">请求地址</th>
+							<th width="100px">日志类型</th>
+							<th width="140px">操作人</th>
+							<th width="80px">请求数据</th>
+							<th width="80px">业务类型</th>
+							<th width="140px">业务主键</th>
+							<th width="160px">操作时间</th>
+							<th width="100px">IP地址</th>
+							<th width="80px">运行时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td>{logTitle}</td>
+									<td>{requestUri}</td>
+									<td>{logType}</td>
+									<td>{createName}</td>
+									<td>{paramsBtn}</td>
+									<td>{bizType}</td>
+									<td>{bizId}</td>
+									<td>{createTime}</td>
+									<td class="tc">{userIp}</td>
+									<td class="tc">{runTime}毫秒</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			<#assign cls="sys_log_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "/common/open_remark.html">
+</body>
+</html>

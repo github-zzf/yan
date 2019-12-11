@@ -1,0 +1,141 @@
+package com.junkj.module.sys.biz;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.biz.TreeBiz;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.CacheUtils;
+import com.junkj.module.sys.dao.SysMenuDao;
+import com.junkj.module.sys.dao.SysRoleDao;
+import com.junkj.module.sys.entity.SysMenu;
+import com.junkj.module.sys.entity.SysRole;
+
+@Service
+@Transactional(readOnly = true)
+public class SysMenuBiz extends TreeBiz<SysMenuDao, SysMenu> {
+
+	public static final String CACHE_MENU_NAME_PATH_MAP = "menuNamePathMap";
+
+	@Autowired
+	private SysRoleDao sysRoleDao;
+
+	/**
+	 * 获取角色菜单树
+	 */
+	public List<SysMenu> findTreeByRoleIds(String roleIds) {
+		// 查询角色列表
+		List<SysRole> roleList = sysRoleDao.findByRoleIds(roleIds);
+		// 当前用户所有角色菜单
+		List<SysMenu> voList = new ArrayList<SysMenu>();
+
+		for (SysRole role : roleList) {
+			// 查询角色菜单权限列表
+			SysMenu where = new SysMenu();
+			where.setType("menu");
+			where.setId(role.getMenus());
+			List<SysMenu> menuList = dao.findByMenuIds(where);
+			voList.addAll(menuList);
+		}
+		// 根据id去重
+		List<SysMenu> unique = removeDupliById(voList);
+		Collections.sort(unique, new Comparator<SysMenu>() {
+
+			@Override
+			public int compare(SysMenu o1, SysMenu o2) {
+				return o1.getSort() - o2.getSort();
+			}
+		});
+
+		List<SysMenu> menusTree = getMenusTree(unique, "0");
+		return menusTree;
+	}
+
+	/**
+	 * 获取全部菜单树
+	 */
+	public List<SysMenu> findAllTree() {
+		// 获取全部菜单树
+		SysMenu where = new SysMenu();
+		where.setType("menu");
+		List<SysMenu> menuList = dao.findList(where);
+
+		List<SysMenu> menusTree = getMenusTree(menuList, "0");
+		return menusTree;
+	}
+
+	private static List<SysMenu> removeDupliById(List<SysMenu> persons) {
+		Set<SysMenu> personSet = new TreeSet<>((o1, o2) -> o1.getId().compareTo(o2.getId()));
+		personSet.addAll(persons);
+		return new ArrayList<>(personSet);
+	}
+
+	/**
+	 * 查询菜单
+	 */
+	public List<SysMenu> findAllMenu() {
+		List<SysMenu> menus = dao.findList(newEntity());
+		return getMenusTree(menus, "0");
+	}
+
+	// 获取权限TreeListMap
+	private List<SysMenu> getMenusTree(List<SysMenu> menus, String id) {
+		List<SysMenu> result = new ArrayList<SysMenu>();
+		for (SysMenu row : menus) {
+			String rowid = row.getId();
+			String rowpid = row.getPid();
+			if (id.equals(rowpid)) {
+				List<SysMenu> list = getMenusTree(menus, rowid);
+				if (list.size() > 0) {
+					row.setSon(list);
+				}
+				result.add(row);
+			}
+		}
+		return result;
+	}
+
+	public String getMenuNamePath(String href, String permission) {
+		@SuppressWarnings("unchecked")
+		Map<String, String> menuMap = (Map<String, String>) CacheUtils.get(CACHE_MENU_NAME_PATH_MAP);
+		if (menuMap == null) {
+			menuMap = MapUtils.newHashMap();
+
+			List<SysMenu> menuList = dao.findList(new SysMenu());
+			for (SysMenu menu : menuList) {
+				if (StrUtils.isNotBlank(menu.getUrl())) {
+					menuMap.put(menu.getUrl(), menu.getNamePath());
+				} else if (StrUtils.isNotBlank(menu.getPermission())) {
+					for (String p : StrUtils.split(menu.getPermission())) {
+						menuMap.put(p, menu.getNamePath());
+					}
+				}
+			}
+			CacheUtils.put(CACHE_MENU_NAME_PATH_MAP, menuMap);
+		}
+		String namePath = menuMap.get(href);
+		if (namePath == null) {
+			for (String p : StrUtils.split(permission)) {
+				namePath = menuMap.get(p);
+				if (StrUtils.isNotBlank(namePath)) {
+					break;
+				}
+			}
+			if (namePath == null) {
+				return "";
+			}
+		}
+		return namePath;
+	}
+}

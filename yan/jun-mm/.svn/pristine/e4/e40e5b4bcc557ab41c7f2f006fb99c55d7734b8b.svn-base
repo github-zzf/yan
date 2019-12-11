@@ -1,0 +1,82 @@
+<div class="xwindow" id="articles_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">文章表表单</div>
+		<form class="xform" id="articles_form" method="post" autocomplete="off" style="height:563px;overflow:auto">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">栏目<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="typeName" id="f_typeName"/>
+					<input type="hidden" name="typeId" id="f_typeId"/>
+				</div>
+				<label class="g1">文章标题<i>*</i></label>
+				<div class="g2"><input type="text" name="title"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">文章排序<i>*</i></label>
+				<div class="g2"><input type="text" name="sort"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">内容<i>*</i></label>
+				<div class="g2">
+					<script id="f_body" name="body" type="text/plain" style="width:600px;height:300px;"></script>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">封面图片<i>*</i></label>
+				<div class="g2" style="width:550px">
+			        <div id="uploader" class="webuploader" biztype="articles_image">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将照片拖到这里，单次最多可选300张</p>
+		                    </div>
+		                </div>
+			        </div>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.ue_content = UE.getEditor('f_body');
+app.win = $('#articles_win').xwindow({width:780,height:650,open:false});
+app.form = $('#articles_form').xform({
+	url : adminPath + '/articles/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'栏目', name:'typeId', xcheck:'null'},
+		{label:'文章排序', name:'sort', xcheck:'null,num'},
+		{label:'文章标题', name:'title', xcheck:'null'},
+		{label:'内容', name:'body', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_typeName").click(function(){
+	linkArttype.open(function(treeId, treeNode){
+		$("#f_typeName").val(treeNode.name);
+		$("#f_typeId").val(treeNode.id);
+	})
+})
+</script>

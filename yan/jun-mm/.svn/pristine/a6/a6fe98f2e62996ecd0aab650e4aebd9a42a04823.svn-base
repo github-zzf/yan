@@ -1,0 +1,65 @@
+<div class="xwindow" id="points_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">积分记录表单</div>
+		<form class="xform" id="points_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">会员ID<i>*</i></label>
+				<div class="g2"><input type="text" name="memberId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">关联id<i>*</i></label>
+				<div class="g2"><input type="text" name="bizId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">关联类型（1消费、2评论）<i>*</i></label>
+				<div class="g2"><input type="text" name="bizType"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">类型(1增加、2扣除）<i>*</i></label>
+				<div class="g2"><input type="text" name="type"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">积分<i>*</i></label>
+				<div class="g2"><input type="text" name="num"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#points_win').xwindow({width:500,height:350,open:false});
+app.form = $('#points_form').xform({
+	url : adminPath + '/points/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'会员ID', name:'memberId', xcheck:'null'},
+		{label:'关联id', name:'bizId', xcheck:'null'},
+		{label:'关联类型（1消费、2评论）', name:'bizType', xcheck:'null'},
+		{label:'类型(1增加、2扣除）', name:'type', xcheck:'null'},
+		{label:'积分', name:'num', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

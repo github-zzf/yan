@@ -1,0 +1,188 @@
+package com.junkj.module.member.biz;
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.TplMsgUtils;
+import com.junkj.module.company.biz.CardsBiz;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.member.dao.MemberCardDao;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.sys.dao.SysPayDao;
+import com.junkj.module.sys.entity.SysCompany;
+import com.junkj.module.sys.entity.SysPay;
+
+/**
+ * 会员卡记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class MemberCardBiz extends CrudBiz<MemberCardDao, MemberCard> {
+
+	@Autowired
+	private MemberCardDao cardDao;
+	@Autowired
+	private SysPayDao sysPayDao;
+	@Autowired
+	private CardsBiz cardsBiz;
+	@Autowired
+	private MemberBiz memberBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<MemberCard> findPage(MemberCard card) {
+		return super.findPage(card);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<MemberCard> findList(MemberCard card) {
+		return super.findList(card);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(MemberCard card) {
+		super.save(card);
+	}
+
+	/**
+	 * 查询会员会员卡
+	 */
+	public List<MemberCard> getMemberCardList(MemberCard card) {
+		card.setComId(card.getComId());
+		return cardDao.getMemberCardList(card);
+	}
+
+	/**
+	 * 会员卡支付回调
+	 * 
+	 * @param payCode
+	 */
+	@Transactional(readOnly = false)
+	public void payBack(String payCode, String wxId) {
+
+		// 更新订单状态
+		SysPay where = new SysPay();
+		where.setPayCode(payCode);
+		SysPay pay = sysPayDao.getByEntity(where);
+		if (SysPay.PAY_STATUS_1.equals(pay.getStatus())) {
+			// 更新支付状态
+			pay.setPayStatus(SysPay.PAY_STATUS_2);
+			pay.setPayTime(new Date());
+			pay.setWxId(wxId);
+			sysPayDao.update(pay);
+
+			// 添加会员卡记录
+			Cards cards = cardsBiz.get(pay.getBizId());
+			// 有效天数
+			Integer days = cards.getDays();
+			MemberCard cardWhere = new MemberCard();
+			cardWhere.setMemberId(pay.getMemberId());
+			cardWhere.setCardId(pay.getBizId());
+			MemberCard memberCard = cardDao.getByEntity(cardWhere);
+			if (memberCard != null) {
+				// 未过期：当前日期 >过期日期
+				if (DateUtils.after(DateUtils.getDate(), DateUtils.format(memberCard.getInvalidTime()), "yyyy-MM-dd")) {
+					Date currdate = memberCard.getInvalidTime();
+					Calendar ca = Calendar.getInstance();
+					ca.add(Calendar.DATE, days);// num为增加的天数
+					currdate = ca.getTime();
+					String enddate = DateUtils.format(currdate);
+					try {
+						memberCard.setInvalidTime(DateUtils.parseDate(enddate, "yyyy-MM-dd"));
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					memberCard.setStoredAll(memberCard.getStoredAll() + cards.getStoredNum());
+					memberCard.setStoredNum(memberCard.getStoredNum() + cards.getStoredNum());
+					memberCard.setUpdateTime(new Date());
+					cardDao.update(memberCard);
+				} else {
+					// 会员卡过期：当前日期<=过期日期
+					saveMemberCard(cards, days, memberCard);
+				}
+
+			} else {
+				memberCard = new MemberCard();
+				memberCard.setMemberId(pay.getMemberId());
+				saveMemberCard(cards, days, memberCard);
+			}
+
+			/**
+			 * 消费通知
+			 */
+			Member member = memberBiz.get(memberCard.getMemberId());
+			String mcId = memberCard.getId();
+			if (member != null && StrUtils.notBlank(member.getOpenId())) {
+				new Thread() {
+					public void run() {
+						try {
+							List<String> data = ListUtils.newArrayList();
+							data.add("您有一条购买会员卡消费通知!");
+							data.add(DateUtils.formatDate(new Date(), "yyyy-MM-dd HH:mm:ss"));
+							// 订单商品
+							data.add(cards.getName());
+							data.add(cards.getMoney() + "");
+							data.add(mcId);
+							SysCompany sysCompany = ComUtils.getCurrentCom();
+							data.add(sysCompany.getComName());
+							data.add("点击查看详情");
+							TplMsgUtils.sendMsg(member.getOpenId(), "", TplMsgUtils.TPL_1, data);
+						} catch (Exception e) {
+							logger.error("消费通知失败", e);
+						}
+					}
+				}.start();
+			}
+		}
+
+	}
+
+	private void saveMemberCard(Cards cards, Integer days, MemberCard memberCard) {
+		memberCard.setCardId(cards.getId());
+		memberCard.setCardName(cards.getName());
+		memberCard.setCreateTime(new Date());
+		Calendar ca = Calendar.getInstance();
+		ca.add(Calendar.DATE, days);// days为增加的天数，可以改变的
+		Date d = ca.getTime();
+		String endTime = DateUtils.format(d);
+		try {
+			memberCard.setInvalidTime(DateUtils.parseDate(endTime, "yyyy-MM-dd"));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		memberCard.setStoredAll(cards.getStoredNum());
+		memberCard.setStoredNum(cards.getStoredNum());
+
+		memberCard.setUpdateTime(new Date());
+
+		super.save(memberCard);
+	}
+}

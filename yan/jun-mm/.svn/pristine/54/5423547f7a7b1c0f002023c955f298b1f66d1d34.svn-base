@@ -1,0 +1,68 @@
+<#assign ctx=springMacroRequestContext.contextPath />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+	<!-- <link rel="icon" href="${ctx}/static/module/icon/16.ico" sizes="16x16">
+	<link rel="icon" href="${ctx}/static/module/icon/32.ico" sizes="32x32">
+	<link rel="icon" href="${ctx}/static/module/icon/48.ico" sizes="48x48">
+	<link rel="icon" href="${ctx}/static/module/icon/64.ico" sizes="64x64"> -->
+	<title>微营销平台</title>
+	<script type="text/javascript">if(window!=top){top.location.href=location.href;}</script>
+	<link rel="stylesheet" type="text/css" href="${ctx}/static/module/base/css/login.css?${v}" />
+	
+	<script type="text/javascript">var adminPath = "${ctx}${adminPath}";</script>
+	<script type="text/javascript" src="${ctx}/static/common/jquery/jquery-1.9.1.min.js?${v}"></script>
+	<script type="text/javascript" src="${ctx}/static/common/jquery/jquery.cookie.js?${v}"></script>
+	<script type="text/javascript" src="${ctx}/static/common/xui/xui.js?${v}"></script>
+	<script type="text/javascript" src="${ctx}/static/module/base/login.js?${v}"></script>
+	
+</head>
+<body>
+	<div class="log_box">
+		<div class="main-body no-qrcode">
+			<!-- 登录界面 -->
+			<div class="new-login">
+				<div class="top">
+					<div class="title1">微营销平台</div>
+					<div class="title2">用户登录</div>
+					<span class="bg1"></span>
+					<span class="bg2"></span>
+				</div>
+				<form class="bottom" id="login_from" autocomplete="off">
+					<div class="center">
+						<div class="item">
+							<span class="icon icon-2"></span>
+							<input type="text" name="username" id="username" placeholder="请输入帐号" maxlength="20" value="${devUser}">
+						</div>
+						<div class="item">
+							<span class="icon icon-3"></span>
+							<input type="password" name="password" id="password" placeholder="请输入密码" maxlength="20" value="${devPass}">
+						</div>
+						<div id="validatePanel" class="item hide" style="width: 137px;">
+							<input type="text" id="validateCode" placeholder="请输入验证码" maxlength="4">
+							<img id="validateImg" class="validateImg" src="">
+							<span id="validateRefresh" class="icon icon-6"></span>
+						</div>
+						<div class="errors"></div>
+					</div>
+					<div class="tip">
+                        <input type='checkbox' id="logincheckbox" style="vertical-align:middle;" />
+                        <label class="login-tip" for="logincheckbox">记住账号</label>
+					</div>
+					<div id="submit" class="deal" >
+						立即登录
+					</div>
+				</form>
+			</div>
+		
+			<!-- 二维码 -->
+			<div class="qr-code hide" style="height: 518px;">
+				<div class="show-qr-code">
+					<span class="content"></span>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

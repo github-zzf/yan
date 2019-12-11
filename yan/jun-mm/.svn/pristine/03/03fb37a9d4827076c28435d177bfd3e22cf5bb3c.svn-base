@@ -1,0 +1,80 @@
+<div class="xwindow" id="sysCompany_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">企业表单</div>
+		<form class="xform" id="sysCompany_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+			<label class="g1">企业编码<i>*</i></label>
+				<div class="g2"><input type="text" name="comId" id="f_comId"/></div>
+			<label class="g1">企业名称<i>*</i></label>
+				<div class="g2"><input type="text" name="comName"/></div>					
+			</div>
+			<div class="xgroup">
+			<label class="g1">联系人<i>*</i></label>
+				<div class="g2"><input type="text" name="contacts"/></div>	
+				<label class="g1">联系电话<i>*</i></label>
+				<div class="g2"><input type="text" name="phone"/></div>
+			</div>
+			<div class="xgroup">
+			<label class="g1">电子邮箱</label>
+				<div class="g2"><input type="text" name="email"/></div>	
+				<label class="g1">QQ</label>
+				<div class="g2"><input type="text" name="qq"/></div>
+			</div>
+			<div class="xgroup">
+			<label class="g1">微信</label>
+				<div class="g2"><input type="text" name="wx"/></div>
+				<label class="g1">行政区</label>
+				<div class="g2">
+				<input type="text" name="areaName" id="f_areaName"/>
+				<input type="hidden" name="areaId" id="f_areaId"/>	
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">详细地址</label>
+				<div class="g2">
+				<input type="text" name="address" style="width:540px"/>
+				</div>				
+			</div>
+				<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+				<textarea type="text" name="remark" style="width:540px;height:80px"/></textarea>
+				</div>
+			</div>
+			
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysCompany_win').xwindow({width:700,height:450,open:false});
+app.form = $('#sysCompany_form').xform({
+	url : adminPath + '/sysCompany/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'联系人', name:'contacts', xcheck:'null'},
+		{label:'企业编码', name:'comId', xcheck:'null'},
+		{label:'企业名称', name:'comName', xcheck:'null'},
+		{label:'联系电话', name:'phone', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_areaName").click(function(){
+	linkSysArea.open(function(treeId, treeNode){
+		$("#f_areaName").val(treeNode.name);
+		$("#f_areaId").val(treeNode.id);
+	})
+})
+</script>

@@ -1,0 +1,90 @@
+package com.junkj.module.weixin.entity;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 微信公众号配置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月22日
+ * @version: 1.0.0
+ */
+@Table(name = "wx_config", alias = "a", columns = {
+		@Column(name = "appid", attrName = "appid", isPK = true),
+		@Column(name = "appname", attrName = "appname"),
+		@Column(name = "appsecret", attrName = "appsecret"),
+		@Column(name = "mch_id", attrName = "mchId"),
+		@Column(name = "mch_key", attrName = "mchKey"),
+		@Column(name = "mch_cert", attrName = "mchCert"),
+		@Column(name = "remark", attrName = "remark"),
+		@Column(includeEntity=DataEntity.class),
+		@Column(includeEntity=BaseEntity.class)
+	}, orderBy = "a.id DESC"
+)
+public class WxConfig extends DataEntity<WxConfig> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String appid; // 公众号appid
+	private String appname; // 公众号名称
+	private String appsecret; // 公众号AppSecret
+	private String mchId; // 商户号
+	private String mchKey; // 商户api密钥
+	private String mchCert; // 证书地址
+	private String remark; // 备注
+
+
+	public String getAppid() {
+		return appid;
+	}
+	public void setAppid(String appid) {
+		this.appid = appid;
+	}
+
+	public String getAppname() {
+		return appname;
+	}
+	public void setAppname(String appname) {
+		this.appname = appname;
+	}
+
+	public String getAppsecret() {
+		return appsecret;
+	}
+	public void setAppsecret(String appsecret) {
+		this.appsecret = appsecret;
+	}
+
+	public String getMchId() {
+		return mchId;
+	}
+	public void setMchId(String mchId) {
+		this.mchId = mchId;
+	}
+
+	public String getMchKey() {
+		return mchKey;
+	}
+	public void setMchKey(String mchKey) {
+		this.mchKey = mchKey;
+	}
+
+	public String getMchCert() {
+		return mchCert;
+	}
+	public void setMchCert(String mchCert) {
+		this.mchCert = mchCert;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

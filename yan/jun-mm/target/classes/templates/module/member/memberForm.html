@@ -1,0 +1,71 @@
+<div class="xwindow" id="member_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员表单</div>
+		<form class="xform" id="member_form" method="post" autocomplete="off" style="height:462px;overflow:auto">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">会员级别</label>
+				<div class="g2">
+					<div class="xcombo" data-name="levelId" id="f_levelId">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{id}">{name}</li>
+					   	</ul>
+				  	</div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">姓名<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+				<label class="g1">手机<i>*</i></label>
+				<div class="g2"><input type="text" name="phone"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">QQ</label>
+				<div class="g2"><input type="text" name="qq"/></div>
+				<label class="g1">电子邮件</label>
+				<div class="g2"><input type="text" name="email"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">地址</label>
+				<div class="g2"><input type="text" name="address" style="width:530px;"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#member_win').xwindow({width:750,height:550,open:false});
+app.form = $('#member_form').xform({
+	url : adminPath + '/member/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'姓名', name:'name', xcheck:'null,max:20'},
+		{label:'手机', name:'phone', xcheck:'null,max:30'},
+		{label:'QQ', name:'qq', xcheck:'max:30'},
+		{label:'电子邮件', name:'email', xcheck:'max:30'},
+		{label:'地址', name:'address', xcheck:'max:30'},
+		{label:'备注', name:'remark', xcheck:'max:200'}
+	],
+	xcombo:[
+		{id:'#f_levelId', url:adminPath+"/combo/findMemberLevel"}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

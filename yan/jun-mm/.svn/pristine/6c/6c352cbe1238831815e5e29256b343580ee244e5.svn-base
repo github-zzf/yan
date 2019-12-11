@@ -1,0 +1,76 @@
+package com.junkj.common.utils;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.session.Session;
+
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.module.member.biz.MemberBiz;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 获取request、session中的会员数据
+ */
+public class MemberUtils {
+
+	private static MemberBiz memberBiz = SpringUtils.getBean(MemberBiz.class);
+
+	public static final String CACHE_WXUSER_ = "WXUSER_";
+	public static final String CACHE_OPENID_ = "OPENID_";
+	public static final String CACHE_MEMBER_ID_ = "MEMBER_ID_";
+	public static final String CACHE_STAFF_ID_ = "STAFF_ID_";
+	public static final String CACHE_SALE_ID_ = "SALE_ID_";
+
+	public static Member getMember() {
+		return memberBiz.getByMemberId(getMemberId());
+	}
+
+	public static String getMemberId() {
+		return getRSCache(CACHE_MEMBER_ID_);
+	}
+
+	public static String getStaffId() {
+		return getRSCache(CACHE_STAFF_ID_);
+	}
+
+	public static String getSaleId() {
+		return getRSCache(CACHE_SALE_ID_);
+	}
+
+	public static String getOpenid() {
+		return getRSCache(CACHE_OPENID_);
+	}
+
+	public static WxUser getWxUser() {
+		return getRSCache(CACHE_WXUSER_);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <V> V getRSCache(String key) {
+		V v = null;
+		HttpServletRequest request = ServletUtils.getRequest();
+		if (request != null) {
+			Object obj = request.getAttribute(key);
+			if (obj != null) {
+				v = (V) obj;
+			}
+		}
+		if (v == null) {
+			Session session = UserUtils.getSession();
+			if (session != null) {
+				Object obj = session.getAttribute(key);
+				if (obj != null) {
+					v = (V) obj;
+				}
+			}
+		}
+
+		if (request != null) {
+			request.setAttribute(key, v);
+		}
+		return v;
+	}
+
+}

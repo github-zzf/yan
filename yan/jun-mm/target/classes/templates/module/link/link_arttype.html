@@ -1,0 +1,72 @@
+<div class="xwindow" id="link_demoTree">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">栏目选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_demoTree_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" placeholder="关键字" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_demoTree_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_demoTree_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="demoTree_tree" class="ztree" style="width:100%;max-height:417px;overflow-y: auto"></div>
+	</div>
+	
+</div>
+<script>
+var linkArttype = {
+	callBack:function(row){},
+	init:function(){
+		linkArttype.bind();
+		linkArttype.load();
+	},
+	bind:function(){
+		var sf = $("#link_demoTree_form").xform();
+		$("#btn_link_demoTree_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkArttype.table.reload(data);
+		});
+		$("#btn_link_demoTree_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkArttype.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				linkArttype.table.reload(data);
+	        }
+	    });
+		$('#link_demoTree').on("click",".js_link_demoTree_sel", function(btn){
+			var index = btn.xv;
+			var row = linkArttype.table.getRow(index);
+			linkArttype.callBack(row);
+			linkArttype.win.close();
+		});
+	},
+	load:function(){
+		linkArttype.win = $('#link_demoTree').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"demoTree_tree",
+			url:adminPath + '/arttype/treeData',
+			click:function(treeId, treeNode){
+				linkArttype.win.close();
+				linkArttype.callBack(treeId, treeNode);
+			}
+		})
+	},
+	open:function(callBack){
+		linkArttype.callBack = callBack;
+		linkArttype.win.open();
+	}
+}
+linkArttype.init();
+</script>

@@ -1,0 +1,141 @@
+<div class="xwindow" id="activity_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">活动表单</div>
+		<form class="xform" id="activity_form" method="post" autocomplete="off" style="height:563px;overflow:auto">			
+			<input type="hidden" name="id" id="activity_id"/>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">支付方式<i>*</i></label>
+				<div class="g2">
+					<div class="xcombo" data-name="payStatus" id="f_payStatus">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<label class="g1" style="width:100px;">活动名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">封面图片<i>*</i></label>
+				<div class="g2" style="width:550px">
+			        <div id="uploader" class="webuploader" biztype="demoBase_image">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将照片拖到这里，单次最多可选300张</p>
+		                    </div>
+		                </div>
+			        </div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">开始时间<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_startTime" name="startTime"/></div>
+				<label class="g1" style="width:100px;">结束时间<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_endTime" name="endTime"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">报名开始时间<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_enrollStart" name="enrollStart"/></div>
+				<label class="g1" style="width:100px;">报名结束时间<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_enrollEnd" name="enrollEnd"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">报名上限<i>*</i></label>
+				<div class="g2"><input type="text" name="peopleMax"/></div>
+				<label class="g1" style="width:100px;">经纬度<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="coordinate" />
+					<a class="xbtn" href="http://lbs.qq.com/tool/getpoint/getpoint.html" target="_blank" style="padding: 2px 4px;font-size: 12px;margin-top: -4px;">获取坐标</a>
+					<span style="display:block; " class="error form_coordinatr_error"></span>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">活动详情<i>*</i></label>
+				<div class="g2">
+					<script id="f_content" name="content" type="text/plain" style="width:600px;height:300px;"></script>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">活动费<i>*</i></label>
+				<div class="g2"><input type="text" name="money"/></div>
+				<label class="g1" style="width:100px;">赠送积分<i>*</i></label>
+				<div class="g2"><input type="text" name="givePoints"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">会员卡</label>
+				<div class="g2">
+					<input type="text" name="cardName" id="f_cardName"/>
+					<input type="hidden" name="cardId" id="f_cardId"/>
+				</div>
+				<label class="g1" style="width:100px;">消耗数值</label>
+				<div class="g2"><input type="text" name="cardNum"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" style="width:100px;">活动地址<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="address" style="width:540px;"/>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.ue_content = UE.getEditor('f_content');
+$("#f_startTime").xdate({time:true});
+$("#f_endTime").xdate({time:true});
+$("#f_enrollStart").xdate({time:true});
+$("#f_enrollEnd").xdate({time:true});
+app.win = $('#activity_win').xwindow({width:780,height:650,open:false});
+app.form = $('#activity_form').xform({
+	url : adminPath + '/activity/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'支付方式', name:'payStatus', xcheck:'null'},
+		{label:'活动名称', name:'name', xcheck:'null'},
+		{label:'开始时间', name:'startTime', xcheck:'null'},
+		{label:'结束时间', name:'endTime', xcheck:'null'},
+		{label:'报名开始时间', name:'enrollStart', xcheck:'null'},
+		{label:'报名结束时间', name:'enrollEnd', xcheck:'null'},
+		{label:'活动地址', name:'address', xcheck:'null'},
+		{label:'经纬度', name:'coordinate', xcheck:'null'},
+		{label:'活动详情', name:'content', xcheck:'null'},
+		{label:'报名上限', name:'peopleMax', xcheck:'null'},
+		{label:'活动费', name:'money', xcheck:'null'},
+		{label:'赠送积分', name:'givePoints', xcheck:'null'},
+	],
+	xcombo:[
+		{id:'#f_payStatus', url:adminPath+"/combo/findCardType?tKey=activity_payStatus"}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+// 会员卡
+$("#f_cardName").click(function(){
+	linkCards.callBack = function(row) {
+		$("#f_cardName").val(row.name);
+		$("#f_cardId").val(row.id);
+	};
+	linkCards.open();
+});
+</script>

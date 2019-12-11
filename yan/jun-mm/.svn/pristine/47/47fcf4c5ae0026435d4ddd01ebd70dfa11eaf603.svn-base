@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/cash/cashBuy.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">消费记录</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">会员姓名</label>
+					<input type="text" name="memberName" class="xw2">
+				</div>
+				<div class="xgroup">
+					<label class="label">会员电话</label>
+					<input type="text" name="memberPhone" class="xw2">
+				</div>
+				<div class="xgroup">
+					<label class="label">消费类型</label>
+					<div class="xcombo" data-name="type" id="sf_type">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="xgroup">
+					<label class="label">支付方式</label>
+					<div class="xcombo" data-name="payType" id="sf_payType">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="cashBuy_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="80px">操作</th>
+							<th width="100px">会员姓名</th>
+							<th width="100px">会员电话</th>
+							<th width="80px">应付金额</th>
+							<th width="80px">消费类型</th>
+							<th width="80px">支付方式</th>
+							<th width="80px">实付金额</th>
+							<th width="80px">积分</th>
+							<th>备注</th>
+							<th width="150px">更新者</th>
+							<th width="150px">更新时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+									<td class="tc">{btnUpdate}{btnDelete}</td>
+									<td>{memberName}</td>
+									<td>{memberPhone}</td>
+									<td>{money}</td>
+									<td>{typeName}</td>
+									<td>{payTypeName}</td>
+									<td>{payMoney}</td>
+									<td>{points}</td>
+									<td>{remark}</td>
+									<td>{updateName}</td>
+									<td>{updateTime}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="cashBuy_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "cashBuyForm.html">
+	<#include "../link/link_member.html">
+	<#include "../link/link_cash_buy_goods.html">
+	<#include "../link/link_sysUser.html">
+</body>
+</html>

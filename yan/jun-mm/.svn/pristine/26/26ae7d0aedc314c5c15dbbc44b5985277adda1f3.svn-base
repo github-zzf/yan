@@ -1,0 +1,149 @@
+package com.junkj.module.member.entity;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysBeanData;
+
+/**
+ * 积分记录实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "member_points", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "num", attrName = "num"),
+		@Column(name = "remark", attrName = "remark"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity= BaseEntity.class),
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "b", on = "b.bean_key='points_type' and b.bean_val = a.type", columns = {
+			@Column(name = "bean_txt", attrName = "typeTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "c", on = "c.bean_key='points_bizType' and c.bean_val = a.biz_type", columns = {
+			@Column(name = "bean_txt", attrName = "bizTypeTxt", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class Points extends DataEntity<Points> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String comId; // 企业
+	private String memberId; // 会员ID
+	private String bizId; // 关联id
+	private String bizType; // 关联类型（1消费、2评论）
+	private String type; // 类型(1增加、2扣除）
+	private Long num; // 积分
+	
+	// 业务字段
+	private String typeTxt; // 类型
+	private String bizTypeTxt; // 关联类型
+	
+	// 关联类型（1消费、2课程签到、3活动签到、4赠送）
+	/**
+	 * 1消费
+	 */
+	public static final String BIZTYPE_1 = "1";
+	/**
+	 * 2课程签到
+	 */
+	public static final String BIZTYPE_2 = "2";
+	/**
+	 * 3活动签到
+	 */
+	public static final String BIZTYPE_3 = "3";
+	/**
+	 * 4赠送
+	 */
+	public static final String BIZTYPE_4 = "4";
+	
+	// 类型(1增加、2扣除）
+	/**
+	 * 1增加
+	 */
+	public static final String TYPE_1 = "1";
+	/**
+	 * 2扣除
+	 */
+	public static final String TYPE_2 = "2";
+	
+	// 积分
+	/**
+	 * 课程积分
+	 */
+	public static final Long COURSEPOINTS = 10L;
+	/**
+	 * 活动积分
+	 */
+	public static final Long ACTIVITYPOINTS = 10L;
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Long getNum() {
+		return num;
+	}
+	public void setNum(Long num) {
+		this.num = num;
+	}
+	public String getTypeTxt() {
+		return typeTxt;
+	}
+	public void setTypeTxt(String typeTxt) {
+		this.typeTxt = typeTxt;
+	}
+	public String getBizTypeTxt() {
+		return bizTypeTxt;
+	}
+	public void setBizTypeTxt(String bizTypeTxt) {
+		this.bizTypeTxt = bizTypeTxt;
+	}
+
+}

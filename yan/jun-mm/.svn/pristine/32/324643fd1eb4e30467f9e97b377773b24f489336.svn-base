@@ -1,0 +1,85 @@
+package com.junkj.module.sys.biz;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.module.sys.dao.SysComProductDao;
+import com.junkj.module.sys.entity.SysComMsg;
+import com.junkj.module.sys.entity.SysComMsgRecord;
+import com.junkj.module.sys.entity.SysComProduct;
+
+/**
+ * 消费记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SysComProductBiz extends CrudBiz<SysComProductDao, SysComProduct> {
+	
+	@Autowired
+	private SysComMsgBiz sysComMsgBiz;
+	@Autowired
+	private SysComMsgRecordBiz sysComMsgRecordBiz;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<SysComProduct> findPage(SysComProduct sysComProduct) {
+		return super.findPage(sysComProduct);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<SysComProduct> findList(SysComProduct sysComProduct) {
+		return super.findList(sysComProduct);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(SysComProduct sysComProduct) {
+		super.save(sysComProduct);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Transactional(readOnly=false)
+	public void newsSysComProduct() {
+        Calendar cl = Calendar.getInstance();
+        cl.setTime(new Date());
+        cl.add(Calendar.DATE, -7);
+		List<SysComMsg> list = dao.newsSysComProduct(DateUtils.formatDate(cl.getTime()), DateUtils.getDate());
+		for (SysComMsg sysComMsg : list) {
+			sysComMsgBiz.save(sysComMsg);
+		}
+	}
+	
+	/**
+	 * 通过企业id产品id查询
+	 */
+	public SysComProduct getByProductId(String comId, String productId){
+		SysComProduct where = new SysComProduct();
+		where.setComId(comId);
+		where.setProductId(productId);
+		return dao.getByEntity(where);
+	}
+	
+}

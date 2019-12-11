@@ -1,0 +1,137 @@
+package com.junkj.module.cash.entity;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 销售金额实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月28日
+ */
+@Table(name = "cash_money", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "money", attrName = "money"),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "buy_type", attrName = "buyType"),
+		@Column(name = "pay_type", attrName = "payType"),
+		@Column(includeEntity = DataEntity.class), 
+		@Column(includeEntity = BaseEntity.class)
+	}, orderBy = "a.id DESC"
+)
+public class CashMoney extends DataEntity<CashMoney> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String bizId; // 业务主键
+	private String bizType; // 业务类型
+	private Double money; // 金额
+	private String type; // 消费类型(1消费收银、2储值扣费、3会员储值、4线上支付)
+	private String buyType; // 购买类型(11消费项目、12会员卡、13活动、41消费项目、42会员卡、43活动)
+	private String payType; // 支付方式（1现金、2微信、3支付宝、4刷卡、11储值扣费）
+	
+	// 业务类型
+	/**
+	 * 消费收银
+	 */
+	public static final String BIZTYPE_CASH_BUY = "cash_buy";
+	/**
+	 * 活动
+	 */
+	public static final String BIZTYPE_COM_ACTIVITY_ENROLL = "com_activity_enroll";
+	/**
+	 * 会员卡
+	 */
+	public static final String BIZTYPE_MEMBER_CARD = "member_card";
+	
+	// 消费类型(1消费收银、2储值扣费、3储次扣费、4线上支付)
+	/**
+	 * 1消费收银
+	 */
+	public static final String TYPE_1 = "1";
+	/**
+	 * 2储值扣费
+	 */
+	public static final String TYPE_2 = "2";
+	/**
+	 * 3储次扣费
+	 */
+	public static final String TYPE_3 = "3";
+	/**
+	 * 4线上支付
+	 */
+	public static final String TYPE_4 = "4";
+	
+	// 购买类型(11消费项目、12会员卡、13活动、41消费项目、42会员卡、43活动) 
+	/**
+	 * 11消费项目
+	 */
+	public static final String BUYTYPE_11 = "11";
+	/**
+	 * 12会员卡
+	 */
+	public static final String BUYTYPE_12 = "12";
+	/**
+	 * 13活动
+	 */
+	public static final String BUYTYPE_13 = "13";
+	/**
+	 * 41消费项目
+	 */
+	public static final String BUYTYPE_41 = "41";
+	/**
+	 * 42会员卡
+	 */
+	public static final String BUYTYPE_42 = "42";
+	/**
+	 * 43活动
+	 */
+	public static final String BUYTYPE_43 = "43";
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public Double getMoney() {
+		return money;
+	}
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getBuyType() {
+		return buyType;
+	}
+	public void setBuyType(String buyType) {
+		this.buyType = buyType;
+	}
+	public String getPayType() {
+		return payType;
+	}
+	public void setPayType(String payType) {
+		this.payType = payType;
+	}
+
+}

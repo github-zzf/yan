@@ -1,0 +1,26 @@
+package com.junkj.module.company.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class CourseEnrollSql {
+	
+	public String countByMember(String keChengId, String memberId) {
+		
+		String str = new SQL() {
+			{
+				SELECT("a.id,a.course_id as courseId,a.member_id as memberId");
+				SELECT("a.sign_time as signTime,a.comment_time as commentTime");
+				SELECT("a.comment_level as commentLevel,a.comment_content as commentContent");
+				SELECT("a.status,a.status_remark as statusRemark,a.create_time as createTime");
+				FROM("com_course_enroll a");
+				WHERE("a.course_id = #{keChengId}");
+				WHERE("a.member_id = #{memberId}");
+				WHERE("a.status <> 2");
+				WHERE("a.status <> 3");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

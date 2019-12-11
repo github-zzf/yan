@@ -1,0 +1,165 @@
+package com.junkj.module.cash.biz;
+
+import java.util.Calendar;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.cash.dao.CashBuyDao;
+import com.junkj.module.cash.entity.CashBuy;
+import com.junkj.module.cash.entity.CashBuyCard;
+import com.junkj.module.cash.entity.CashBuyGoods;
+import com.junkj.module.cash.entity.CashBuyUser;
+import com.junkj.module.cash.entity.CashMoney;
+import com.junkj.module.company.biz.CardsBiz;
+import com.junkj.module.company.biz.StaffMoneySettingBiz;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.company.entity.StaffMoneySetting;
+import com.junkj.module.demo.entity.DemoItem;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.stock.biz.StockRecordBiz;
+import com.junkj.module.stock.entity.StockRecord;
+import com.junkj.module.stock.entity.StockRecordItem;
+
+/**
+ * 消费记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月28日
+ */
+@Service
+@Transactional(readOnly = true)
+public class CashBuyBiz extends CrudBiz<CashBuyDao, CashBuy> {
+
+	@Autowired
+	private CashBuyGoodsBiz cashBuyGoodsBiz;
+	@Autowired
+	private CashBuyCardBiz cashBuyCardBiz;
+	@Autowired
+	private CashBuyUserBiz cashBuyUserBiz;
+	@Autowired
+	private CashMoneyBiz cashMoneyBiz;
+	@Autowired
+	private MemberCardBiz memberCardBiz;
+	@Autowired
+	private StaffMoneySettingBiz staffMoneySettingBiz;
+	@Autowired
+	private CardsBiz cardsBiz;
+	@Autowired
+	private StockRecordBiz stockRecodBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CashBuy> findPage(CashBuy cashBuy) {
+		return super.findPage(cashBuy);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CashBuy> findList(CashBuy cashBuy) {
+		return super.findList(cashBuy);
+	}
+
+	/**
+	 * 添加
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(CashBuy cashBuy) {
+		// 消费收银
+		cashBuy.setType(CashBuy.TYPE_1);
+		super.save(cashBuy);
+		// 保存商品明细
+		for (CashBuyGoods item : cashBuy.getCashBuyGoods()) {
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())) {
+				item.setBuyId(cashBuy.getId());
+				if (item.getIsNewT()) {
+					item.preInsert();
+					cashBuyGoodsBiz.insert(item);
+				}
+			}
+		}
+		
+		stockRecodBiz.saveByCashBuy(cashBuy.getId(), cashBuy.getCashBuyGoods());
+		
+		// 保存卡明细
+		for (CashBuyCard buyCard : cashBuy.getCashBuyCard()) {
+			if (!DemoItem.STATUS_DELETE.equals(buyCard.getStatus())) {
+				buyCard.setBuyId(cashBuy.getId());
+				if (buyCard.getIsNewT()) {
+					buyCard.preInsert();
+					cashBuyCardBiz.insert(buyCard);
+
+					// 获取会员卡
+					Cards cards = cardsBiz.get(buyCard.getCardId());
+
+					// 失效日期计算
+					Calendar cl = Calendar.getInstance();
+					cl.add(Calendar.DATE, cards.getDays().intValue());
+
+					// 保存会员卡
+					MemberCard mCard = new MemberCard();
+					mCard.setMemberId(cashBuy.getMemberId());
+					mCard.setCardId(buyCard.getCardId());
+					mCard.setCardName(buyCard.getCardName());
+					mCard.setStoredAll(cards.getStoredNum() * buyCard.getNum());
+					mCard.setStoredNum(cards.getStoredNum() * buyCard.getNum());
+					mCard.setInvalidTime(cl.getTime());
+					memberCardBiz.save(mCard);
+
+				} else {
+					buyCard.preUpdate();
+					cashBuyCardBiz.update(buyCard);
+				}
+			} else {
+				cashBuyCardBiz.delete(buyCard);
+			}
+		}
+		// 保存子表
+		for (CashBuyUser item : cashBuy.getCashBuyUser()) {
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())) {
+				// 提成计算
+				StaffMoneySetting setting = staffMoneySettingBiz.getByUserId(item.getUserId());
+				if (StrUtils.notBlank(setting)) {
+					item.setRatioUser(setting.getRatio());
+					Double money = cashBuy.getPayMoney() * item.getRatio() / 100D * item.getRatioUser() / 100;
+					item.setMoney(money);
+				}
+				item.setBuyId(cashBuy.getId());
+				item.setPayMoney(cashBuy.getPayMoney());
+				if (item.getIsNewT()) {
+					item.preInsert();
+					cashBuyUserBiz.insert(item);
+				} else {
+					item.preUpdate();
+					cashBuyUserBiz.update(item);
+				}
+			} else {
+				cashBuyUserBiz.delete(item);
+			}
+		}
+
+		// 销售金额
+		CashMoney cashMoney = new CashMoney();
+		cashMoney.setBizId(cashBuy.getId());
+		cashMoney.setBizType("cash_buy");
+		cashMoney.setMoney(cashBuy.getPayMoney());
+		cashMoney.setType(CashMoney.TYPE_1);
+		cashMoney.setPayType(cashBuy.getPayType());
+		cashMoneyBiz.save(cashMoney);
+
+	}
+
+}

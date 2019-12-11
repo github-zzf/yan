@@ -1,0 +1,21 @@
+package com.junkj.module.company.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class ActivitySql {
+
+	public String updateActivityCardIdNull(String id) {
+		
+		String str = new SQL() {
+			{
+				UPDATE("com_activity");
+				SET("card_id = null");
+				SET("card_num = 0");
+				WHERE("id = #{id}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

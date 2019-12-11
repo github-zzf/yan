@@ -1,0 +1,89 @@
+<div class="xwindow" id="member_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员表单</div>
+		<form class="xform" id="member_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">会员级别<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="levelTxt" id="f_member_levelTxt"/>
+					<input type="hidden" name="levelId" id="f_member_levelId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">家长姓名<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">手机<i>*</i></label>
+				<div class="g2"><input type="text" name="phone"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">QQ<i>*</i></label>
+				<div class="g2"><input type="text" name="qq"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">电子邮件<i>*</i></label>
+				<div class="g2"><input type="text" name="email"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">地址<i>*</i></label>
+				<div class="g2"><input type="text" name="address"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">来源<i>*</i></label>
+				<div class="g2">
+					<div class="xcombo" data-name="source" id="f_source">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#member_win').xwindow({width:500,height:500,open:false});
+app.form = $('#member_form').xform({
+	url : adminPath + '/member/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'会员级别', name:'levelId', xcheck:'null'},
+		{label:'家长姓名', name:'name', xcheck:'null'},
+		{label:'手机', name:'phone', xcheck:'null'},
+		{label:'QQ', name:'qq', xcheck:'null'},
+		{label:'电子邮件', name:'email', xcheck:'null'},
+		{label:'地址', name:'address', xcheck:'null'},
+		{label:'来源', name:'source', xcheck:'null'}
+	],
+	xcombo:[
+		{id:'#f_source', url:adminPath+"/combo/findCardType?tKey=member_source"}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+// 用户等级
+$("#f_member_levelTxt").xsearch({
+	url:adminPath+"/combo/findMemberLevel",
+	text:'{name}',
+	back:function(id){
+		$("#f_member_levelId").val(id);
+	}
+});
+</script>

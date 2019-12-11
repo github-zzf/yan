@@ -1,0 +1,69 @@
+package com.junkj.module.member.entity;
+
+import java.util.List;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.module.file.entity.FileUpload;
+
+/**
+ * 成长记录实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "member_growup", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+	}, orderBy = "a.id DESC"
+)
+public class Growup extends DataEntity<Growup> {
+
+	private static final long serialVersionUID = 1L;
+	public static final String FILE_TYPE = "growup_img";
+
+	private String comId; // 企业
+	private String memberId; // 会员id
+	private String content; // 日记
+	
+	// 业务字段
+	List<FileUpload> fileUpload = ListUtils.newArrayList();
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	public List<FileUpload> getFileUpload() {
+		return fileUpload;
+	}
+	public void setFileUpload(List<FileUpload> fileUpload) {
+		this.fileUpload = fileUpload;
+	}
+
+}

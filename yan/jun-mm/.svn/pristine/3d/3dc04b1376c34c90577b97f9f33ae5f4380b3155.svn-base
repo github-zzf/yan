@@ -1,0 +1,217 @@
+package com.junkj.common.entity;
+
+import java.io.Serializable;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public class Page<T> extends Object implements Serializable {
+
+	private static final long serialVersionUID = 1L;
+
+	private int pageNum; // 页码，从1开始
+	private int pageSize; // 页面大小
+	private long total; // 总数
+	private int pages; // 总页数
+	private int prev;
+	private int next;
+	private boolean isFirst;
+	private boolean isLast;
+	private String orderBy; // 排序
+	private String where; // 查询条件
+	private List<T> list; // list
+
+	public Page() {
+		super();
+	}
+
+	public Page(int pageNum, int pageSize) {
+		super();
+		this.pageNum = pageNum;
+		this.pageSize = pageSize;
+	}
+
+	public Page(int pageNum, int pageSize, long l) {
+		super();
+		this.pageNum = pageNum;
+		this.pageSize = pageSize;
+	}
+
+	public int getPageNum() {
+		return pageNum;
+	}
+
+	public void setPageNum(int pageNum) {
+		this.pageNum = pageNum <= 0 ? 1 : pageNum;
+	}
+
+	public int getPageSize() {
+		return pageSize;
+	}
+
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+
+	public long getTotal() {
+		return total;
+	}
+
+	public void setTotal(long total) {
+
+		this.total = total;
+		if (total == -1) {
+			this.pages = 1;
+			return;
+		}
+
+		if (this.pageSize > 0) {
+			this.pages = (int) (total / this.pageSize + ((total % this.pageSize == 0) ? 0 : 1));
+		} else {
+			this.pages = 0;
+		}
+
+		if (this.pageNum <= 1) {
+			this.pageNum = 1;
+			this.isFirst = true;
+		}
+
+		if (this.pageNum >= this.pages) {
+			this.pageNum = this.pages;
+			this.isLast = true;
+		}
+
+		if (this.pageNum < this.pages - 1) {
+			this.next = this.pageNum + 1;
+		} else {
+			this.next = this.pages;
+		}
+
+		if (this.pageNum > 1) {
+			this.prev = this.pageNum - 1;
+		} else {
+			this.prev = 1;
+		}
+	}
+
+	public int getPages() {
+		return pages;
+	}
+
+	public Page<T> setPages(int pages) {
+		this.pages = pages;
+		return this;
+	}
+
+	public int getPrev() {
+		return prev;
+	}
+
+	public Page<T> setPrev(int prev) {
+		this.prev = prev;
+		return this;
+	}
+
+	public int getNext() {
+		return next;
+	}
+
+	public Page<T> setNext(int next) {
+		this.next = next;
+		return this;
+	}
+
+	public boolean isFirst() {
+		return isFirst;
+	}
+
+	public Page<T> setFirst(boolean isFirst) {
+		this.isFirst = isFirst;
+		return this;
+	}
+
+	public boolean isLast() {
+		return isLast;
+	}
+
+	public Page<T> setLast(boolean isLast) {
+		this.isLast = isLast;
+		return this;
+	}
+
+	public String getOrderBy() {
+		return orderBy;
+	}
+
+	public Page<T> setOrderBy(String orderBy) {
+		this.orderBy = orderBy;
+		return this;
+	}
+
+	public String getWhere() {
+		return where;
+	}
+
+	public void setWhere(String where) {
+		this.where = where;
+	}
+
+	public List<T> getList() {
+		return list;
+	}
+
+	public void setList(List<T> list) {
+		this.list = list;
+	}
+
+	public String getPaging() {
+		return getPaging(null);
+	}
+
+	public String getPaging(String pageUrl) {
+		int page = this.pageNum;
+		int count = this.pages;
+		if (count == 1) {
+			return "<span>&nbsp;</span>";
+		}
+		StringBuilder sb = new StringBuilder("<div class='paging'>");
+		if (this.isFirst) {
+			sb.append("<span class='nosel'>首页</span>");
+			sb.append("<span class='nosel'>上一页</span>");
+		} else {
+			sb.append("<a href='" + pageUrl + "/list_1.html'>首页</a>");
+			sb.append("<a href='" + pageUrl + "/list_" + this.prev + ".html'>上一页</a>");
+		}
+		int end = (page + 3) > count ? count : page + 3;
+		if (end < 7)
+			end = count < 7 ? count : 7;
+		int start = end - 6 < 1 ? 1 : end - 6;
+		for (int i = start; i <= end; i++) {
+			if (i == page) {
+				sb.append("<span class='sel' href='javascript:;'>" + i + "</span>");
+			} else {
+				sb.append("<a href='" + pageUrl + "/list_" + i + ".html'>" + i + "</a>");
+			}
+		}
+		if (this.isLast) {
+			sb.append("<span class='nosel'>下一页</span>");
+			sb.append("<span class='nosel'>尾页</span>");
+		} else {
+			sb.append("<a href='" + pageUrl + "/list_" + this.next + ".html'>下一页</a>");
+			sb.append("<a href='" + pageUrl + "/list_" + this.pages + ".html'>尾页</a>");
+		}
+		sb.append("</div>");
+		return sb.toString();
+	}
+
+	@JsonIgnore
+	public Integer getStartNum() {
+		return (this.pageNum - 1) * pageSize;
+	}
+
+	@JsonIgnore
+	public String getLimit() {
+		return " limit " + ((this.pageNum - 1) * pageSize) + "," + pageSize;
+	}
+
+}

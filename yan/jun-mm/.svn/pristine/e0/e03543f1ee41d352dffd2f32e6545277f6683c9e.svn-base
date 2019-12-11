@@ -1,0 +1,59 @@
+<div class="xwindow" id="saleTeam_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">销售团队表单</div>
+		<form class="xform" id="saleTeam_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">上级导购</label>
+				<div class="g2">
+				<input type="text" name="parentName" id="f_parentName"/>
+				</div>
+				<input type="hidden" name="parentId" id="f_parentId"/>
+			</div>
+			<div class="xgroup">
+				<label class="g1">导购<i>*</i></label>
+				<div class="g2">
+				<input type="text" name="saleName" id="f_saleUserName"/>
+				<input type="hidden" name="userId" id="f_saleUserId"/> 
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#saleTeam_win').xwindow({width:500,height:350,open:false});
+app.form = $('#saleTeam_form').xform({
+	url : adminPath + '/saleTeam/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'导购', name:'saleName', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+//导购客户
+$("#f_saleUserName").click(function(){
+	saleUser.callBack = function(row) {
+		$("#f_saleUserName").val(row.name);
+		$("#f_saleUserId").val(row.id);
+	};
+	saleUser.open();
+});
+$("#f_parentName").click(function(){
+	linkSaleTeam.open(function(treeId, treeNode){
+		$("#f_parentName").val(treeNode.name);
+		$("#f_parentId").val(treeNode.id);
+	})
+})
+</script>

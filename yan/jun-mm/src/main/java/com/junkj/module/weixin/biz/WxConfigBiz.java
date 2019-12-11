@@ -1,0 +1,59 @@
+package com.junkj.module.weixin.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.weixin.dao.WxConfigDao;
+import com.junkj.module.weixin.entity.WxConfig;
+
+/**
+ * 微信公众号配置biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月22日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class WxConfigBiz extends CrudBiz<WxConfigDao, WxConfig> {
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<WxConfig> findPage(WxConfig wxConfig) {
+		wxConfig.disableComId();
+		return super.findPage(wxConfig);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<WxConfig> findList(WxConfig wxConfig) {
+		return super.findList(wxConfig);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(WxConfig wxConfig) {
+		super.save(wxConfig);
+	}
+	
+	/**
+	 * 通过comId查询公众号配置
+	 */
+	public WxConfig getByComId(String comId) {
+		return dao.getByComId(comId);
+	}
+
+}

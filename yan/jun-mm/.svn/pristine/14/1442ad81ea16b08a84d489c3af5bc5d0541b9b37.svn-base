@@ -1,0 +1,68 @@
+package com.junkj.module.statistics.biz;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.statistics.dao.StatisticsDao;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 积分商品分类biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ */
+@Service
+@Transactional(readOnly = true)
+public class StatisticsBiz {
+	
+	@Autowired
+	private StatisticsDao statisticsDao;
+	
+	/**
+	 * 我的统计数据查询
+	 */
+	public Map<String, Object> findMyStatistics(Map<String, Object> map){
+		map.put("date", map.get("date")+"-00");
+		SysUser sysUser = UserUtils.getUser();
+		map.put("userId", sysUser.getId());
+		return statisticsDao.findMyStatistics(map);
+	}
+	
+	/**
+	 * 每日统计数据查询
+	 */
+	public Map<String, Object> findDayStatistics(Map<String, Object> map){
+		SysUser sysUser = UserUtils.getUser();
+		map.put("comId", sysUser.getComId());
+		return statisticsDao.findDayStatistics(map);
+	}
+	
+	/**
+	 * 管理员统计数据查询
+	 */
+	public Map<String, Object> findAdminStatistics(Map<String, Object> map){
+		map.put("date", map.get("date")+"-00");
+		SysUser sysUser = UserUtils.getUser();
+		map.put("comId", sysUser.getComId());
+		return statisticsDao.findAdminStatistics(map);
+	}
+	
+	/**
+	 * 管理员统计表数据查询
+	 */
+	public List<Map<String, Object>> findAdminStatisticsTable(Map<String, Object> map){
+		map.put("date", map.get("date")+"-00");
+		SysUser sysUser = UserUtils.getUser();
+		map.put("comId", sysUser.getComId());
+		return statisticsDao.findAdminStatisticsTable(map);
+	}
+
+}

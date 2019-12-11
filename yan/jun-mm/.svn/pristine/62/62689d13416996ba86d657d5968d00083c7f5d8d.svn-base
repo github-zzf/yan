@@ -1,0 +1,422 @@
+package com.junkj.common.mybatis.mapper;
+
+import org.apache.ibatis.jdbc.SQL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.mybatis.MapperHelper;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.JoinTable.Type;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.reflect.ReflectUtils;
+
+public class SqlUtils {
+	protected Logger log = LoggerFactory.getLogger(getClass());
+
+	public final static String AS = " AS ";
+	public final static String AND = " AND ";
+	public final static String ON_LEFT = " ON (";
+	public final static String ON_RIGHT = ")";
+	public final static String IN_LEFT = " IN(#{";
+	public final static String IN_RIGHT = "})";
+	public final static String FIND_IN_SET_LEFT = " FIND_IN_SET(";
+	public final static String FIND_IN_SET_CENTER = ",#{";
+	public final static String FIND_IN_SET_RIGHT = "})";
+	public final static String SPOT = ".";
+	public final static String P_LEFT = "#{";
+	public final static String P_LEFT_EQ = "=#{";
+	public final static String P_RIGHT = "}";
+	public final static String LIKE_LEFT = " like CONCAT('%',#{";
+	public final static String LIKE_RIGHT = "},'%')";
+	public final static String IS_NULL = " IS NULL ";
+	public final static String IS_NOT_NULL = " IS NOT NULL ";
+	public final static String COUNT = "count(0)";
+	public final static String LIKE_JOIN = " LEFT JOIN ";
+	public final static String INNER_JOIN = " INNER JOIN ";
+	public final static String RIGHT_JOIN = " RIGHT JOIN ";
+	public final static String SINGLE = "'";
+	public final static String UPDATE_STATUS = "status=#{status}";
+
+	public String insert(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				INSERT_INTO(MapperHelper.getTableName(entity));
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+					if (StrUtils.notBlank(obj)) {
+						VALUES(col.name(), P_LEFT + col.attrName() + P_RIGHT);
+					}
+				});
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String update(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				UPDATE(MapperHelper.getTableName(entity));
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (col.isPK()) {
+						WHERE(col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+					} else {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (obj != null && !col.isPK() && col.isUpdate()) {
+							SET(col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+						}
+					}
+				});
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String updateStatus(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				UPDATE(MapperHelper.getTableName(entity));
+
+				SET(UPDATE_STATUS);
+
+				MapperHelper.getPk(entity).forEach(col -> {
+					if (col.isQuery()) {
+						WHERE(col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+					}
+				});
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String delete(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				if (!entity.getIsDeleteDB() && MapperHelper.hasStatus(entity)) {
+					((DataEntity<?>) entity).setStatus(DataEntity.STATUS_DELETE);
+					UPDATE(MapperHelper.getTableName(entity));
+					SET(UPDATE_STATUS);
+				} else {
+					DELETE_FROM(MapperHelper.getTableName(entity));
+				}
+				MapperHelper.getPk(entity).forEach(col -> {
+					if (col.isQuery()) {
+						WHERE(col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+					}
+				});
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String deleteByEntity(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				if (MapperHelper.hasStatus(entity)) {
+					((DataEntity<?>) entity).setStatus(DataEntity.STATUS_DELETE);
+					UPDATE(MapperHelper.getTableName(entity));
+					SET(UPDATE_STATUS);
+				} else {
+					DELETE_FROM(MapperHelper.getTableName(entity));
+				}
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (col.isQuery()) {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (StrUtils.notBlank(obj)) {
+							String str = col.queryType().getSql(col.name(), col.attrName());
+							if (str != null) {
+								WHERE(str);
+							}
+						}
+					}
+				});
+
+				if (StrUtils.notBlank(entity.getWhere())) {
+					WHERE(entity.getWhere());
+				}
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String getByEntity(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				Table tab = MapperHelper.getTable(entity);
+				FROM(tab.name() + AS + tab.alias());
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (StrUtils.notBlank(col.name())) {
+						SELECT(tab.alias() + SPOT + col.name() + AS + SINGLE + col.attrName() + SINGLE);
+					} else if (StrUtils.notBlank(col.sql())) {
+						SELECT(col.sql());
+					}
+					if (col.isQuery()) {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (StrUtils.notBlank(obj)) {
+							WHERE(tab.alias() + SPOT + col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+						}
+					}
+				});
+
+				if (MapperHelper.hasStatus(entity)) {
+					Object obj = ReflectUtils.invokeGetter(entity, "status");
+					if (!DataEntity.STATUS_DELETE.equals(obj)) {
+						WHERE(tab.alias() + ".status<>" + DataEntity.STATUS_DELETE);
+					}
+				}
+				for (JoinTable join : tab.joinTable()) {
+					Table jTab = MapperHelper.getTable(join.entity());
+
+					if (join.type().equals(Type.LEFT_JOIN)) {
+						LEFT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.JOIN)) {
+						INNER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.RIGHT_JOIN)) {
+						RIGHT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					}
+
+					Column[] cs = join.columns();
+					String attrName = join.attrName();
+					if (cs.length == 0) {
+						cs = MapperHelper.getColumns(join.entity()).toArray(cs);
+						attrName = MapperHelper.getAttrName(join);
+					}
+					for (Column col : cs) {
+						if (!col.isPK()) {
+							StringBuffer sel = new StringBuffer();
+							sel.append(join.alias()).append(SPOT).append(col.name()).append(AS).append(SINGLE);
+							if (StrUtils.notBlank(attrName)) {
+								sel.append(attrName).append(SPOT);
+							}
+							sel.append(col.attrName()).append(SINGLE);
+							SELECT(sel.toString());
+						}
+					}
+				}
+
+				if (StrUtils.notBlank(entity.getWhere())) {
+					WHERE(entity.getWhere());
+				}
+
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String get(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				Table tab = MapperHelper.getTable(entity);
+				FROM(tab.name() + AS + tab.alias());
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (StrUtils.notBlank(col.name())) {
+						SELECT(tab.alias() + SPOT + col.name() + AS + SINGLE + col.attrName() + SINGLE);
+					} else if (StrUtils.notBlank(col.sql())) {
+						SELECT(col.sql());
+					}
+					if (col.isPK()) {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (StrUtils.notBlank(obj)) {
+							WHERE(tab.alias() + SPOT + col.name() + P_LEFT_EQ + col.attrName() + P_RIGHT);
+						}
+					}
+				});
+
+				if (MapperHelper.hasStatus(entity)) {
+					Object obj = ReflectUtils.invokeGetter(entity, "status");
+					if (!DataEntity.STATUS_DELETE.equals(obj)) {
+						WHERE(tab.alias() + ".status<>" + DataEntity.STATUS_DELETE);
+					}
+				}
+
+				for (JoinTable join : tab.joinTable()) {
+					Table jTab = MapperHelper.getTable(join.entity());
+
+					if (join.type().equals(Type.LEFT_JOIN)) {
+						LEFT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.JOIN)) {
+						INNER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.RIGHT_JOIN)) {
+						RIGHT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					}
+
+					Column[] cs = join.columns();
+					String attrName = join.attrName();
+					if (cs.length == 0) {
+						cs = MapperHelper.getColumns(join.entity()).toArray(cs);
+						attrName = MapperHelper.getAttrName(join);
+					}
+					for (Column col : cs) {
+						if (!col.isPK()) {
+							StringBuffer sel = new StringBuffer();
+							sel.append(join.alias()).append(SPOT).append(col.name()).append(AS).append(SINGLE);
+							if (StrUtils.notBlank(attrName)) {
+								sel.append(attrName).append(SPOT);
+							}
+							sel.append(col.attrName()).append(SINGLE);
+							SELECT(sel.toString());
+						}
+					}
+				}
+
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String findList(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				Table tab = MapperHelper.getTable(entity);
+				FROM(tab.name() + AS + tab.alias());
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (StrUtils.notBlank(col.name())) {
+						SELECT(tab.alias() + SPOT + col.name() + AS + SINGLE + col.attrName() + SINGLE);
+					} else if (StrUtils.notBlank(col.sql())) {
+						SELECT(col.sql());
+					}
+					if (col.isQuery()) {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (StrUtils.notBlank(obj)) {
+							String str = col.queryType().getSql(tab.alias(), col.name(), col.attrName());
+							if (str != null) {
+								WHERE(str);
+							}
+						}
+					}
+				});
+
+				if (MapperHelper.hasStatus(entity)) {
+					Object obj = ReflectUtils.invokeGetter(entity, "status");
+					if (!DataEntity.STATUS_DELETE.equals(obj)) {
+						WHERE(tab.alias() + ".status<>" + DataEntity.STATUS_DELETE);
+					}
+				}
+
+				for (JoinTable join : tab.joinTable()) {
+					Table jTab = MapperHelper.getTable(join.entity());
+
+					if (join.type().equals(Type.LEFT_JOIN)) {
+						LEFT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.JOIN)) {
+						INNER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					} else if (join.type().equals(Type.RIGHT_JOIN)) {
+						RIGHT_OUTER_JOIN(jTab.name() + AS + join.alias() + ON_LEFT + join.on() + ON_RIGHT);
+					}
+
+					Column[] cs = join.columns();
+					String attrName = join.attrName();
+					if (cs.length == 0) {
+						cs = MapperHelper.getColumns(join.entity()).toArray(cs);
+						attrName = MapperHelper.getAttrName(join);
+					}
+					Object jObj = ReflectUtils.invokeGetter(entity, attrName);
+					for (Column col : cs) {
+						if (!col.isPK()) {
+							StringBuffer sel = new StringBuffer();
+							sel.append(join.alias()).append(SPOT).append(col.name()).append(AS).append(SINGLE);
+							if (StrUtils.notBlank(attrName)) {
+								sel.append(attrName).append(SPOT);
+							}
+							sel.append(col.attrName()).append(SINGLE);
+							SELECT(sel.toString());
+							if (jObj != null && col.isQuery()) {
+								Object obj = ReflectUtils.invokeGetter(jObj, col.attrName());
+								if (StrUtils.notBlank(obj)) {
+									String str = col.queryType().getSql(join.alias(), col.name(), col.attrName(),
+											attrName);
+									if (str != null) {
+										WHERE(str);
+									}
+								}
+							}
+						}
+					}
+
+				}
+
+				if (StrUtils.notBlank(entity.getWhere())) {
+					WHERE(entity.getWhere());
+				}
+				if (StrUtils.notBlank(entity.getOrderBy())) {
+					ORDER_BY(entity.getOrderBy());
+				} else {
+					ORDER_BY(tab.orderBy());
+				}
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+
+	public String findCount(BaseEntity<?> entity) {
+		String str = new SQL() {
+			{
+				Table tab = MapperHelper.getTable(entity);
+				FROM(tab.name() + AS + tab.alias());
+				SELECT(COUNT);
+
+				MapperHelper.getColumns(entity).forEach(col -> {
+					if (col.isQuery()) {
+						Object obj = ReflectUtils.invokeGetter(entity, col.attrName());
+						if (StrUtils.notBlank(obj)) {
+							String str = col.queryType().getSql(tab.alias(), col.name(), col.attrName());
+							if (str != null) {
+								WHERE(str);
+							}
+						}
+					}
+				});
+
+				if (StrUtils.notBlank(entity.getWhere())) {
+					WHERE(entity.getWhere());
+				}
+			}
+		}.toString();
+
+		if (this.log.isDebugEnabled()) {
+			this.log.debug(str);
+		}
+		return str;
+	}
+}

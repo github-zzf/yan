@@ -1,0 +1,373 @@
+package com.junkj.module.company.biz;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.junkj.common.IdGen.IdGenerate;
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.module.company.dao.CourseDao;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.excel.biz.ExcelTplBiz;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 排课表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CourseBiz extends CrudBiz<CourseDao, Course> {
+
+	@Resource
+	private CourseDao courseDao;
+	@Resource
+	private ExcelTplBiz excelTplBiz;
+	@Autowired
+	private SysUserBiz sysUserBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Course> findPage(Course course) {
+		return super.findPage(course);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Course> findList(Course course) {
+		return super.findList(course);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(Course course) {
+		super.save(course);
+	}
+
+	/**
+	 * 清空会员卡
+	 */
+	@Transactional(readOnly = false)
+	public void updateCourseCardIdNull(Course course) {
+		courseDao.updateCourseCardIdNull(course.getId());
+	}
+
+	/**
+	 * 导入Excel
+	 */
+	@Transactional(readOnly = false)
+	public Map<String, Object> saveCourseGetList(MultipartFile excelFile) {
+		/** 提示信息 **/
+		Map<String, Object> checkMsg = new HashMap<String, Object>();
+		int totalCount = 0; // 总数量
+		int successCount = 0; // 成功数量
+		int errorCount = 0; // 失败数量
+		List<Object> errors = new ArrayList<Object>();// 错误信息
+
+		// 数据验证转换
+		Map<String, Object> dataMap = excelTplBiz.checkTemplate(excelFile, "COURSE", Course.class);
+		if (dataMap != null) {
+			totalCount = (int) dataMap.get("totalCount");
+			int titleIndex = (int) dataMap.get("titleIndex");
+			for (int i = titleIndex + 1; i <= totalCount + titleIndex + 2; i++) {
+				Object obj = dataMap.get(String.valueOf(i));
+				if (obj instanceof String) {
+					errors.add(obj);
+					errorCount++;
+				} else if (obj instanceof Course) {
+					Course vo = (Course) obj;
+					Course course = new Course();
+					BeanUtils.copyProperties(vo, course);
+					// 教师
+					SysUser user = sysUserBiz.getByName(vo.getTeacherId());
+					if (user != null) {
+						course.setTeacherId(user.getId());
+					} else {
+						errors.add("教师：" + vo.getTeacherId() + "不存在");
+						errorCount++;
+						continue;
+					}
+					// 助教
+					SysUser user1 = sysUserBiz.getByName(vo.getAssistantId());
+					if (user1 != null) {
+						course.setAssistantId(user.getId());
+					} else {
+						errors.add("助教：" + vo.getAssistantId() + "不存在");
+						errorCount++;
+						continue;
+					}
+					course.setId(IdGenerate.nextId());
+					super.insert(course);
+					successCount++;
+				}
+			}
+		}
+		checkMsg.put("code", 1);
+		checkMsg.put("totalCount", totalCount);
+		checkMsg.put("successCount", successCount);
+		checkMsg.put("errorCount", errorCount);
+		checkMsg.put("errors", errors);
+		return checkMsg;
+	}
+
+	/**
+	 * 课程表一周课程
+	 */
+	public List<Map<String, Object>> findWeekKecheng(Map<String, Object> params) {
+		params.put("comId", ComUtils.getCurrentComId());
+		String startTime = params.get("startTime").toString();
+		Date start = DateUtils.parseDate(startTime);
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(start);
+		String date1 = startTime;
+		String week1 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date2 = DateUtils.format(cal.getTime());
+		String week2 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date3 = DateUtils.format(cal.getTime());
+		String week3 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date4 = DateUtils.format(cal.getTime());
+		String week4 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date5 = DateUtils.format(cal.getTime());
+		String week5 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date6 = DateUtils.format(cal.getTime());
+		String week6 = DateUtils.getWeek(cal);
+
+		cal.add(Calendar.DATE, 1);
+		String date7 = DateUtils.format(cal.getTime());
+		String week7 = DateUtils.getWeek(cal);
+
+		List<Course> list1 = new ArrayList<Course>();
+		List<Course> list2 = new ArrayList<Course>();
+		List<Course> list3 = new ArrayList<Course>();
+		List<Course> list4 = new ArrayList<Course>();
+		List<Course> list5 = new ArrayList<Course>();
+		List<Course> list6 = new ArrayList<Course>();
+		List<Course> list7 = new ArrayList<Course>();
+
+		List<Course> kcList = courseDao.findWeekKecheng(params);
+
+		// 去掉重复课程
+		List<String> pidList = new ArrayList<String>();
+		for (Course kc : kcList) {
+			if (kc.getParentId() != null) {
+				pidList.add(kc.getParentId().toString());
+			}
+		}
+		List<Course> newList = new ArrayList<Course>();
+		for (Course kc : kcList) {
+			String id = kc.getId().toString();
+			if (!pidList.contains(id)) {
+				newList.add(kc);
+			}
+		}
+		List<String> xuixi1 = courseDao.getByCate(params.get("comId").toString(), date1);
+		List<String> xuixi2 = courseDao.getByCate(params.get("comId").toString(), date2);
+		List<String> xuixi3 = courseDao.getByCate(params.get("comId").toString(), date3);
+		List<String> xuixi4 = courseDao.getByCate(params.get("comId").toString(), date4);
+		List<String> xuixi5 = courseDao.getByCate(params.get("comId").toString(), date5);
+		List<String> xuixi6 = courseDao.getByCate(params.get("comId").toString(), date6);
+		List<String> xuixi7 = courseDao.getByCate(params.get("comId").toString(), date7);
+		for (Course kc : newList) {
+			String teacherId = kc.getTeacherId().toString();
+			// 每周重复（0、不重复，1、每周重复）
+			String forWeek = kc.getIsWeek();
+			// 不重复
+			if (forWeek == null || forWeek.equals("0")) {
+				String date = DateUtils.format(kc.getCourseDate());
+				if (date.equals(date1) && !xuixi1.contains(teacherId))
+					list1.add(kc);
+				else if (date.equals(date2) && !xuixi2.contains(teacherId))
+					list2.add(kc);
+				else if (date.equals(date3) && !xuixi3.contains(teacherId))
+					list3.add(kc);
+				else if (date.equals(date4) && !xuixi4.contains(teacherId))
+					list4.add(kc);
+				else if (date.equals(date5) && !xuixi5.contains(teacherId))
+					list5.add(kc);
+				else if (date.equals(date6) && !xuixi6.contains(teacherId))
+					list6.add(kc);
+				else if (date.equals(date7) && !xuixi7.contains(teacherId))
+					list7.add(kc);
+			} else {
+				// 每周重复
+				String week = DateUtils.getWeek(kc.getCourseDate());
+				String kcDate = DateUtils.formatDate(kc.getCourseDate());
+
+				if (week.equals(week1) && !xuixi1.contains(teacherId)) {
+					list1.add(kc);
+					if (!date1.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week2) && !xuixi2.contains(teacherId)) {
+					list2.add(kc);
+					if (!date2.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week3) && !xuixi3.contains(teacherId)) {
+					list3.add(kc);
+					if (!date3.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week4) && !xuixi4.contains(teacherId)) {
+					list4.add(kc);
+					if (!date4.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week5) && !xuixi5.contains(teacherId)) {
+					list5.add(kc);
+					if (!date5.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week6) && !xuixi6.contains(teacherId)) {
+					list6.add(kc);
+					if (!date6.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				} else if (week.equals(week7) && !xuixi7.contains(teacherId)) {
+					list7.add(kc);
+					if (!date7.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}
+				}
+			}
+		}
+		Map<String, Object> weekData = new HashMap<String, Object>();
+		weekData.put("week1", list1);
+		weekData.put("week2", list2);
+		weekData.put("week3", list3);
+		weekData.put("week4", list4);
+		weekData.put("week5", list5);
+		weekData.put("week6", list6);
+		weekData.put("week7", list7);
+
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+		list.add(weekData);
+		return list;
+	}
+
+	/**
+	 * 指定日期课程
+	 */
+	public List<Course> findDayCourse(Course course) {
+		String courseDate = DateUtils.format(course.getCourseDate());
+		
+		Map<String, Object> params = MapUtils.newHashMap();
+		params.put("comId", ComUtils.getCurrentComId());
+		params.put("courseDate", courseDate);
+		params.put("teacherId", course.getTeacherId());
+
+		String week1 = DateUtils.getWeek(course.getCourseDate());
+		List<Course> list1 = new ArrayList<Course>();
+
+		List<Course> kcList = courseDao.findWeekKecheng(params);
+
+		// 去掉重复课程
+		List<String> pidList = new ArrayList<String>();
+		for (Course kc : kcList) {
+			if (kc.getParentId() != null) {
+				pidList.add(kc.getParentId().toString());
+			}
+		}
+		List<Course> newList = new ArrayList<Course>();
+		for (Course kc : kcList) {
+			String id = kc.getId().toString();
+			if (!pidList.contains(id)) {
+				newList.add(kc);
+			}
+		}
+
+		List<String> xuixi1 = courseDao.getByCate(params.get("comId").toString(), courseDate);
+
+		for (Course kc : newList) {
+			String teacherId = kc.getTeacherId().toString();
+			// 每周重复（0、不重复，1、每周重复）
+			String forWeek = kc.getIsWeek();
+			// 不重复
+			if (forWeek == null || forWeek.equals("0")) {
+				String date = DateUtils.format(kc.getCourseDate());
+				if (date.equals(courseDate) && !xuixi1.contains(teacherId))
+					list1.add(kc);
+			} else {
+				// 每周重复
+				String week = DateUtils.getWeek(kc.getCourseDate());
+				String kcDate = DateUtils.formatDate(kc.getCourseDate());
+				
+				if (week.equals(week1) && !xuixi1.contains(teacherId)){
+					list1.add(kc);
+					if (!courseDate.equals(kcDate)) {
+						kc.setEnrollNum(0L);
+					}					
+				}
+			}
+		}
+		return list1;
+	}
+
+	/**
+	 * 通过pid获取用户对象
+	 */
+	public Course getByPid(String id) {
+		Course course = new Course();
+		course.setParentId(id);
+		return dao.getByEntity(course);
+	}
+
+	/**
+	 * 查询有课程的教师
+	 */
+	public List<SysUser> findListTeacher(String comId) {
+		return dao.findListTeacher(comId);
+	}
+	
+	/**
+	 * 查询有课程的教师
+	 */
+	public List<Map<String, Object>> listMyCourse(Course course) {
+		return dao.listMyCourse(course);
+	}
+	
+	/**
+	 * 查询有课程id
+	 */
+	public Map<String, Object> infoMyCourseById(Course course) {
+		return dao.infoMyCourseById(course);
+	}
+
+}

@@ -1,0 +1,37 @@
+package com.junkj.module.sys.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class SysConfigSql {
+
+	/**
+	 * 通过key查询
+	 */
+	public String getValByKey(String okey) {
+		String str = new SQL() {
+			{
+				SELECT("c_value");
+				FROM("sys_config");
+				WHERE("c_key = #{okey}");
+			}
+		}.toString();
+
+		return str;
+	}
+
+	/**	
+	 * 通过key设置value
+	 */
+	public String setValByKey(String okey, String ovalue) {
+		String str = new SQL() {
+			{
+				UPDATE("sys_config");
+				SET("c_value = #{ovalue}");
+				WHERE("c_key = #{okey}");
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

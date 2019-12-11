@@ -1,0 +1,147 @@
+package com.junkj.module.stock.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.lang3.math.NumberUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.NumUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.module.demo.entity.DemoItem;
+import com.junkj.module.stock.dao.StockRecordDao;
+import com.junkj.module.stock.entity.Stock;
+import com.junkj.module.stock.entity.StockRecord;
+import com.junkj.module.stock.entity.StockRecordItem;
+
+import freemarker.template.utility.NumberUtil;
+
+/**
+ * 出入库记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class StockRecordBiz extends CrudBiz<StockRecordDao, StockRecord> {
+	
+	@Autowired
+	private StockRecordItemBiz stockRecordItemBiz;
+	@Autowired
+	private StockBiz stockBiz;
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<StockRecord> findPage(StockRecord stockRecord) {
+		return super.findPage(stockRecord);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<StockRecord> findList(StockRecord stockRecord) {
+		return super.findList(stockRecord);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(StockRecord stockRecord) {
+		stockRecord.setCode(getCode());
+		super.save(stockRecord);
+		for (StockRecordItem item : stockRecord.getStockRecordItem()) {
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())) {
+				item.setRecordId(stockRecord.getId());
+				Stock stock1 = new Stock();
+				stock1.setGoodsId(item.getGoodsId());
+				Stock stock2 = stockBiz.getByEntity(stock1);
+				//入库
+				if(stockRecord.getRecordType().equals("1")) {
+					item.setNumType("1");
+					if(stock2!=null) {
+						Double num = NumUtils.add(stock2.getNum(), item.getNum());
+						item.setNumNew(num);
+						stock2.setNum(num);
+					}else {
+						stock2 = new Stock();
+						item.setNumNew(item.getNum());
+						stock2.setGoodsId(item.getGoodsId());
+						stock2.setNum(item.getNum());
+					}
+					//出库
+				}else if(stockRecord.getRecordType().equals("2")) {
+					item.setNumType("2");
+					Double num = NumUtils.subtract(stock2.getNum(), item.getNum());
+					item.setNumNew(num);
+					stock2.setNum(num);
+					//报损
+				}else if(stockRecord.getRecordType().equals("3")) {
+					item.setNumType("2");
+					Double num = NumUtils.subtract(stock2.getNum(), item.getNum());
+					item.setNumNew(num);
+					stock2.setNum(num);
+					//盘点
+				}else {
+					if(stock2!=null) {
+						item.setNumNew(item.getNum());
+						stock2.setNum(item.getNum());
+					}else {
+						stock2 = new Stock();
+						item.setNumNew(item.getNum());
+						stock2.setGoodsId(item.getGoodsId());
+						stock2.setNum(item.getNum());
+					}
+				}
+				stockBiz.save(stock2);
+				if (item.getIsNewT()) {
+					item.preInsert();
+					stockRecordItemBiz.insert(item);
+				} else {
+					item.preUpdate();
+					stockRecordItemBiz.update(item);
+				}
+			} else {
+				stockRecordItemBiz.delete(item);
+			}
+		}
+
+		super.save(stockRecord);
+	}
+
+	// 生成单据编号
+	public String getCode() {
+		String comId = ComUtils.getCurrentComId();
+		Date now = new Date();
+		String year = DateUtils.format(now, "yyyy");
+		String day = DateUtils.format(now, "yyyyMMdd");
+		String code = "";
+
+		StockRecord where = new StockRecord();
+		where.setPageNum(1);
+		where.setOrderBy("code desc");
+		where.setWhere("year(create_time)=#{year}");
+		where.setYear(year);
+		List<StockRecord> list = dao.findList(where);
+		if (list.size() > 0) {
+			String maxCode = list.get(0).getCode();
+			String str = maxCode.substring(maxCode.length() - 6);
+			Long num = Long.valueOf(str) + 1;
+			code = comId + "_" + day + String.format("%06d", num);
+		} else {
+			code = comId + "_" + day + "000001";
+		}
+		return code;
+	}
+}

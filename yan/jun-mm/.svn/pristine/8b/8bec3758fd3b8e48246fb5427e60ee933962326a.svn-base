@@ -1,0 +1,101 @@
+<!-- 产品选择 -->
+<div class="xwindow" id="product">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">产品选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="product_form">
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" placeholder="产品名" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_product_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_product_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="product_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="80px">产品名</th>
+					<th width="80px">产品单价</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{name}</td>
+							<td>{price}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="product_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var product = {
+	callBack:function(row){},
+	init:function(){
+		product.loadWin();
+		product.loadTable();
+		product.bindSearch();
+		product.bindSelect();
+	},
+	bindSearch:function(){
+		var sf = $("#product_form").xform();
+		$("#btn_product_search").xbtn(function(btn){
+			var data = sf.getData();
+			product.table.reload(data);
+		});
+		$("#btn_product_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			product.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				product.table.reload(data);
+	        }
+	    });
+	},
+	loadWin:function(){
+		product.win = $('#product').xwindow({width:500,height:550,open:false});
+	},
+	loadTable:function(){
+		product.table = $('#product_xtable').xtable({
+			url:adminPath + '/list/listPageSysProduct',
+			paging:'.product_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_product_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	bindSelect:function(){
+		$('#product_xtable').on("click", '.js_product_sel', function(){
+			var index = $(this).data("xv");
+			var row = product.table.getRow(index);
+			product.callBack(row);
+			product.win.close();
+		});
+	},
+	open:function(){
+		product.win.open();
+		product.table.reload();
+	}
+}
+product.init();
+</script>

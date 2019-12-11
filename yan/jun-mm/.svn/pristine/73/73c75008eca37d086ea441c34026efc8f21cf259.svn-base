@@ -1,0 +1,52 @@
+package com.junkj.module.sys.entity;
+
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+@Table(name = "bean_type", alias = "a", columns = {
+		@Column(name = "t_key", attrName = "tKey", isPK = true),
+		@Column(name = "val", attrName = "val"),
+		@Column(name = "txt", attrName = "txt"),
+		@Column(name = "sort", attrName = "sort")
+	}, orderBy = "a.sort ASC"
+)
+public class BeanType {
+
+	private String tKey;
+	private String val;
+	private String txt;
+	private String sort;
+
+	public String gettKey() {
+		return tKey;
+	}
+
+	public void settKey(String tKey) {
+		this.tKey = tKey;
+	}
+
+	public String getVal() {
+		return val;
+	}
+
+	public void setVal(String val) {
+		this.val = val;
+	}
+
+	public String getTxt() {
+		return txt;
+	}
+
+	public void setTxt(String txt) {
+		this.txt = txt;
+	}
+
+	public String getSort() {
+		return sort;
+	}
+
+	public void setSort(String sort) {
+		this.sort = sort;
+	}
+
+}

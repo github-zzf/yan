@@ -1,0 +1,262 @@
+package com.junkj.common.action;
+
+import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.ExcelUtils;
+import com.junkj.common.vo.JsonVo;
+
+/**
+ * 通用action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@SuppressWarnings("deprecation")
+public abstract class BaseAction {
+
+	protected Logger logger = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * 将初始化数据绑定
+	 */
+	@InitBinder
+	public void initBinder(WebDataBinder binder) {
+		// 日期类型自动转换
+		binder.registerCustomEditor(Date.class, new PropertyEditorSupport() {
+			@Override
+			public void setAsText(String text) {
+				setValue(DateUtils.parseDate(text));
+			}
+		});
+
+		// 防止XSS攻击
+		binder.registerCustomEditor(String.class, new PropertyEditorSupport() {
+			@Override
+			public void setAsText(String text) {
+				setValue(text == null ? null : StringEscapeUtils.escapeHtml4(text.trim()));
+			}
+
+			@Override
+			public String getAsText() {
+				Object value = getValue();
+				return value != null ? value.toString().trim() : null;
+			}
+		});
+	}
+
+	@Value("${adminPath}")
+	protected String adminPath;
+
+	@Value("${mobilePath}")
+	protected String mobilePath;
+
+	@Value("${staffPath}")
+	protected String staffPath;
+
+	@Value("${salePath}")
+	protected String salePath;
+
+	protected static final String REDIRECT = "redirect:";
+
+	protected static final String FORWARD = "forward:";
+
+	public static final String WEB_DATA_BINDER_TARGET = (new StringBuilder()).insert(0, WebDataBinder.class.getName())
+			.toString();
+
+	public static final String WEB_DATA_BINDER_SOURCE = (new StringBuilder()).insert(0, WebDataBinder.class.getName())
+			.toString();
+
+	@SuppressWarnings("unchecked")
+	protected <E> E getWebDataBinderSource(HttpServletRequest request) {
+		return (E) request.getAttribute(WEB_DATA_BINDER_SOURCE);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected <E> E getWebDataBinderTarget(HttpServletRequest request) {
+		return (E) request.getAttribute(WEB_DATA_BINDER_TARGET);
+	}
+
+	/**
+	 * 转发
+	 */
+	public String sendForward(String url){
+		return sendRedirect(url,null);
+	}
+	
+	/**
+	 * 转发
+	 */
+	public String sendForward(String url, String add){
+		if(StrUtils.notBlank(add)){
+			if(url.indexOf("?")==-1){
+				url+="?"+add;
+			}else{
+				url+="&"+add;
+			}
+		}
+		return FORWARD + url;
+	}
+
+	/**
+	 * 重定向
+	 */
+	public String sendRedirect(String url){
+		return sendRedirect(url,null);
+	}
+
+	/**
+	 * 重定向
+	 */
+	public String sendRedirect(String url, String add){
+		if(StrUtils.notBlank(add)){
+			if(url.indexOf("?")==-1){
+				url+="?"+add;
+			}else{
+				url+="&"+add;
+			}
+		}
+		return REDIRECT + url;
+	}
+
+	/**
+	 * 返回成功消息
+	 */
+	public JsonVo sendOk() {
+		return JsonVo.sendOk();
+	}
+
+	/**
+	 * 返回成功消息
+	 */
+	public JsonVo sendOk(String msg) {
+		return JsonVo.sendOk(msg);
+	}
+
+	/**
+	 * 返回成功数据
+	 */
+	public static JsonVo sendData(Object data) {
+		return JsonVo.sendData(data);
+	}
+
+	/**
+	 * 返回错误消息
+	 */
+	public JsonVo sendError() {
+		return JsonVo.sendError();
+	}
+
+	/**
+	 * 返回错误消息
+	 */
+	public static JsonVo sendError(String msg) {
+		return JsonVo.sendError(msg);
+	}
+
+	/**
+	 * 返回错误消息
+	 */
+	public static JsonVo sendError(int code, String msg) {
+		return JsonVo.sendError(code, msg);
+	}
+
+	/**
+	 * 导出Excel
+	 * 
+	 * @param response
+	 * @param dataset
+	 *            要导出的数据
+	 * @param fileName
+	 *            文件名称
+	 * @param headerColumns
+	 *            表头
+	 * @param fieldColumns
+	 *            列对应数据
+	 */
+	protected void excelDownload(HttpServletResponse response, List<Map<String, Object>> dataset, String fileName,
+			String[] headerColumns, String[] fieldColumns) {
+		XSSFWorkbook workbook = null;
+		OutputStream os = null;
+		try {
+			ExcelUtils<Map<String, Object>> userSheet = new ExcelUtils<Map<String, Object>>();
+			workbook = new XSSFWorkbook();
+			userSheet.creatAuditSheetforMap(workbook, fileName, dataset, headerColumns, fieldColumns);
+			response.setContentType("application/x-download");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
+			os = response.getOutputStream();
+			workbook.write(os);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (os != null)
+					os.flush();
+				if (os != null)
+					os.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	/**
+	 * 导出Excel
+	 * 
+	 * @param response
+	 * @param dataset
+	 *            要导出的数据
+	 * @param fileName
+	 *            文件名称
+	 * @param headerColumns
+	 *            表头
+	 * @param fieldColumns
+	 *            列对应数据
+	 */
+	protected void excelDownloadT(HttpServletResponse response, List<?> dataset, String fileName,
+			String[] headerColumns, String[] fieldColumns) {
+		XSSFWorkbook workbook = null;
+		OutputStream os = null;
+		try {
+			ExcelUtils<Map<String, Object>> userSheet = new ExcelUtils<Map<String, Object>>();
+			workbook = new XSSFWorkbook();
+			userSheet.creatAuditSheetforT(workbook, fileName, dataset, headerColumns, fieldColumns);
+			response.setContentType("application/x-download");
+			response.addHeader("Content-Disposition",
+					"attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
+			os = response.getOutputStream();
+			workbook.write(os);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (os != null)
+					os.flush();
+				if (os != null)
+					os.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+}

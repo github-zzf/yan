@@ -1,0 +1,117 @@
+package com.junkj.module.base;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.module.sys.biz.SysAddressBiz;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.dao.ComboDao;
+import com.junkj.module.sys.entity.SysAddress;
+import com.junkj.module.sys.entity.SysUser;
+
+@Controller
+@RequestMapping(value = "${adminPath}/combo")
+public class ComboAction extends BaseAction {
+
+	@Autowired
+	private SysUserBiz sysUserBiz;
+	@Autowired
+	private SysAddressBiz sysAddressBiz;
+	@Autowired
+	private ComboDao comboDao;
+
+	/**
+	 * 查询系统用户
+	 */
+	@PostMapping("/findUser")
+	@ResponseBody
+	public Object findUser(SysUser sysUser) {
+		return sysUserBiz.findList(sysUser);
+	}
+
+	/**
+	 * 下拉省市区
+	 */
+	@PostMapping(value = "/findSsq")
+	@ResponseBody
+	public Object findSsq(SysAddress sysAddress) {
+		return sysAddressBiz.findList(sysAddress);
+	}
+
+	/**
+	 * excel_out查询导出字段
+	 */
+	@PostMapping("/findCols")
+	@ResponseBody
+	public Object findCols(String tableCode) {
+		return comboDao.findCols(tableCode);
+	}
+
+	/**
+	 * bean_type状态查询
+	 */
+	@PostMapping(value = "/findBeanType")
+	@ResponseBody
+	public Object findBeanType(String tKey) {
+		return comboDao.findBeanType(tKey);
+	}
+
+	/**
+	 * 卡类型
+	 */
+	@PostMapping(value = "/findCardType")
+	@ResponseBody
+	public Object findCardType(String tKey) {
+		return comboDao.findBeanType(tKey);
+	}
+	
+	/**
+	 * member_Level查询
+	 */
+	@PostMapping(value = "/findMemberLevel")
+	@ResponseBody
+	public Object findMemberLevel(String search) {
+		return comboDao.findMemberLevel(search);
+	}
+	
+	/**
+	 * 会员卡查询
+	 */
+	@PostMapping(value = "/findComCards")
+	@ResponseBody
+	public Object findComCards(String search) {
+		return comboDao.findComCards(search);
+	}
+	
+	/**
+	 * 会员卡查询
+	 */
+	@PostMapping(value = "/findComCardsName")
+	@ResponseBody
+	public Object findComCardsName(String name) {
+		return comboDao.findComCardsName(name);
+	}
+	
+	/**
+	 * 会员查询
+	 */
+	@PostMapping(value = "/findMember")
+	@ResponseBody
+	public Object findMember(String search) {
+		return comboDao.findMember(search);
+	}
+	
+	/**
+	 * 会员卡类型
+	 */
+	@PostMapping(value = "/findMemberType")
+	@ResponseBody
+	public Object findMemberType() {
+		return comboDao.findMemberType();
+	}
+
+}

@@ -1,0 +1,72 @@
+<div class="xwindow" id="role_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">角色表单<span class="title_close xclose">X</span></div>
+		<form class="xform" id="role_form" method="post" autocomplete="off">
+			<input type="hidden" name="isNewT" id="f_isNewT"/>
+			<div class="xgroup">
+				<label class="g1">角色名称<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="name"/>
+				</div>
+				<label class="g1">角色编码<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="id" id="f_id"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">用户类型</label>
+				<div class="g2">
+					<div class="xcombo" data-name="userType" id="f_userType">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<label class="g1">系统角色<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="isSys" value="1"/>是&nbsp;&nbsp;
+					<input type="radio" name="isSys" value="0"/>否
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px;resize:none"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#role_win').xwindow({width:700,height:450,open:false});
+app.form = $('#role_form').xform({
+	url : adminPath + '/sysRole/save',
+	xbtn:'.btn_submit',
+	xcheck:[
+		{label:'角色名称', name:'name', xcheck:'null,max:20'},
+		{label:'角色编码', name:'name', xcheck:'null,max:20'}
+	],
+	xcombo:[
+		{id:'#f_userType', url:adminPath+"/combo/findCardType?tKey=sys_user_type"}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else{
+			$.xalert(e.msg);
+		}
+	}
+});
+$('#btn_add').click(function(){
+	app.form.clear();
+	app.form.setData({isSys:0,isNewT:true,userType:'staff'});
+	$("#f_id").removeClass("readonly").removeAttr("readonly");
+	app.win.open();
+});
+</script>

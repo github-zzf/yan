@@ -1,0 +1,26 @@
+package com.junkj.module.sale.dao;
+
+import java.util.Map;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class SalePerformanceSql {
+
+	public String findList(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("a.name");
+				SELECT("(select ifnull(sum(cb.pay_money),0) from sale_member sm left join cash_buy cb on(cb.member_id = sm.member_id) where cb.status = 0 and sm.user_id = a.id) as dgMoney");
+				SELECT("(select ifnull(sum(cb.pay_money),0) from sale_member sm \r\n" + 
+						"left join cash_buy cb on(cb.member_id = sm.member_id)\r\n" + 
+						"where sm.user_id in (select user_id from sale_team st left join sys_user su on (su.id = st.user_id) where su.status = 0 and st.parent_id = (SELECT id from sale_team where user_id = a.id))\r\n" + 
+						") as tuanMoney");
+				FROM(" sys_user a ");
+				WHERE("a.status=0 and a.user_type='sale' and a.com_id = #{comId}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

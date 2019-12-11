@@ -1,0 +1,167 @@
+package com.junkj.module.company.entity;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.BeanType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 储次卡实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ */
+@Table(name = "com_cards", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "name", attrName = "name", queryType = QueryType.LIKE),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "num", attrName = "num"),
+		@Column(name = "money", attrName = "money"),
+		@Column(name = "remark", attrName = "remark"),
+		@Column(name = "days", attrName = "days"),
+		@Column(name = "is_new", attrName = "isNew"),
+		@Column(name = "is_week", attrName = "isWeek"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "b", on = "b.t_key='com_cards_type' and b.val = a.type", columns = {
+			@Column(name = "txt", attrName = "typeName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "c", on = "c.t_key='is_yes' and c.val = a.is_new", columns = {
+			@Column(name = "txt", attrName = "isNewName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "d", on = "d.t_key='com_cards_is_week' and d.val = a.is_week", columns = {
+			@Column(name = "txt", attrName = "isWeekName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "u", on = "u.id = a.update_id", columns = {
+			@Column(name = "name", attrName = "updateName", queryType = QueryType.LIKE)
+		})
+	},
+	orderBy = "a.id DESC"
+)
+public class Cards extends DataEntity<Cards> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String name; // 卡名
+	private String type; // 卡类型（1储值卡、2储次卡）
+	private Double num; // 次数/金额
+	private Double money; // 金额
+	private Long days; // 有效天数
+	private String isNew; // 只限新会员(0否、1是）
+	private String isWeek; // 是否周末卡（0不限、1周末卡、2非周末卡）
+	private String remark; // 描述
+
+	// 业务字段
+	private String typeName;
+	private String isNewName;
+	private String isWeekName;
+	
+	//卡类型（1储值卡、2储次卡）
+	/**
+	 * 1储值卡
+	 */
+	public static final String CARDS_TYPE_1 = "1";
+	/**
+	 * 2储次卡
+	 */
+	public static final String CARDS_TYPE_2 = "2";
+	
+	//是否周末卡（0不限、1周末卡、2非周末卡）
+	/**
+	 * 0不限
+	 */
+	public static final String isWeek_0 = "0";
+	/**
+	 * 1周末卡
+	 */
+	public static final String isWeek_1 = "1";
+	/**
+	 * 2非周末卡
+	 */
+	public static final String isWeek_2 = "2";
+
+	@NotEmpty(message="卡名不能为空")
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	@NotNull(message="卡类型不能为空")
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+	@NotNull(message="次数不能为空")
+	public Double getNum() {
+		return num;
+	}
+	public void setNum(Double num) {
+		this.num = num;
+	}
+	@NotNull(message="金额不能为空")
+	public Double getMoney() {
+		return money;
+	}
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+	@NotNull(message="有效天数不能为空")
+	public Long getDays() {
+		return days;
+	}
+	public void setDays(Long days) {
+		this.days = days;
+	}
+	public String getIsNew() {
+		return isNew;
+	}
+	public void setIsNew(String isNew) {
+		this.isNew = isNew;
+	}
+	public String getIsWeek() {
+		return isWeek;
+	}
+	public void setIsWeek(String isWeek) {
+		this.isWeek = isWeek;
+	}
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getTypeName() {
+		return typeName;
+	}
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
+	public String getIsNewName() {
+		return isNewName;
+	}
+	public void setIsNewName(String isNewName) {
+		this.isNewName = isNewName;
+	}
+	public String getIsWeekName() {
+		return isWeekName;
+	}
+	public void setIsWeekName(String isWeekName) {
+		this.isWeekName = isWeekName;
+	}
+	
+}

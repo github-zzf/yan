@@ -1,0 +1,36 @@
+<div class="xwindow" id="card_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员卡记录表单</div>
+		<form class="xform" id="card_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">失效日期<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_invalidTime" name="invalidTime"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$("#f_invalidTime").xdate();
+app.win = $('#card_win').xwindow({width:500,height:350,open:false});
+app.form = $('#card_form').xform({
+	url : adminPath + '/card/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'失效日期', name:'invalidTime', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

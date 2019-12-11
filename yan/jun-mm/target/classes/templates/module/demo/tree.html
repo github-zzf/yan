@@ -1,0 +1,21 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+	<#include "/common/_admin.html">
+	<#include "/common/__ztree.html">
+	<script type="text/javascript">
+		$(function(){
+			$.ztree({
+				id:"tree",
+				click:function(treeId, treeNode){
+					$.log(treeId);
+					$.log(treeNode);
+				}
+			})
+		})
+	</script>
+</head>
+<body>
+      <div id="tree" class="ztree" style="width:260px; overflow:auto;"></div>
+</body>
+</html>

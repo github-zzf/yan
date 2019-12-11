@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<#include "/common/__webupload.html">
+	<#include "/common/__ueditor.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/activity.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">活动</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">支付方式</label>
+					<div class="xcombo" data-name="payStatus" id="sf_payStatus">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="xgroup">
+					<label class="label">活动名称</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">状态</label>
+					<div class="xcombo" data-name="status" id="sf_status">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{val}">{txt}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="xgroup">
+					<label class="label">开始时间</label>
+					<input type="text" name="startTime" id="sf_startTime" class="xdate xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">结束时间</label>
+					<input type="text" name="endTime" id="sf_endTime" class="xdate xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">报名开始时间</label>
+					<input type="text" name="enrollStart" id="sf_enrollStart" class="xdate xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">报名结束时间</label>
+					<input type="text" name="enrollEnd" id="sf_enrollEnd" class="xdate xw2" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="activity_xtable" style="min-width:2500px; width:2500px;">
+					<table class="xhead">
+						<tr>
+							<th width="140px">操作</th>
+							<th width="130px">支付方式</th>
+							<th width="80px">状态</th>
+							<th width="200px">活动名称</th>
+							<th width="140px">开始时间</th>
+							<th width="140px">结束时间</th>
+							<th width="140px">报名开始时间</th>
+							<th width="140px">报名结束时间</th>
+							<th width="80px">活动详情</th>
+							<th>活动地址</th>
+							<th width="200px">经纬度</th>
+							<th width="80px">报名上限</th>
+							<th width="120px">活动费</th>
+							<th width="120px">赠送积分</th>
+							<th width="200px">会员卡</th>
+							<th width="100px">消耗数值</th>
+							<th width="80px">浏览数量</th>
+							<th width="80px">点赞数量</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnDetailed}{btnUpdate}{btnDelete}</td>
+									<td>{payStatusTxt}</td>
+									<td>{statusTxt}</td>
+									<td>{name}</td>
+									<td>{startTime}</td>
+									<td>{endTime}</td>
+									<td>{enrollStart}</td>
+									<td>{enrollEnd}</td>
+									<td>{remarkBtn}</td>
+									<td>{address}</td>
+									<td>{coordinate}</td>
+									<td>{peopleMax}</td>
+									<td>{money}</td>
+									<td>{givePoints}</td>
+									<td>{cardName}</td>
+									<td>{cardNum}</td>
+									<td>{clicks}</td>
+									<td>{goods}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="activity_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "activityForm.html">
+	<#include "/common/open_remark.html">
+	
+</body>
+</html>

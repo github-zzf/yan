@@ -1,0 +1,107 @@
+package com.junkj.module.cash.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.shop.entity.Goods;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 消费提成比例实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月28日
+ * @version: 1.0.0
+ */
+@Table(name = "cash_buy_user", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "buy_id", attrName = "buyId"),
+		@Column(name = "user_id", attrName = "userId"),
+		@Column(name = "pay_money", attrName = "payMoney"),
+		@Column(name = "ratio_user", attrName = "ratioUser"),
+		@Column(name = "ratio", attrName = "ratio"),
+		@Column(name = "money", attrName = "money"),
+	},joinTable = {
+			@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "s", on = "s.id = a.user_id", columns = {
+					@Column(name = "name", attrName = "userName", queryType = QueryType.LIKE)
+				})
+			}, orderBy = "a.id DESC"
+)
+public class CashBuyUser extends DataEntity<CashBuyUser> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String comId; // 公司ID
+	private String buyId; // 消费记录主键
+	private String userId; // 提成用户id
+	private Double payMoney; // 销售金额
+	private Long ratioUser; // 员工提成比例
+	private Long ratio; // 分成比例
+	private Double money; // 提成金额
+	
+	//业务字段
+	private String userName; // 公司ID
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getBuyId() {
+		return buyId;
+	}
+	public void setBuyId(String buyId) {
+		this.buyId = buyId;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public Double getPayMoney() {
+		return payMoney;
+	}
+	public void setPayMoney(Double payMoney) {
+		this.payMoney = payMoney;
+	}
+
+	public Long getRatioUser() {
+		return ratioUser;
+	}
+	public void setRatioUser(Long ratioUser) {
+		this.ratioUser = ratioUser;
+	}
+
+	public Long getRatio() {
+		return ratio;
+	}
+	public void setRatio(Long ratio) {
+		this.ratio = ratio;
+	}
+
+	public Double getMoney() {
+		return money;
+	}
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+
+}

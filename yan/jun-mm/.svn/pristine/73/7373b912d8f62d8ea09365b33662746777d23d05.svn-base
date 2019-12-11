@@ -1,0 +1,60 @@
+<div class="xwindow" id="mobileSetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">官网设置表单</div>
+		<form class="xform" id="mobileSetting_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">设置分类(1轮播）<i>*</i></label>
+				<div class="g2"><input type="text" name="type"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">图片<i>*</i></label>
+				<div class="g2"><input type="text" name="img"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">连接<i>*</i></label>
+				<div class="g2"><input type="text" name="url"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">排序<i>*</i></label>
+				<div class="g2"><input type="text" name="sort"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#mobileSetting_win').xwindow({width:500,height:350,open:false});
+app.form = $('#mobileSetting_form').xform({
+	url : adminPath + '/mobileSetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'设置分类(1轮播）', name:'type', xcheck:'null'},
+		{label:'名称', name:'name', xcheck:'null'},
+		{label:'图片', name:'img', xcheck:'null'},
+		{label:'连接', name:'url', xcheck:'null'},
+		{label:'排序', name:'sort', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

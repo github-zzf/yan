@@ -1,0 +1,2 @@
+<script type="text/javascript" src="${ctx}/static/common/ueditor/ueditor.config.js?${v}"></script>
+<script type="text/javascript" src="${ctx}/static/common/ueditor/ueditor.all.min.js?${v}"></script>

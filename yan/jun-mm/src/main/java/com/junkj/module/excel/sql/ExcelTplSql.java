@@ -1,0 +1,34 @@
+package com.junkj.module.excel.sql;
+
+public class ExcelTplSql {
+	
+	public String getTemplateCol(Integer tableCode) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" select colTitle,colCode,colType,colSort from excel_tpl_relation where 1=1");
+		if(tableCode != null && !"".equals(tableCode)){
+			sql.append(" and tplId = '"+tableCode+"'");
+		}
+		return sql.toString();
+	}
+	
+	public String getTemplateRule(String tableCode) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" select colCode, ruleType, ruleValue, ruleMsg from excel_col_rule a ");
+		sql.append(" where 1=1 ");
+		if(tableCode != null && !"".equals(tableCode)){
+			sql.append("and tableCode = '"+tableCode+"'");
+		}
+		return sql.toString();
+	}
+	
+	public String getExcelTplByCode(String tableCode) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" select * from excel_tpl ");
+		sql.append(" where 1=1 ");
+		if(tableCode != null && !"".equals(tableCode)){
+			sql.append("and tableCode = '"+tableCode+"'");
+		}
+		return sql.toString();
+	}
+
+}

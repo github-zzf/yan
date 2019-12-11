@@ -1,0 +1,47 @@
+<div class="xwindow" id="link_sysArea">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级行政区选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" >
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" id="link_sysArea_search"/>
+			</div>
+			<div class="clear"></div>
+		</form>
+	    <div id="sysArea_tree" class="ztree" style="overflow-y:auto; height: 500px;"></div>
+	</div>
+</div>
+<script>
+var linkSysArea = {
+	callBack:function(row){},
+	init:function(){
+		linkSysArea.bind();
+		linkSysArea.load();
+	},
+	bind:function(){
+		$('#link_sysArea').on("click",".js_link_sysArea_sel", function(btn){
+			var index = btn.xv;
+			var row = linkSysArea.table.getRow(index);
+			linkSysArea.callBack(row);
+			linkSysArea.win.close();
+		});
+	},
+	load:function(){
+		linkSysArea.win = $('#link_sysArea').xwindow({width:360,height:600,open:false});
+		$.ztree({
+			id:"sysArea_tree",
+			url:adminPath + '/list/treeSysAreaData',
+			click:function(treeId, treeNode){
+				linkSysArea.win.close();
+				linkSysArea.callBack(treeId, treeNode);
+			}
+		})
+		fuzzySearch('sysArea_tree','#link_sysArea_search',false,true);
+	},
+	open:function(callBack){
+		linkSysArea.callBack = callBack;
+		linkSysArea.win.open();
+	}
+}
+linkSysArea.init();
+</script>

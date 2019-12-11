@@ -1,0 +1,95 @@
+package com.junkj.module.cash.entity;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 销售金额实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月28日
+ */
+@Table(name = "cash_money", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "money", attrName = "money"),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "pay_type", attrName = "payType"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+	}, orderBy = "a.id DESC"
+)
+public class CashMoney extends DataEntity<CashMoney> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String comId; // 企业
+	private String bizId; // 业务主键
+	private String bizType; // 业务类型
+	private Double money; // 金额
+	private String type; // 消费类型(1消费收银、2储值扣费、3会员储值)
+	private String payType; // 支付方式（1现金、2微信、3支付宝、4刷卡、11储值扣费）
+	
+	// 消费类型(1消费收银、2储值扣费、3储次扣费)
+	/**
+	 * 1消费收银
+	 */
+	public static final String TYPE_1 = "1";
+	/**
+	 * 2储值扣费
+	 */
+	public static final String TYPE_2 = "2";
+	/**
+	 * 3储次扣费
+	 */
+	public static final String TYPE_3 = "3";
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public Double getMoney() {
+		return money;
+	}
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	public String getType() {
+		return type;
+	}
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getPayType() {
+		return payType;
+	}
+	public void setPayType(String payType) {
+		this.payType = payType;
+	}
+
+}

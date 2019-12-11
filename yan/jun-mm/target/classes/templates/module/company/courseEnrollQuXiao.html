@@ -1,0 +1,37 @@
+<div class="xwindow" id="courseEnroll_quxiao_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">取消表单</div>
+		<form class="xform" id="courseEnroll_quxiao_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1" style="width:110px;">取消预约原因<i>*</i></label>
+				<div class="g2">
+					<textarea name="statusRemark" style="width:300px; height: 100px;"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_quxiao_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win1 = $('#courseEnroll_quxiao_win').xwindow({width:500,height:250,open:false});
+app.form1 = $('#courseEnroll_quxiao_form').xform({
+	url : adminPath + '/courseEnroll/quxiao',
+	xbtn:'#btn_quxiao_submit',
+	xcheck:[
+		{label:'取消预约原因', name:'statusRemark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win1.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

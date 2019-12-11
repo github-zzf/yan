@@ -1,0 +1,128 @@
+package com.junkj.module.sys.entity;
+
+import java.util.List;
+
+import com.junkj.common.entity.TreeEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+
+/**
+ * 系统菜单实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Table(name = "sys_menu", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "name", attrName = "name"),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "url", attrName = "url"),
+		@Column(name = "permission", attrName = "permission"),
+		@Column(name = "img", attrName = "img"),
+		@Column(name = "sort", attrName = "sort"),
+		@Column(name = "imgs", attrName = "imgs"),
+		@Column(name = "id", attrName = "ids", isUpdate = false, queryType = QueryType.FIND_IN_SET),
+		@Column(includeEntity = TreeEntity.class)
+	},joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysMenu.class, alias = "s", on = "s.id = a.parent_id", columns = {
+			@Column(name = "name", attrName = "parentName", queryType = QueryType.LIKE)
+		}),
+	}, orderBy = "a.tree_sorts, a.tree_sort"
+)
+public class SysMenu extends TreeEntity<SysMenu> {
+
+	private static final long serialVersionUID = 1L;
+	private String name; // 菜单名称
+	private String type; // 菜单类型 [menu|button]
+	private String url; // 菜单地址
+	private String permission; // 权限字符串,menu例子：role:*，button例子：role:create,role:update,role:delete,role:view
+	private String img; // 图片
+	private Integer sort; // 排序
+	private String imgs;
+
+	// 业务字段
+	private List<SysMenu> son; // 子菜单
+	private String ids;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getPermission() {
+		return permission;
+	}
+
+	public void setPermission(String permission) {
+		this.permission = permission;
+	}
+
+	public String getImg() {
+		return img;
+	}
+
+	public void setImg(String img) {
+		this.img = img;
+	}
+
+	public Integer getSort() {
+		return sort;
+	}
+
+	public void setSort(Integer sort) {
+		this.sort = sort;
+	}
+
+	public String getImgs() {
+		return imgs;
+	}
+
+	public void setImgs(String imgs) {
+		this.imgs = imgs;
+	}
+
+	public List<SysMenu> getSon() {
+		return son;
+	}
+
+	public void setSon(List<SysMenu> son) {
+		this.son = son;
+	}
+
+	public String getIds() {
+		return ids;
+	}
+
+	public void setIds(String ids) {
+		this.ids = ids;
+	}
+
+	@Override
+	public String getTreeName() {
+		return this.name;
+	}
+
+}

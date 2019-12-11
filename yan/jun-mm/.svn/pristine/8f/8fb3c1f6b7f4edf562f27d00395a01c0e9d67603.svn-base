@@ -1,0 +1,95 @@
+package com.junkj.module.company.entity;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.member.entity.Member;
+
+/**
+ * 意见反馈实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Table(name = "com_feedback", alias = "a", columns = { @Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType", queryType = QueryType.EQ),
+		@Column(name = "type", attrName = "type", queryType = QueryType.EQ),
+		@Column(name = "content", attrName = "content", queryType = QueryType.LIKE),
+		@Column(includeEntity = DataEntity.class),
+		@Column(includeEntity = BaseEntity.class) 
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "b", on = "b.id = a.biz_id", columns = {
+			@Column(name = "name", attrName = "name", queryType = QueryType.LIKE) 
+		}) 
+	}, orderBy = "a.id DESC")
+public class Feedback extends DataEntity<Feedback> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String bizId; // 关联id
+	private String bizType; // 关联业务（1客户端）
+	private String type; // 状态（1问题反馈，2投诉建议）
+	private String content; // 留言内容
+	// 业务字段
+	private String name; // 反馈人
+	
+	/**
+	 * 1问题反馈
+	 */
+	public static final String TYPE_1 = "1";
+	/**
+	 * 2投诉建议
+	 */
+	public static final String TYPE_2 = "2";
+	/**
+	 * 关联业务（1客户端）
+	 */
+	public static final String BIZ_TYPE_1 = "1";
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+}

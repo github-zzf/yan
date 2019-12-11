@@ -1,0 +1,79 @@
+package com.junkj.module.demo.entity;
+
+import java.util.List;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 增删改查示例实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月05日
+ * @version: 1.0.0
+ */
+@Table(name = "demo_base", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "name", attrName = "name"),
+		@Column(name = "age", attrName = "age"),
+		@Column(name = "sex", attrName = "sex"),
+		@Column(includeEntity = DataEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.create_id", columns = {
+			@Column(name = "name", attrName = "createName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "c", on = "c.id = a.update_id", columns = {
+			@Column(name = "name", attrName = "updateName", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class DemoBase extends DataEntity<DemoBase> {
+
+	private static final long serialVersionUID = 1L;
+	public static final String FILE_TYPE = "demoBase_img";
+
+	private String id; // 编码
+	private String name; // 姓名
+	private Long age; // 年龄
+	private String sex; // 性别
+	
+	private List<DemoItem> demoItem = ListUtils.newArrayList();  // 子表数据
+
+	public String getId() {
+		return id;
+	}
+	public void setId(String id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Long getAge() {
+		return age;
+	}
+	public void setAge(Long age) {
+		this.age = age;
+	}
+	public String getSex() {
+		return sex;
+	}
+	public void setSex(String sex) {
+		this.sex = sex;
+	}
+	public List<DemoItem> getDemoItem() {
+		return demoItem;
+	}
+	public void setDemoItem(List<DemoItem> demoItem) {
+		this.demoItem = demoItem;
+	}
+
+}

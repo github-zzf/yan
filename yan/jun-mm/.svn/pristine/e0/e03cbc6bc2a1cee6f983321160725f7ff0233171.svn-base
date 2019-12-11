@@ -1,0 +1,85 @@
+server:
+  port: 8088
+  
+#默认使用配置
+spring:
+  jackson2:
+    default-property-inclusion: non_null
+  freemarker:
+    suffix: .html
+    charset: UTF-8
+  datasource:
+    url: jdbc:mysql://192.168.0.200/jun_mm?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: junxiao
+    password: junxiao123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 使用druid数据源
+    type: com.alibaba.druid.pool.DruidDataSource
+
+# MyBatis 配置
+mybatis:
+  typeAliasesPackage: com.junkj.module.cms.entity,com.junkj.module.sys.entity
+  mapperLocations: classpath:mybatis/**/*Mapper.xml
+  
+# Web 相关
+web:
+
+  # MVC 拦截器
+  interceptor:
+    
+    # 后台管理日志记录拦截器
+    log:
+      enabled: true
+      addPaths: >
+        ${adminPath}/**
+      excludePaths: >
+        ${adminPath}/index,
+        ${adminPath}/login,
+        ${adminPath}/desktop,
+        ${adminPath}/combo/**,
+        ${adminPath}/tags/**,
+        ${adminPath}/msg/**
+    com:
+      addPaths: >
+        ${mobilePath}/**
+      excludePaths: >
+        ${mobilePath}/wx/getUserInfo/**,
+        ${mobilePath}/wx/payBack/**
+    mobile:
+      addPaths: >
+        ${mobilePath}/**
+      excludePaths: >
+        ${mobilePath}/wx/login/**,
+        ${mobilePath}/wx/getUserInfo/**,
+        ${mobilePath}/wx/payBack/**
+user:
+  superAdmin: junAdmin
+  resetPass: 123456
+
+upload:
+  basePath: "C:"
+
+# 开发模式  
+dev: true
+
+# 获取移动端域名
+mobileUri: cxmail8.vicp.cc
+
+# 管理基础路径
+adminPath: /junkj
+    
+# 用户端路径
+mobilePath: /m
+
+# 员端端路径
+staffPath: /staff
+
+# 导购端路径
+salePath: /sale
+
+# 微信路径
+wxPath: /wx
+
+
+# SaaS开关
+isSaas: true

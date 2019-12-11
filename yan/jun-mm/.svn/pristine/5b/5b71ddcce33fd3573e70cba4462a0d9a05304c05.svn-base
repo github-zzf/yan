@@ -1,0 +1,150 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.sys.entity.BeanType;
+
+/**
+ * 活动报名实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_activity_enroll", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "activity_id", attrName = "activityId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "enroll_status", attrName = "enrollStatus"),
+		@Column(name = "enroll_time", attrName = "enrollTime"),
+		@Column(name = "wait_num", attrName = "waitNum"),
+		@Column(name = "is_sign", attrName = "isSign"),
+		@Column(name = "sign_time", attrName = "signTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "b", on = "b.id = a.member_id ", columns = {
+				@Column(name = "name", attrName = "memberName", queryType = QueryType.EQ) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "c", on = "c.t_key='activity_en_status' and c.val = a.enroll_status", columns = {
+			@Column(name = "txt", attrName = "statusTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "d", on = "d.t_key='activity_en_is_sign' and d.val = a.is_sign", columns = {
+			@Column(name = "txt", attrName = "isSigenTxt", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class ActivityEnroll extends DataEntity<ActivityEnroll> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String activityId; // 活动id
+	private String memberId; // 报名用户
+	private String enrollStatus; // 状态（0已取消、1待审批、2已通过、3未通过、4等位）
+	private Date enrollTime; // 报名日期
+	private Long waitNum; // 等位编号
+	private String isSign; // 是否签到（0没签到、1已签到）
+	private Date signTime; // 签到时间
+
+	// 业务字段
+	private String memberName; // 会员名称
+	private String statusTxt; // 状态
+	private String isSigenTxt; // 是否签到
+	
+	//（状态：0正常 1报名中、6草稿、7冻结、8停用、9删除）
+	/**
+	 * 0正常
+	 */
+	public static final String STATUS_NORMAL = "0";
+	/**
+	 * 1报名中
+	 */
+	public static final String STATUS_ENROLLMENT = "1";
+	/**
+	 * 6草稿
+	 */
+	public static final String STATUS_DRAFT = "6";
+
+	public String getActivityId() {
+		return activityId;
+	}
+	public void setActivityId(String activityId) {
+		this.activityId = activityId;
+	}
+
+	@NotEmpty(message="会员不能为空")
+	@Length(min=0, max=32, message="会员长度不能超过32个字符")
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getEnrollStatus() {
+		return enrollStatus;
+	}
+	public void setEnrollStatus(String enrollStatus) {
+		this.enrollStatus = enrollStatus;
+	}
+
+	@NotNull(message="报名日期不能为空")
+	public Date getEnrollTime() {
+		return enrollTime;
+	}
+	public void setEnrollTime(Date enrollTime) {
+		this.enrollTime = enrollTime;
+	}
+
+	public Long getWaitNum() {
+		return waitNum;
+	}
+	public void setWaitNum(Long waitNum) {
+		this.waitNum = waitNum;
+	}
+
+	public String getIsSign() {
+		return isSign;
+	}
+	public void setIsSign(String isSign) {
+		this.isSign = isSign;
+	}
+
+	public Date getSignTime() {
+		return signTime;
+	}
+	public void setSignTime(Date signTime) {
+		this.signTime = signTime;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	public String getStatusTxt() {
+		return statusTxt;
+	}
+	public void setStatusTxt(String statusTxt) {
+		this.statusTxt = statusTxt;
+	}
+	public String getIsSigenTxt() {
+		return isSigenTxt;
+	}
+	public void setIsSigenTxt(String isSigenTxt) {
+		this.isSigenTxt = isSigenTxt;
+	}
+
+}

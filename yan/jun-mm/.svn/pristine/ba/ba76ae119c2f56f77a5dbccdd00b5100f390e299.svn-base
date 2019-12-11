@@ -1,0 +1,288 @@
+package com.junkj.module.web.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.module.cash.biz.CashBuyBiz;
+import com.junkj.module.cms.biz.ArticlesBiz;
+import com.junkj.module.cms.biz.ArttypeBiz;
+import com.junkj.module.cms.entity.Articles;
+import com.junkj.module.cms.entity.Arttype;
+import com.junkj.module.company.biz.ActivityBiz;
+import com.junkj.module.company.biz.ActivityEnrollBiz;
+import com.junkj.module.company.biz.AlbumBiz;
+import com.junkj.module.company.biz.CardsBiz;
+import com.junkj.module.company.biz.CourseBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.biz.FeedbackBiz;
+import com.junkj.module.company.biz.MobileSettingBiz;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.company.entity.ActivityEnroll;
+import com.junkj.module.company.entity.Album;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Feedback;
+import com.junkj.module.company.entity.MobileSetting;
+import com.junkj.module.file.biz.FileUploadBiz;
+import com.junkj.module.file.entity.FileUpload;
+import com.junkj.module.member.biz.CardChangeBiz;
+import com.junkj.module.member.biz.GrowupBiz;
+import com.junkj.module.member.biz.MemberBiz;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.Growup;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.MemberCard;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 员工端biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class ApiBiz {
+
+	@Autowired
+	private MobileSettingBiz mobileSettingBiz;
+	@Autowired
+	private ArttypeBiz arttypeBiz;
+	@Autowired
+	private ArticlesBiz articlesBiz;
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+	@Autowired
+	private ActivityBiz activityBiz;
+	@Autowired
+	private ActivityEnrollBiz activityEnrollBiz;
+	@Autowired
+	private CardsBiz cardsBiz;
+	@Autowired
+	private CashBuyBiz cashBuyBiz;
+	@Autowired
+	private MemberCardBiz memberCardBiz;
+	@Autowired
+	private CardChangeBiz cardChangeBiz;
+	@Autowired
+	private AlbumBiz albumBiz;
+	@Autowired
+	private FileUploadBiz fileUploadBiz;
+	@Autowired
+	private GrowupBiz growupBiz;
+	@Autowired
+	private MemberBiz memberBiz;
+	@Autowired
+	private FeedbackBiz feedbackBiz;
+
+	/*******************************************************
+	 * 首页
+	 */
+	/**
+	 * 轮播
+	 */
+	public List<MobileSetting> listHomeImg() {
+		MobileSetting setting = new MobileSetting();
+		setting.setType(MobileSetting.TYPE_1);
+		return mobileSettingBiz.findList(setting);
+	}
+	/*******************************************************
+	 * 文章
+	 */
+	// 栏目
+	public Page<Arttype> pageArttype(Arttype arttype) {
+		return arttypeBiz.findPage(arttype);
+	}
+
+	// 文章
+	public Page<Articles> pageArticles(Articles activity) {
+		return articlesBiz.findPage(activity);
+	}
+
+	// 文章详情
+	public Articles infoArticles(String id) {
+		return articlesBiz.get(id);
+	}
+
+	/*******************************************************
+	 * 服务预约
+	 */
+	// 课程列表
+	public List<Course> listCourse(Course course) {
+		return courseBiz.findDayCourse(course);
+	}
+
+	// 老师
+	public List<SysUser> pageTeacher() {
+		String comId = ComUtils.getCurrentComId();
+		return courseBiz.findListTeacher(comId);
+	}
+
+	// 我的预约
+	public Page<CourseEnroll> pageMyCourse() {
+		CourseEnroll courseEnroll = new CourseEnroll();
+		courseEnroll.setMemberId(MemberUtils.getMemberId());
+		return courseEnrollBiz.findPage(courseEnroll);
+	}
+
+	// 保存评价
+	@Transactional(readOnly = false)
+	public void saveComment(CourseEnroll enroll) {
+		CourseEnroll update = new CourseEnroll();
+		update.setId(enroll.getId());
+		update.setCommentLevel(enroll.getCommentLevel());
+		update.setCommentContent(enroll.getCommentContent());
+		update.setCommentTime(DateUtils.getNow());
+		courseEnrollBiz.update(update);
+	}
+
+	// 取消预约
+	@Transactional(readOnly = false)
+	public void cancelMyCourse(CourseEnroll enroll) {
+		CourseEnroll update = new CourseEnroll();
+		update.setId(enroll.getId());
+		update.setStatus(CourseEnroll.status_2);
+		courseEnrollBiz.update(update);
+	}
+
+	/*******************************************************
+	 * 活动
+	 */
+
+	// 活动列表
+	public Page<Activity> pageActity(Activity activity) {
+		return activityBiz.findPage(activity);
+	}
+
+	// 活动详情
+	public Activity actityInfo(String id) {
+		return activityBiz.get(id);
+	}
+
+	// 活动报名列表
+	public Page<ActivityEnroll> pageActityEnroll(ActivityEnroll activityEnroll) {
+		return activityEnrollBiz.findPage(activityEnroll);
+	}
+
+	// 活动报名
+	@Transactional(readOnly = false)
+	public void saveActityEnroll(ActivityEnroll activityEnroll) {
+		activityEnroll.setId(null);
+		activityEnrollBiz.save(activityEnroll);
+	}
+
+	/*******************************************************
+	 * 会员卡
+	 */
+	// 会员卡
+	public Page<Cards> pageCards(Cards cards) {
+		return cardsBiz.findPage(cards);
+	}
+
+	// 会员卡明细
+	public Cards infoCards(String id) {
+		return cardsBiz.get(id);
+	}
+
+	// // 会员卡购买
+	// @Transactional(readOnly = false)
+	// public void buyCards(CashBuy cashBuy) {
+	// cashBuy.setId(null);
+	// cashBuyBiz.save(cashBuy);
+	// }
+
+	// 我的卡包
+	public Page<MemberCard> pageMyCards(MemberCard card) {
+		card.setMemberId(MemberUtils.getMemberId());
+		return memberCardBiz.findPage(card);
+	}
+
+	// 我的会员卡详情
+	public MemberCard infoMyCards(String id) {
+		return memberCardBiz.get(id);
+	}
+
+	// 我的会员卡消费记录
+	public Object pageMyCardsChange(String id) {
+		CardChange where = new CardChange();
+		where.setMcId(id);
+		return cardChangeBiz.findList(where);
+	}
+
+	/*******************************************************
+	 * 相册
+	 */
+	// 相册
+	public Page<Album> pageAlbum(Album album) {
+		return albumBiz.findPage(album);
+	}
+
+	// 相册详情
+	public Album infoAlbum(String id) {
+		Album album = albumBiz.get(id);
+		FileUpload where = new FileUpload();
+		where.setBizType(Album.FILE_TYPE);
+		where.setBizId(id);
+		album.setFileUpload(fileUploadBiz.findList(where));
+		return album;
+	}
+
+	// 相册图片
+	public List<FileUpload> listAlbumImg(String id) {
+		FileUpload where = new FileUpload();
+		where.setBizId(id);
+		where.setBizType(Album.FILE_TYPE);
+		return fileUploadBiz.findList(where);
+	}
+
+	/*******************************************************
+	 * 成长记录
+	 */
+	// 我的成长记录
+	public Page<Growup> pageMyGrowup() {
+		Growup where = new Growup();
+		where.setMemberId(MemberUtils.getMemberId());
+		return growupBiz.findMyPage(where);
+	}
+
+	// 保存成长记录
+	public void saveGrowup(Growup growup) {
+		growup.setMemberId(MemberUtils.getMemberId());
+		growupBiz.save(growup);
+	}
+
+	/*******************************************************
+	 * 我的
+	 */
+	// 我的数据
+	public Member infoMyData() {
+		return MemberUtils.getMember();
+	}
+
+	// 修改我的数据
+	@Transactional(readOnly = false)
+	public void updateMember(Member member) {
+		member.setId(MemberUtils.getMemberId());
+		memberBiz.update(member);
+	}
+
+	// 意见反馈
+	@Transactional(readOnly = false)
+	public void saveFeedback(Feedback feedback) {
+		feedback.setType(Feedback.BIZ_TYPE_1);
+		feedbackBiz.save(feedback);
+	}
+}

@@ -1,0 +1,45 @@
+<div class="xwindow" id="growup_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">成长记录表单</div>
+		<form class="xform" id="growup_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">会员id<i>*</i></label>
+				<div class="g2"><input type="text" name="memberId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">日记<i>*</i></label>
+				<div class="g2"><input type="text" name="content"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#growup_win').xwindow({width:500,height:350,open:false});
+app.form = $('#growup_form').xform({
+	url : adminPath + '/growup/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'会员id', name:'memberId', xcheck:'null'},
+		{label:'日记', name:'content', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

@@ -1,0 +1,45 @@
+<div class="xwindow" id="courseEnroll_tiaoke_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">调课表单</div>
+		<form class="xform" id="courseEnroll_tiaoke_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1" style="width:110px;">课程<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="courseName" id="ff_courseName"/>
+					<input type="hidden" name="courseId" id="ff_courseId"/>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_tiaoke_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win2 = $('#courseEnroll_tiaoke_win').xwindow({width:500,height:250,open:false});
+app.form2 = $('#courseEnroll_tiaoke_form').xform({
+	url : adminPath + '/courseEnroll/tiaoke',
+	xbtn:'#btn_tiaoke_submit',
+	xcheck:[
+		{label:'课程', name:'courseId', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win2.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#ff_courseName").click(function(){
+	linkCourse.callBack = function(row) {
+		$("#ff_courseName").val(row.name);	
+		$("#ff_courseId").val(row.id);	
+	};
+	linkCourse.open();
+});
+</script>

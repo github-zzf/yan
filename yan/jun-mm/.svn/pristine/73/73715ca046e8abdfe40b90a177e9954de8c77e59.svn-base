@@ -1,0 +1,304 @@
+package com.junkj.module.web.biz;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.common.utils.TplMsgUtils;
+import com.junkj.module.cms.biz.ArticlesBiz;
+import com.junkj.module.cms.biz.ArttypeBiz;
+import com.junkj.module.cms.entity.Articles;
+import com.junkj.module.cms.entity.Arttype;
+import com.junkj.module.company.biz.CourseBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.biz.LeaveBiz;
+import com.junkj.module.company.biz.WorkMsgBiz;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.statistics.dao.StatisticsDao;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 员工端biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class StaffApiBiz {
+
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+	@Autowired
+	private LeaveBiz leaveBiz;
+	@Autowired
+	private StatisticsDao statisticsDao;
+	@Autowired
+	private ArticlesBiz articlesBiz;
+	@Autowired
+	private ArttypeBiz arttypeBiz;
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+
+	/*******************************************************
+	 * 工作台
+	 */
+	/**
+	 * 评价签到完成数量
+	 */
+	public Map<String, Object> infoWorkNum() {
+		return courseEnrollBiz.getByWorkNum(MemberUtils.getStaffId());
+	}
+
+	/**
+	 * 我的课程
+	 */
+	public List<Map<String, Object>> listMyCourse(Course course) {
+		if (!StrUtils.notBlank(course.getCourseDate())) {
+			course.setCourseDate(new Date());
+		}
+		course.setTeacherId(MemberUtils.getStaffId());
+		course.setAssistantId(MemberUtils.getStaffId());
+		return courseBiz.listMyCourse(course);
+	}
+
+	/**
+	 * 我的课程id
+	 */
+	public Map<String, Object> infoMyCourseById(String id) {
+		Course course = new Course();
+		course.setId(id);
+		return courseBiz.infoMyCourseById(course);
+	}
+
+	/**
+	 * 我的课程member
+	 */
+	public List<CourseEnroll> listMyCourseMember(CourseEnroll courseEnroll) {
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+
+	/**
+	 * 我的课程评价
+	 */
+	public List<CourseEnroll> listMyCourseComplete(CourseEnroll courseEnroll) {
+		courseEnroll.setWhere("a.comment_time is not null");
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+
+	/**
+	 * 我的请假
+	 */
+	public Page<Leave> listMyLeave(Leave leave) {
+		leave.setStaffId(MemberUtils.getStaffId());
+		return leaveBiz.findPage(leave);
+	}
+
+	/**
+	 * 我的请假详情
+	 */
+	public Leave infoMyLeave(Leave leave) {
+		Leave fLeave = leaveBiz.get(leave);
+
+		String ckType = Leave.CHECKSTATETYPE_0;
+		if (StrUtils.notBlank(fLeave.getCheckStaffId())) {
+			if (Arrays.asList(fLeave.getCheckStaffId().split(",")).contains(MemberUtils.getStaffId())) {
+				ckType = Leave.CHECKSTATETYPE_1;
+			}
+		}
+		fLeave.setCheckStateType(ckType);
+
+		return fLeave;
+	}
+
+	/**
+	 * 我的请假详情
+	 */
+	@Transactional(readOnly = false)
+	public void updateLeaveIsCancel(Leave leave) {
+		leaveBiz.updateIsCancel(leave);
+	}
+
+	/**
+	 * 申请请假
+	 */
+	@Transactional(readOnly = false)
+	public void saveLeave(Leave leave) {
+		leave.setStaffId(MemberUtils.getStaffId());
+		leaveBiz.save(leave);
+	}
+
+	/**
+	 * 请假审批
+	 */
+	@Transactional(readOnly = false)
+	public void updateLeaveCheck(String id, String type, String content) {
+		Date now = DateUtils.getNow();
+		
+		Leave leave = leaveBiz.get(id);
+		String contentTxt = "请假类型: " + leave.getTypeTxt() + "<br/>请假人: " + leave.getStaffTxt() + "<br/>请假时间: "
+				+ DateUtils.format(leave.getStartTime()) + " - " + DateUtils.format(leave.getEndTime())
+				+ "<br/>审批意见:"+content;
+		
+		// 修改请假审批状态
+		leave.setCheckStaffId(MemberUtils.getStaffId());
+		leave.setCheckState(type);
+		leave.setCheckRemark(content);
+		leave.setCheckTime(now);
+		leaveBiz.update(leave);
+
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setBizId(id);
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsg.setStyle(WorkMsg.STYLE_2);
+		workMsg.setCheckRemark(content);
+		workMsg.setCheckState(type);
+		workMsg.setCheckTime(now);
+		workMsgBiz.updateWorkMsgCheckStatus(workMsg);
+
+		/**
+		 * 给申请人发送信息
+		 */
+		workMsg = new WorkMsg();
+		workMsg.setUserId(leave.getStaffId());
+		workMsg.setStyle(WorkMsg.STYLE_1);
+		workMsg.setBizId(leave.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsg.setUrl("/pages/leave/leaveInfo?id=" + leave.getId());
+		workMsg.setTitle("请假审批结果通知");
+		workMsg.setComId(workMsg.getComId());
+		workMsg.setCreateTime(now);
+		workMsg.setContent(contentTxt);
+		workMsg.setCheckState(type);
+		workMsg.setCheckRemark(content);
+		workMsgBiz.save(workMsg);
+
+		/**
+		 * 需要发送模板消息
+		 */
+		WxUser wxUser = wxUserBiz.getByStaffId(leave.getStaffId());
+		if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+			String workMsgId = workMsg.getId();
+			String openId = wxUser.getOpenid();
+			String comId = ComUtils.getCurrentComId();
+			Leave le = leaveBiz.get(leave.getId());
+			// 请假申请通知
+			new Thread() {
+				public void run() {
+					try {
+						List<String> data = ListUtils.newArrayList();
+						data.add("您有一条请假审批结果通知");
+						data.add(DateUtils.formatDate(le.getStartTime()) + "\\n"
+								+ DateUtils.formatDate(le.getEndTime()));
+						data.add(le.getCheckStateTxt());
+						if(StrUtils.isBlank(content)){
+							data.add("祝您假期愉快！");
+						}else{
+							data.add(content);
+						}
+						String url = "http://" +ComUtils.getCurrentComId()+"."+ Global.mobileUri()+"/staff/infoMsg?id="+workMsgId;
+						TplMsgUtils.sendMsg(comId, openId, url, TplMsgUtils.TPL_12, data);
+					} catch (Exception e) {
+						System.out.println("请假审批结果通知失败");
+					}
+				}
+			}.start();
+		}
+	}
+
+	/**
+	 * 我的业绩
+	 */
+	public Map<String, Object> infoAchieve(String date) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("date", date);
+		map.put("userId", MemberUtils.getStaffId());
+		return statisticsDao.findMyStatistics(map);
+	}
+	
+	/**
+	 * 每日统计
+	 */
+	public Map<String, Object> infoStatistics(String date) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("date", date);
+		map.put("comId", ComUtils.getCurrentComId());
+		return statisticsDao.findDayStatistics(map);
+	}
+
+	/**
+	 * 员工通知
+	 */
+	public Page<Articles> pageStaffArticles(Articles articles) {
+		if (StrUtils.notBlank(articles.getTypeType())) {
+			Arttype where = new Arttype();
+			where.setTypeType("3");
+			Arttype type = arttypeBiz.getByEntity(where);
+			if (null != type) {
+				articles.setTypeId(type.getId());
+				return articlesBiz.findPage(articles);
+			}
+		}
+		List<Articles> list = new ArrayList<>();
+		Page<Articles> vo = new Page<>();
+		vo.setList(list);
+		return vo;
+	}
+
+	/**
+	 * 员工通知详情
+	 */
+	public Object infoStaffArticles(String id) {
+		return articlesBiz.get(id);
+	}
+
+	/**
+	 * 我的消息
+	 */
+	public Object pageMyWorkMsg(Integer page, Integer rows) {
+		Integer srow = 0;
+		Integer erow = 5;
+		srow = (page - 1) * rows;
+		erow = page * rows;
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("list", workMsgBiz.findWorkMsgPage(MemberUtils.getStaffId(), srow, erow, "limit"));
+		map.put("total", workMsgBiz.findWorkMsgPage(MemberUtils.getStaffId(), srow, erow, null).size());
+		return map;
+	}
+
+	/**
+	 * 改变我的消息状态
+	 */
+	@Transactional(readOnly = false)
+	public void updateMyWorkMsg(String id) {
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setId(id);
+		workMsg.setReadState(WorkMsg.READSTATE_1);
+		workMsgBiz.update(workMsg);
+	}
+
+}

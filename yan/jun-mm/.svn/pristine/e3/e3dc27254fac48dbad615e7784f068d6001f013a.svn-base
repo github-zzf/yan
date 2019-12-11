@@ -1,0 +1,38 @@
+package com.junkj.module.company.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.company.entity.ComTemplate;
+
+public class ComTemplateSql {
+
+	/**
+	 * 查询企业模板
+	 */
+	public String findList(ComTemplate comTemplate) {
+		String str = new SQL() {
+			{
+				SELECT("a.id AS 'id'");
+				SELECT("a.tpl_id AS 'tplId'");
+				SELECT("b.tpl_code AS 'tplCode'");
+				SELECT("b.tpl_name AS 'tplName'");
+				SELECT("b.tpl_params AS 'tplParams'");
+				SELECT("b.remark AS 'remark'");
+				FROM("com_template AS a");
+				RIGHT_OUTER_JOIN("sys_template AS b on(a.com_id = #{comId} and b.tpl_code = a.tpl_code)");
+
+				if (StrUtils.notBlank(comTemplate.getTplCode())) {
+					WHERE("b.tpl_code = #{tplCode}");
+				}
+
+				if (StrUtils.notBlank(comTemplate.getTplName())) {
+					WHERE("b.bean_txt LIKE CONCAT('%',#{tplName},'%')");
+				}
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

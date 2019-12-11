@@ -1,0 +1,114 @@
+package com.junkj.module.shop.entity;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 积分商品实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "shop_gift", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "gift_type_id", attrName = "giftTypeId"),
+		@Column(name = "name", attrName = "name"),
+		@Column(name = "points", attrName = "points"),
+		@Column(name = "num", attrName = "num"),
+		@Column(name = "img", attrName = "img"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "remark", attrName = "remark"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	},
+	joinTable = {
+			@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.update_id", columns = {
+				@Column(name = "name", attrName = "updateName", queryType = QueryType.LIKE)
+			})
+		},orderBy = "a.id DESC"
+)
+public class Gift extends DataEntity<Gift> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String giftTypeId; // 礼物类别
+	private String name; // 名称
+	private Long points; // 所需积分
+	private Long num; // 数量
+	private String img; // 封面图片
+	private String content; // 描述
+	private String remark; // 备注
+	
+	private String updateName; 
+
+	@NotEmpty(message="礼物类别不能为空")
+	public String getGiftTypeId() {
+		return giftTypeId;
+	}
+	public void setGiftTypeId(String giftTypeId) {
+		this.giftTypeId = giftTypeId;
+	}
+	@NotEmpty(message="名称不能为空")
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	@NotNull(message="所需积分不能为空")
+	public Long getPoints() {
+		return points;
+	}
+	public void setPoints(Long points) {
+		this.points = points;
+	}
+	@NotNull(message="数量不能为空")
+	public Long getNum() {
+		return num;
+	}
+	public void setNum(Long num) {
+		this.num = num;
+	}
+
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+	@NotEmpty(message="描述不能为空")
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+	@NotEmpty(message="备注不能为空")
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	public String getUpdateName() {
+		return updateName;
+	}
+	public void setUpdateName(String updateName) {
+		this.updateName = updateName;
+	}
+	
+
+}

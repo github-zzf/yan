@@ -1,0 +1,46 @@
+<div class="xwindow" id="message_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">留言信息表表单</div>
+		<form class="xform" id="message_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">手机<i>*</i></label>
+				<div class="g2"><input type="text" name="phone"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">留言内容<i>*</i></label>
+				<div class="g2"><input type="text" name="content"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#message_win').xwindow({width:500,height:350,open:false});
+app.form = $('#message_form').xform({
+	url : adminPath + '/message/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'手机', name:'phone', xcheck:'null'},
+		{label:'留言内容', name:'content', xcheck:'null'},
+		{label:'状态（0未读，1已读）', name:'status', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

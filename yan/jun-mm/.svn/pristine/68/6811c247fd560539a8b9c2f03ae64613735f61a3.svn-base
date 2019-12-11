@@ -1,0 +1,220 @@
+package com.junkj.module.company.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.TplMsgUtils;
+import com.junkj.module.company.dao.LeaveDao;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.StaffNoticeSetting;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 员工请假表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class LeaveBiz extends CrudBiz<LeaveDao, Leave> {
+
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+	@Autowired
+	private StaffNoticeSettingBiz staffNoticeSettingBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Leave> findPage(Leave leave) {
+		return super.findPage(leave);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Leave> findList(Leave leave) {
+		return super.findList(leave);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(Leave leave) {
+		// 查询
+		StaffNoticeSetting where = new StaffNoticeSetting();
+		where.setLeaveMsg(StaffNoticeSetting.TYPE_0);
+		where.setComId(where.getComId());
+		List<StaffNoticeSetting> sList = staffNoticeSettingBiz.findList(where);
+		String checkUser = "";
+		for (StaffNoticeSetting staffNoticeSetting : sList) {
+			checkUser += staffNoticeSetting.getUserId() + ",";
+		}
+		boolean isNewT = leave.getIsNewT();
+		leave.setCheckStaffId(checkUser);
+		super.save(leave);
+		if (isNewT) {
+			// 请假记录
+			Leave le = get(leave.getId());
+			Date date = new Date();
+			for (StaffNoticeSetting notice : sList) {
+				/**
+				 * 发送请假审批
+				 */
+				WorkMsg workMsg = new WorkMsg();
+				workMsg.setUserId(notice.getUserId());
+				workMsg.setStyle(WorkMsg.STYLE_2);
+				workMsg.setBizId(le.getId());
+				workMsg.setBizType(WorkMsg.BIZTYPE_21);
+				workMsg.setUrl("../leave/leaveInfo?id=" + le.getId());
+				workMsg.setTitle("请假审批");
+				workMsg.setComId(workMsg.getComId());
+				workMsg.setCreateTime(date);
+				String content = "请假类型: " + le.getTypeTxt() + "<br/>请假人: " + le.getStaffTxt() + "<br/>请假时间: "
+						+ DateUtils.format(le.getStartTime()) + " - " + DateUtils.format(le.getEndTime());
+				workMsg.setContent(content);
+				workMsg.setCheckUser(checkUser);
+				workMsgBiz.save(workMsg);
+
+				// 微信模板消息：请假申请通知
+				WxUser wxUser = wxUserBiz.getByStaffId(notice.getUserId());
+				if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+					String openId = wxUser.getOpenid();
+					String comId = ComUtils.getCurrentComId();
+					new Thread() {
+						public void run() {
+							try {
+								List<String> data = ListUtils.newArrayList();
+								data.add("您有一条请假审批记录");
+								data.add(DateUtils.formatDateTime(date));
+								data.add(le.getStaffTxt());
+								data.add(le.getTypeTxt());
+								data.add(DateUtils.formatDate(le.getStartTime()));
+								data.add(DateUtils.formatDate(le.getEndTime()));
+								data.add("请您尽快审批");
+								TplMsgUtils.sendMsg(comId, openId, "", TplMsgUtils.TPL_11, data);
+							} catch (Exception e) {
+								logger.error("请假申请通知失败", e);
+							}
+						}
+					}.start();
+				}
+			}
+		}
+	}
+
+	/**
+	 * 审批
+	 */
+	@Transactional(readOnly = false)
+	public void updateCheckState(Leave leave) {
+		Date now = DateUtils.getNow();
+		leave.setCheckTime(now);
+		super.update(leave);
+		
+
+		Leave le = get(leave.getId());
+		
+		String contentTxt = "请假类型: " + le.getTypeTxt() + "<br/>请假人: " + le.getStaffTxt() + "<br/>请假时间: "
+				+ DateUtils.format(le.getStartTime()) + " - " + DateUtils.format(le.getEndTime())
+				+ "<br/>审批意见:"+le.getCheckRemark();
+
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setBizId(le.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsg.setStyle(WorkMsg.STYLE_2);
+		workMsg.setCheckRemark(le.getCheckRemark());
+		workMsg.setCheckState(le.getCheckState());
+		workMsg.setCheckTime(now);
+		workMsgBiz.updateWorkMsgCheckStatus(workMsg);
+
+		/**
+		 * 给申请人发送信息
+		 */
+		workMsg = new WorkMsg();
+		workMsg.setUserId(le.getStaffId());
+		workMsg.setStyle(WorkMsg.STYLE_1);
+		workMsg.setBizId(le.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsg.setUrl("../leave/leaveInfo?id=" + le.getId());
+		workMsg.setTitle("请假审批结果通知");
+		workMsg.setComId(workMsg.getComId());
+		workMsg.setCreateTime(now);
+		workMsg.setContent(contentTxt);
+		workMsg.setCheckState(le.getCheckState());
+		workMsg.setCheckRemark(le.getCheckRemark());
+		workMsgBiz.save(workMsg);
+
+		// 微信模板消息：请假申请通知
+		WxUser wxUser = wxUserBiz.getByStaffId(le.getStaffId());
+		if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+			String openId = wxUser.getOpenid();
+			String comId = ComUtils.getCurrentComId();
+			// 请假申请通知
+			new Thread() {
+				public void run() {
+					try {
+						List<String> data = ListUtils.newArrayList();
+						data.add("您有一条请假审批结果通知");
+						data.add(DateUtils.formatDate(le.getStartTime()) + "\\n"
+								+ DateUtils.formatDate(le.getEndTime()));
+						data.add(le.getCheckStateTxt());
+						if(StrUtils.isBlank(le.getCheckRemark())){
+							data.add("祝您假期愉快！");
+						}else{
+							data.add(le.getCheckRemark());
+						}
+						TplMsgUtils.sendMsg(comId, openId, "", TplMsgUtils.TPL_12, data);
+					} catch (Exception e) {
+						logger.error("请假审批结果通知失败", e);
+					}
+				}
+			}.start();
+		}
+	}
+
+	/**
+	 * 取消
+	 */
+	@Transactional(readOnly = false)
+	public void updateIsCancel(Leave leave) {
+		leave.setCheckState(Leave.CHECKSTATE_4);
+		super.update(leave);
+	}
+	
+	/**
+	 * 取消
+	 */
+	@Transactional(readOnly = false)
+	public void delete(Leave leave) {
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setBizId(leave.getId());
+		workMsg.setBizType(WorkMsg.BIZTYPE_21);
+		workMsgBiz.deleteWorkMsg(workMsg);
+		super.delete(leave);
+	}
+	
+	
+
+}

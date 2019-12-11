@@ -1,0 +1,177 @@
+package com.junkj.module.web.biz;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.module.cms.biz.ArticlesBiz;
+import com.junkj.module.company.biz.CourseBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.biz.LeaveBiz;
+import com.junkj.module.company.biz.WorkMsgBiz;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.statistics.dao.StatisticsDao;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 员工端biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class StaffApiBiz {
+	
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+	@Autowired
+	private LeaveBiz leaveBiz;
+	@Autowired
+	private StatisticsDao statisticsDao;
+	@Autowired
+	private ArticlesBiz articlesBiz;
+	@Autowired
+	private SysUserBiz sysUserBiz;
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+
+	/*******************************************************
+	 * 工作台
+	 */
+	/**
+	 * 评价签到完成数量
+	 */
+	public Map<String, Object> infoWorkNum() {
+		return courseEnrollBiz.getByWorkNum(MemberUtils.getStaffId());
+	}
+	
+	/**
+	 * 我的课程
+	 */
+	public List<Map<String, Object>> listMyCourse(Course course) {
+		if(!StrUtils.notBlank(course.getCourseDate())){
+			course.setCourseDate(new Date());
+		}
+		course.setTeacherId(MemberUtils.getStaffId());
+		course.setAssistantId(MemberUtils.getStaffId());
+		return courseBiz.listMyCourse(course);
+	}
+	
+	/**
+	 * 我的课程id
+	 */
+	public Map<String, Object> infoMyCourseById(String id) {
+		Course course = new Course();
+		course.setId(id);
+		return courseBiz.infoMyCourseById(course);
+	}
+	
+	/**
+	 * 我的课程member
+	 */
+	public List<CourseEnroll> listMyCourseMember(CourseEnroll courseEnroll) {
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+	
+	/**
+	 * 我的课程评价
+	 */
+	public List<CourseEnroll> listMyCourseComplete(CourseEnroll courseEnroll) {
+		courseEnroll.setWhere("a.comment_time is not null");
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+	
+	/**
+	 * 我的请假
+	 */
+	public List<Leave> listMyLeave(Leave leave) {
+		leave.setStaffId(MemberUtils.getStaffId());
+		return leaveBiz.findList(leave);
+	}
+	
+	/**
+	 * 我的请假详情
+	 */
+	public Leave infoMyLeave(Leave leave) {
+		return leaveBiz.get(leave);
+	}
+	
+	/**
+	 * 我的请假详情
+	 */
+	@Transactional(readOnly = false)
+	public void updateLeaveIsCancel(Leave leave) {
+		leaveBiz.updateIsCancel(leave);
+	}
+	
+	/**
+	 * 申请请假
+	 */
+	@Transactional(readOnly = false)
+	public void saveLeave(Leave leave) {
+		leave.setStaffId(MemberUtils.getStaffId());
+		leaveBiz.save(leave);
+	}
+	
+	/**
+	 * 我的业绩
+	 */
+	public Map<String, Object> infoAchieve(String date) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("date", date + "-00");
+		map.put("userId", MemberUtils.getStaffId());
+		return statisticsDao.findMyStatistics(map);
+	}
+	
+	/**
+	 * 员工通知
+	 */
+	public Object listStaffArticles(String type) {
+		SysUser sysUser = sysUserBiz.get(MemberUtils.getStaffId());
+		return articlesBiz.listStaffArticles(type, sysUser.getComId());
+	}
+	
+	/**
+	 * 员工通知详情
+	 */
+	public Object infoStaffArticles(String id) {
+		return articlesBiz.get(id);
+	}
+	
+	/**
+	 * 我的消息
+	 */
+	public Page<WorkMsg> pageMyWorkMsg(WorkMsg workMsg) {
+		workMsg.setUserId(MemberUtils.getStaffId());
+		return workMsgBiz.findPage(workMsg);
+	}
+	
+	/**
+	 * 改变我的消息状态
+	 */
+	@Transactional(readOnly = false)
+	public void updateMyWorkMsg(String id) {
+		WorkMsg workMsg = new WorkMsg();
+		workMsg.setId(id);
+		workMsg.setReadState(WorkMsg.READSTATE_1);
+		workMsgBiz.update(workMsg);
+	}
+	
+}

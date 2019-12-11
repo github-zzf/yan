@@ -1,0 +1,26 @@
+package com.junkj.module.base;
+
+import java.text.ParseException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.junkj.module.company.biz.ActivityBiz;
+
+
+@Component
+public class Jobs {
+
+	@Autowired
+	private ActivityBiz activityBiz;
+	
+	
+	
+	//1分钟执行一次
+	@Scheduled(cron = "0 */1 * * * ?")
+	public void cronJob() throws ParseException {
+		// 更新活动状态
+		activityBiz.updateAllStatus();
+	}
+}

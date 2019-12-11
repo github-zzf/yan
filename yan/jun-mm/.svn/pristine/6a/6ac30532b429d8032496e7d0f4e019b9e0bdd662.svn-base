@@ -1,0 +1,68 @@
+package com.junkj.common.utils;
+
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.jfinal.weixin.sdk.api.ApiResult;
+import com.jfinal.weixin.sdk.api.TemplateMsgApi;
+
+/**
+ * 模板消息
+ */
+public class TplMsgUtil {
+
+	protected static Logger logger = LoggerFactory.getLogger(TplMsgUtil.class);
+
+	/**
+	 * 发送模板消息
+	 * 
+	 * @param openId
+	 *            微信openId
+	 * @param url
+	 *            消息跳转连接
+	 * @param code
+	 *            模板编码
+	 * @param data
+	 * @return
+	 */
+	public static void sendMsg(String openId, String url, String code, List<String> data) {
+
+		List<Template> tpls = ComUtils.getCache(code);
+		if (tpls != null) {
+			if (tpls.size() != data.size()) {
+				throw new RuntimeException("模板参数数量应为：" + tpls.size());
+			}
+
+			for (int i = 0; i < tpls.size(); i++) {
+				tpls.get(i).setValue(data.get(i));
+			}
+			String str = getMsg(openId, tpls.get(0).getId(), url, tpls);
+
+			ApiResult apiResult = TemplateMsgApi.send(str);
+			if (apiResult.isSucceed()) {
+				logger.error(apiResult.getErrorMsg());
+			}
+		}
+	}
+
+	public static String getMsg(String openId, String templateId, String url, List<Template> templates) {
+		StringBuffer msgBuf = new StringBuffer("{");
+		msgBuf.append("\"touser\":\"").append(openId).append("\",");
+		msgBuf.append("\"template_id\":\"").append(templateId).append("\",");
+		if (url != null) {
+			msgBuf.append("\"url\":\"").append(url).append("\",");
+		}
+		msgBuf.append("\"topcolor\":\"").append("#333333").append("\",");
+		msgBuf.append("\"data\":{");
+		StringBuffer data = new StringBuffer("");
+		for (Template t : templates) {
+			data.append(t.templateData()).append(",");
+		}
+		msgBuf.append(data.substring(0, data.lastIndexOf(",")));
+		msgBuf.append("}");
+		msgBuf.append("}");
+		return msgBuf.toString();
+	}
+}

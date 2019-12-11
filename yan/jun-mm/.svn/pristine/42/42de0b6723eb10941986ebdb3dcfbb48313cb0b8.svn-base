@@ -1,0 +1,81 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 参数配置实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月17日
+ * @version: 1.0.0
+ */
+@Table(name = "com_config", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "c_name", attrName = "cName"),
+		@Column(name = "c_key", attrName = "cKey"),
+		@Column(name = "c_value", attrName = "cValue"),
+		@Column(name = "c_type", attrName = "cType"),
+		@Column(name = "c_load", attrName = "cLoad"),
+		@Column(name = "remark", attrName = "remark"),
+	}, orderBy = "a.id DESC"
+)
+public class ComConfig extends DataEntity<ComConfig> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String cName; // 参数名称
+	private String cKey; // 参数key
+	private String cValue; // 参数值
+	private String cType; // 参数类型（text/img/json/jsonObj/post/get）
+	private String cLoad; // 自动加载（0否、1是）
+	private String remark; // 参数说明
+
+
+	public String getCName() {
+		return cName;
+	}
+	public void setCName(String cName) {
+		this.cName = cName;
+	}
+
+	public String getCKey() {
+		return cKey;
+	}
+	public void setCKey(String cKey) {
+		this.cKey = cKey;
+	}
+
+	public String getCValue() {
+		return cValue;
+	}
+	public void setCValue(String cValue) {
+		this.cValue = cValue;
+	}
+
+	public String getCType() {
+		return cType;
+	}
+	public void setCType(String cType) {
+		this.cType = cType;
+	}
+
+	public String getCLoad() {
+		return cLoad;
+	}
+	public void setCLoad(String cLoad) {
+		this.cLoad = cLoad;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

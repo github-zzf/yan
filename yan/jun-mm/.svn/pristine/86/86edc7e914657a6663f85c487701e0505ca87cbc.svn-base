@@ -1,0 +1,90 @@
+package com.junkj.module.cms.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 文章表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月18日
+ * @version: 1.0.0
+ */
+@Table(name = "cms_articles", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "type_id", attrName = "typeId"),
+		@Column(name = "sort", attrName = "sort"),
+		@Column(name = "title", attrName = "title"),
+		@Column(name = "body", attrName = "body"),
+		@Column(name = "img", attrName = "img"),
+		@Column(name = "send_time", attrName = "sendTime"),
+		@Column(name = "clicks", attrName = "clicks"),
+	}, orderBy = "a.id DESC"
+)
+public class Articles extends DataEntity<Articles> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String typeId; // 栏目ID
+	private Long sort; // 文章排序
+	private String title; // 文章标题
+	private String body; // 内容
+	private String img; // 封面图片
+	private Date sendTime; // 发布日期
+	private Integer clicks; // 点击次数
+
+
+	public String getTypeId() {
+		return typeId;
+	}
+	public void setTypeId(String typeId) {
+		this.typeId = typeId;
+	}
+
+	public Long getSort() {
+		return sort;
+	}
+	public void setSort(Long sort) {
+		this.sort = sort;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getBody() {
+		return body;
+	}
+	public void setBody(String body) {
+		this.body = body;
+	}
+
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+
+	public Date getSendTime() {
+		return sendTime;
+	}
+	public void setSendTime(Date sendTime) {
+		this.sendTime = sendTime;
+	}
+
+	public Integer getClicks() {
+		return clicks;
+	}
+	public void setClicks(Integer clicks) {
+		this.clicks = clicks;
+	}
+
+}

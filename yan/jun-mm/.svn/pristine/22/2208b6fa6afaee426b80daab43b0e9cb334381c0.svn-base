@@ -1,0 +1,145 @@
+package com.junkj.module.member.entity;
+
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.company.entity.Cards;
+
+/**
+ * 会员卡记录实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "member_card", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "card_id", attrName = "cardId"),
+		@Column(name = "card_name", attrName = "cardName"),
+		@Column(name = "stored_all", attrName = "storedAll"),
+		@Column(name = "stored_num", attrName = "storedNum"),
+		@Column(name = "invalid_time", attrName = "invalidTime"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class) 
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "m", on = "m.id = a.member_id", columns = {
+			@Column(name = "name", attrName = "memberName", queryType = QueryType.LIKE),
+			@Column(name = "phone", attrName = "memberPhone", queryType = QueryType.LIKE) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Cards.class, alias = "c", on = "c.id = a.card_id ", columns = {
+			@Column(name = "type", attrName = "cardsType", queryType = QueryType.EQ),
+			@Column(name = "cards_type_id", attrName = "cardsTypeId", queryType = QueryType.EQ) 
+		})
+	}, orderBy = "a.id DESC"
+)
+public class MemberCard extends DataEntity<MemberCard> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String memberId; // 会员ID
+	private String cardId; // 会员卡id
+	private String cardName; // 会员卡名称
+	private Double storedAll; // 总次数/总余额
+	private Double storedNum; // 目前剩余次/余额
+	private Date invalidTime; // 失效日期
+
+	// 业务字段
+	private String memberName;// 会员姓名
+	private String memberPhone;// 会员电话
+	private String cardsType;// 会员卡类型
+	private String cardsTypeId;// 会员卡类型id
+	
+
+	public String getMemberId() {
+		return memberId;
+	}
+
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getCardId() {
+		return cardId;
+	}
+
+	public void setCardId(String cardId) {
+		this.cardId = cardId;
+	}
+
+	public String getCardName() {
+		return cardName;
+	}
+
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
+	}
+
+	public Double getStoredAll() {
+		return storedAll;
+	}
+
+	public void setStoredAll(Double storedAll) {
+		this.storedAll = storedAll;
+	}
+
+	public Double getStoredNum() {
+		return storedNum;
+	}
+
+	public void setStoredNum(Double storedNum) {
+		this.storedNum = storedNum;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	public Date getInvalidTime() {
+		return invalidTime;
+	}
+
+	public void setInvalidTime(Date invalidTime) {
+		this.invalidTime = invalidTime;
+	}
+
+	public String getMemberName() {
+		return memberName;
+	}
+
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+
+	public String getMemberPhone() {
+		return memberPhone;
+	}
+
+	public void setMemberPhone(String memberPhone) {
+		this.memberPhone = memberPhone;
+	}
+
+	public String getCardsType() {
+		return cardsType;
+	}
+
+	public void setCardsType(String cardsType) {
+		this.cardsType = cardsType;
+	}
+
+	public String getCardsTypeId() {
+		return cardsTypeId;
+	}
+
+	public void setCardsTypeId(String cardsTypeId) {
+		this.cardsTypeId = cardsTypeId;
+	}
+
+}

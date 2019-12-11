@@ -1,0 +1,72 @@
+<div class="xwindow" id="link_saleTeam">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级分类<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_saleTeam_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" placeholder="关键字" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_saleTeam_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_saleTeam_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="demoTree_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkSaleTeam = {
+	callBack:function(row){},
+	init:function(){
+		linkSaleTeam.bind();
+		linkSaleTeam.load();
+	},
+	bind:function(){
+		var sf = $("#link_saleTeam_form").xform();
+		$("#btn_link_saleTeam_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkSaleTeam.table.reload(data);
+		});
+		$("#btn_link_saleTeam_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkSaleTeam.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				linkSaleTeam.table.reload(data);
+	        }
+	    });
+		$('#link_saleTeam').on("click",".js_link_saleTeam_sel", function(btn){
+			var index = btn.xv;
+			var row = linkSaleTeam.table.getRow(index);
+			linkSaleTeam.callBack(row);
+			linkSaleTeam.win.close();
+		});
+	},
+	load:function(){
+		linkSaleTeam.win = $('#link_saleTeam').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"demoTree_tree",
+			url:adminPath + '/list/treeSaleTeamData',
+			click:function(treeId, treeNode){
+				linkSaleTeam.win.close();
+				linkSaleTeam.callBack(treeId, treeNode);
+			}
+		})
+	},
+	open:function(callBack){
+		linkSaleTeam.callBack = callBack;
+		linkSaleTeam.win.open();
+	}
+}
+linkSaleTeam.init();
+</script>

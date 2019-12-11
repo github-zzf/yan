@@ -1,0 +1,49 @@
+<div class="xwindow" id="link_arttype">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级栏目选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_arttype_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" id="link_arttype_search"/>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="arttype_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkArttype = {
+	callBack:function(row){},
+	init:function(){
+		linkArttype.bind();
+		linkArttype.load();
+	},
+	bind:function(){
+		$('#link_arttype').on("click",".js_link_arttype_sel", function(btn){
+			var index = btn.xv;
+			var row = linkArttype.table.getRow(index);
+			linkArttype.callBack(row);
+			linkArttype.win.close();
+		});
+	},
+	load:function(){
+		linkArttype.win = $('#link_arttype').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"arttype_tree",
+			url:adminPath + '/list/treeArttypeData',
+			click:function(treeId, treeNode){
+				linkArttype.win.close();
+				linkArttype.callBack(treeId, treeNode);
+			}
+		})
+		fuzzySearch('arttype_tree','#link_arttype_search',false,true);
+	},
+	open:function(callBack){
+		linkArttype.callBack = callBack;
+		linkArttype.win.open();
+	}
+}
+linkArttype.init();
+</script>

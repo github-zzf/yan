@@ -1,0 +1,136 @@
+<div class="xwindow" id="user_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">
+			导购表单<span class="title_close xclose">X</span>
+		</div>
+		<form class="xform" id="user_form" method="post">
+			<input type="hidden" name="id" />
+			<input type="hidden" name="userType" />
+			<div class="xgroup">
+				<label class="g1">登录帐号<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="username" autocomplete="off" maxlength="20"/>
+				</div>
+				<label class="g1">用户昵称<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="name" autocomplete="off" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+			<label class="g1">密码</label>
+			<div class="g2">
+				<input type="password" name="password" maxlength="20" id="f_password"/>
+			</div>
+			<label class="g1">确认密码</label>
+			<div class="g2">
+				<input type="password" name="passwordAffirm" maxlength="50" id="f_passwordAffirm"/>
+				<div class="error f_rols_error1"></div>
+			</div>
+		  </div>
+			<div class="xgroup">
+				<label class="g1">手机号码</label>
+				<div class="g2">
+					<input type="text" name="phone" autocomplete="off" maxlength="50"/>
+				</div>
+				<label class="g1">电子邮箱</label>
+				<div class="g2">
+					<input type="text" name="email" autocomplete="off" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">QQ</label>
+				<div class="g2">
+					<input type="text" name="qq" autocomplete="off" maxlength="50"/>
+				</div>
+				<label class="g1">微信</label>
+				<div class="g2">
+					<input type="text" name="wx" autocomplete="off" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px" maxlength="500"></textarea>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">导购角色<i>*</i></label>
+				<div class="g2">
+					<div class="select_role_box"></div>
+					<div class="error f_rols_error"></div>
+				</div>
+			</div>
+			<div class="bottombar">
+				<span class="xbtn btn_submit">保存</span><span class="xbtn xclose">取消</span>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#user_win').xwindow({width:700,height:450,open:false});
+app.form = $('#user_form').xform({
+	url : adminPath + '/saleUser/save',
+	xbtn:'.btn_submit',
+	submitBefore:function(){
+		var data=[];
+		$(".role_row").each(function(i,v){
+			var id =$(v).children(".checkbox_role").data("id");
+			if ($(v).children(".checkbox_role").is(':checked')) {
+				data.push(id);
+			}
+		});
+		if (data.length>=1) {
+			var rolesId = data.join(",");
+			app.form.addData({roleIds:rolesId})
+		}else{
+			$(".f_rols_error").html("用户角色不能为空");
+			return false;
+		}
+		var password = $("#f_password").val(); 
+		var passwordAffirm = $("#f_passwordAffirm").val();
+		if(password==passwordAffirm){
+			return true;
+		}
+		else{
+			$(".f_rols_error1").html("输入的密码不一致");
+			return false;
+		}
+		return true;
+	},
+	xcheck:[
+		{label:'登录账号', name:'username', xcheck:'null,min:4,max:20'},
+		{label:'用户昵称', name:'name', xcheck:'null,max:50'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else{
+			$.xalert(e.msg);
+		}
+	}
+});
+$('#btn_add').click(function(){
+	app.form.clear();
+	app.form.setData({userType:'sale'});
+	$(".checkbox_role").prop("checked",false);
+	app.win.open();
+});
+$.xpost({
+	url:adminPath+'/sysRole/listData',
+	data:{userType:'sale'},
+	success:function(e){
+		var html='';
+		$.each(e,function(index,item){
+			html+='<div class="role_row">'
+			html+='<input type="checkbox" class="checkbox_role" data-id='+item.id+' id="check_'+item.id+'">'
+			html+='<label for="check_'+item.id+'" class="check_label" style="margin: 0";>'+item.name+'</label>'
+			html+='</div>'
+			$(".select_role_box").html(html);
+		});
+	}
+})
+
+</script>

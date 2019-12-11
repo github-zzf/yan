@@ -1,0 +1,64 @@
+<div class="xwindow" id="link_cards">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员卡选择&nbsp;&nbsp;<a style="color:#428bca;display: none;" id='link_deleteCardId'>清空会员卡</a><span class="title_close xclose">X</span></div>
+	    <div class="xtable" id="link_cards_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="200px">名称</th>
+					<th width="80px">类型</th>
+					<th width="200px">次数</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{name}</td>
+							<td>{typeName}</td>
+							<td>{num}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_cards_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkCards = {
+	init:function(){
+		linkCards.load();
+		linkCards.bind();
+	},
+	load:function(){
+		linkCards.win = $('#link_cards').xwindow({width:760,height:550,open:false});
+		linkCards.table = $('#link_cards_xtable').xtable({
+			url:adminPath + '/list/listCardsPage',
+			paging:'.link_cards_paging',
+			bodyHeight:440,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_link_user_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	bind:function(){
+		$('#link_cards_xtable').on("click", '.js_link_user_sel', function(){
+			var index = $(this).data("xv");
+			var row = linkCards.table.getRow(index);
+			linkCards.callBack(row);
+			linkCards.win.close();
+		});
+	},
+	open:function(mcId){
+		linkCards.win.open();
+		linkCards.table.reload({mcId:mcId});
+	}
+}
+linkCards.init();
+</script>

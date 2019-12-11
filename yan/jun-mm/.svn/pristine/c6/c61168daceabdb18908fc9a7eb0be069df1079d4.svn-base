@@ -1,0 +1,49 @@
+<div class="xwindow" id="link_goodsType">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级商品选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_goodsType_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" id="link_goodsType_search"/>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="goodsType_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkGoodsType = {
+	callBack:function(row){},
+	init:function(){
+		linkGoodsType.bind();
+		linkGoodsType.load();
+	},
+	bind:function(){
+		$('#link_goodsType').on("click",".js_link_goodsType_sel", function(btn){
+			var index = btn.xv;
+			var row = linkGoodsType.table.getRow(index);
+			linkGoodsType.callBack(row);
+			linkGoodsType.win.close();
+		});
+	},
+	load:function(){
+		linkGoodsType.win = $('#link_goodsType').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"goodsType_tree",
+			url:adminPath + '/list/treeGoodsTypeData',
+			click:function(treeId, treeNode){
+				linkGoodsType.win.close();
+				linkGoodsType.callBack(treeId, treeNode);
+			}
+		})
+		fuzzySearch('goodsType_tree','#link_goodsType_search',false,true);
+	},
+	open:function(callBack){
+		linkGoodsType.callBack = callBack;
+		linkGoodsType.win.open();
+	}
+}
+linkGoodsType.init();
+</script>

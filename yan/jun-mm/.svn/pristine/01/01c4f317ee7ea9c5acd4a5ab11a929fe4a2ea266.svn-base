@@ -1,0 +1,191 @@
+package com.junkj.module.file.biz;
+
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.junkj.common.IdGen.IdGenerate;
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.biz.api.CrudBizApi;
+import com.junkj.common.codec.Md5Utils;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.entity.Page;
+import com.junkj.common.image.ImageUtils;
+import com.junkj.common.utils.PathUtils;
+import com.junkj.module.file.dao.FileUploadDao;
+import com.junkj.module.file.entity.FileEntity;
+import com.junkj.module.file.entity.FileUpload;
+import com.junkj.module.file.entity.FileUploadParams;
+
+@Transactional(readOnly = true)
+public class FileUploadBiz extends CrudBiz<FileUploadDao, FileUpload> implements CrudBizApi<FileUpload> {
+	@Autowired
+	private FileEntityBiz fileEntityBiz;
+	@Autowired
+	private FileUploadBizExtend fileUploadBizExtend;
+
+	@Transactional(readOnly = false)
+	public FileUpload uploadFile(FileUploadParams params) {
+		MultipartFile file = params.getFile();
+
+		FileEntity entity = new FileEntity();
+		entity.setFileMd5(Md5Utils.md5File(file));
+		entity = fileEntityBiz.getByMd5(entity);
+
+		String fileName = file.getOriginalFilename();
+		String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+		String filePath = PathUtils.getDatePath();
+		String fileDir = Global.getUploadPath(filePath);
+		String fileId = IdGenerate.nextId();
+		String idDir  = fileDir.concat(fileId).concat(".").concat(fileExt);
+		String contentType = file.getContentType();
+		if (entity.getStatus().equals("1")) {
+			try {
+				File dirFile = new File(fileDir);
+				if (!dirFile.exists()) {
+					dirFile.mkdirs();
+				}
+				
+				// 设置mate
+				Map<String, Object> mate = MapUtils.newHashMap();
+				BufferedImage bufferedImage = ImageIO.read(file.getInputStream()); 
+				if (bufferedImage != null) {
+					Integer width = bufferedImage.getWidth();
+					Integer height = bufferedImage.getHeight();
+					mate.put("width", width);
+					mate.put("height", height);
+				}
+				entity.setFileMetaMap(mate);
+				
+
+				// 复制文件
+				file.transferTo(new File(idDir));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			entity.setFileId(fileId);
+			entity.setFilePath(filePath);
+			entity.setFileType(contentType);
+			entity.setFileExtension(fileExt);
+			entity.setFileSize(file.getSize());
+			fileEntityBiz.insert(entity);
+		}
+
+
+		FileUpload upload = newEntity();
+		upload.setFileName(fileName);
+		upload.setFileType(contentType.split("/")[0]);
+		upload.setFileEntity(entity);
+		save(upload);
+
+		return upload;
+	}
+
+	@Transactional(readOnly = false)
+	public void uploadFile(MultipartFile[] files, String bizId, String bizType) {
+
+		for (MultipartFile file : files) {
+			
+			FileEntity entity = new FileEntity();
+			entity.setFileMd5(Md5Utils.md5File(file));
+			entity = fileEntityBiz.getByMd5(entity);
+			
+			String fileName = file.getOriginalFilename();
+			String fileExt = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+			String filePath = PathUtils.getDatePath();
+			String fileDir = Global.getUploadPath(filePath);
+			String fileId = IdGenerate.nextId();
+			String idDir  = fileDir.concat(fileId).concat(".").concat(fileExt);
+			String contentType = file.getContentType();
+			if (entity.getStatus().equals("1")) {
+				try {
+					File dirFile = new File(fileDir);
+					if (!dirFile.exists()) {
+						dirFile.mkdirs();
+					}
+					
+					// 设置mate
+					Map<String, Object> mate = MapUtils.newHashMap();
+					BufferedImage bufferedImage = ImageIO.read(file.getInputStream()); 
+					if (bufferedImage != null) {
+						Integer width = bufferedImage.getWidth();
+						Integer height = bufferedImage.getHeight();
+						mate.put("width", width);
+						mate.put("height", height);
+					}
+					entity.setFileMetaMap(mate);
+					
+					
+					// 复制文件
+					file.transferTo(new File(idDir));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				entity.setFileId(fileId);
+				entity.setFilePath(filePath);
+				entity.setFileType(contentType);
+				entity.setFileExtension(fileExt);
+				entity.setFileSize(file.getSize());
+				fileEntityBiz.insert(entity);
+			}
+
+
+			FileUpload upload = newEntity();
+			upload.setBizId(bizId);
+			upload.setBizType(bizType);
+			upload.setFileName(fileName);
+			upload.setFileType(contentType.split("/")[0]);
+			upload.setFileEntity(entity);
+			save(upload);
+		}
+	}
+
+	@Transactional(readOnly = false)
+	public void delete(FileUpload fileUpload) {
+		super.delete(fileUpload);
+	}
+
+	@Transactional(readOnly = false)
+	public void updateStatus(FileUpload fileUpload) {
+		this.updateStatus(fileUpload);
+	}
+
+	@Transactional(readOnly = false)
+	public void save(FileUpload fileUpload) {
+		super.save(fileUpload);
+	}
+
+	public Page<FileUpload> findPage(FileUpload fileUpload) {
+		return super.findPage(fileUpload);
+	}
+
+	public FileUpload get(FileUpload fileUpload) {
+		return super.get(fileUpload);
+	}
+
+	public void compressImage(FileUploadParams params, File imageFile) {
+		if (!"image".equals(params.getUploadType())) {
+			return;
+		}
+		ImageUtils.thumbnails(imageFile, params.getImageMaxWidth().intValue(), params.getImageMaxHeight().intValue(),
+				null);
+	}
+
+	public FileUploadBizExtend getFileUploadServiceExtend() {
+		return this.fileUploadBizExtend;
+	}
+
+	public String getFileUrl(FileUpload file) {
+		if(file.getFileEntity()!=null){
+			
+		}
+		return null;
+	}
+}

@@ -1,0 +1,89 @@
+<div class="xwindow" id="gift_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">积分商品表单</div>
+		<form class="xform" id="gift_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">礼物类别<i>*</i></label>
+				<div class="g2"><input type="text" name="giftTypeId" id="f_giftTypeId1"/></div>
+				<input type="hidden" name="parentId" id="f_parentId"/>
+			</div>
+			<div class="xgroup">
+				<label class="g1">名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">所需积分<i>*</i></label>
+				<div class="g2"><input type="text" name="points"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">数量<i>*</i></label>
+				<div class="g2"><input type="text" name="num"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1" >封面图片<i>*</i></label>
+				<div class="g2" style="width:550px">
+			        <div id="uploader" class="webuploader" biztype="demoBase_image">
+		                <div class="statusBar" style="display:none;">
+		                    <div class="progress">
+		                        <span class="text">0%</span>
+		                        <span class="percentage"></span>
+		                    </div><div class="info"></div>
+		                    <div class="btns">
+		                        <div id="filePicker2"></div>
+		                    </div>
+		                </div>
+		                <div class="queueList">
+		                    <div id="dndArea" class="placeholder">
+		                        <div id="filePicker"></div>
+		                        <p>或将照片拖到这里，单次最多可选300张</p>
+		                    </div>
+		                </div>
+			        </div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">描述<i>*</i></label>
+				<div class="g2"><input type="text" name="content"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#gift_win').xwindow({width:700,height:600,open:false});
+app.form = $('#gift_form').xform({
+	url : adminPath + '/gift/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'礼物类别', name:'giftTypeId', xcheck:'null'},
+		{label:'名称', name:'name', xcheck:'null'},
+		{label:'所需积分', name:'points', xcheck:'null'},
+		{label:'数量', name:'num', xcheck:'null'},
+		{label:'描述', name:'content', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+$("#f_giftTypeId1").click(function(){
+	linkGiftType.open(function(treeId, treeNode){
+		$("#f_giftTypeId1").val(treeNode.name);
+		$("#f_parentId").val(treeNode.id);
+	})
+});
+</script>

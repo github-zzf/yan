@@ -1,0 +1,101 @@
+package com.junkj.module.base;
+
+import java.text.ParseException;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.TplMsgUtils;
+import com.junkj.module.company.biz.ActivityBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.biz.WorkMsgBiz;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.statistics.dao.StatisticsDao;
+import com.junkj.module.sys.biz.SysComProductBiz;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+@Component
+public class Jobs {
+
+	@Autowired
+	private ActivityBiz activityBiz;
+	@Autowired
+	private StatisticsDao statisticsDao;
+	@Autowired
+	private WorkMsgBiz workMsgBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+	@Autowired
+	private SysComProductBiz sysComProductBiz;
+
+	// 1分钟执行一次
+	@Scheduled(cron = "0 */1 * * * ?")
+	public void cronJob() throws ParseException {
+		// 更新活动状态
+		activityBiz.updateAllStatus();
+	}
+
+	// 每天统计通知(每天21点执行一次)
+//	@Scheduled(cron = "0 0 21 * * ?")
+	@Scheduled(cron = "*/60 * * * * ?")
+	public void dayStatisticsJob() throws ParseException {
+		List<WorkMsg> list = statisticsDao.dayStatisticsJob();
+		if (list != null) {
+			list.forEach(workMsg -> {
+				workMsg.setUrl("/pages/achieve/statistics");
+				workMsgBiz.save(workMsg);
+
+				// 微信模板消息：每日统计
+				WxUser wxUser = wxUserBiz.getByStaffId(workMsg.getUserId());
+				if (wxUser != null && StrUtils.notBlank(wxUser.getOpenid())) {
+					String text = workMsg.getContent().replace("<br/>", "\\n");
+					List<String> data = ListUtils.newArrayList();
+					data.add(workMsg.getTitle());
+					data.add(DateUtils.format(workMsg.getCreateTime(), "yyyy-MM-dd HH:mm"));
+					data.add(text);
+					data.add("今天又是愉快的一天！");
+					String url = "http://" +workMsg.getComId()+"."+ Global.mobileUri()+"/staff/infoMsg?id="+workMsg.getId();
+					TplMsgUtils.sendMsg(workMsg.getComId(), wxUser.getOpenid(), url, TplMsgUtils.TPL_10, data);
+				}
+			});
+		}
+	}
+
+	// 评价通知(每天20点执行一次)
+	@Scheduled(cron = "0 0 20 * * ?")
+//	@Scheduled(cron = "*/60 * * * * ?")
+	public void pingjia() throws ParseException {
+		List<CourseEnroll> list = courseEnrollBiz.findPingjia();
+		if (list != null) {
+			list.forEach(enroll -> {
+				// 微信模板消息：评价通知
+				if (StrUtils.notBlank(enroll.getOpenId())) {
+					List<String> data = ListUtils.newArrayList();
+					data.add("您还未对以下课程进行评价");
+					data.add(enroll.getCourseName());
+					data.add(DateUtils.format(enroll.getCourseDate()) + DateUtils.format(enroll.getEndTime()," HH:mm"));
+					data.add("服务老师：" + enroll.getTeacherName());
+					String url = "http://" +enroll.getComId()+"."+ Global.mobileUri()+"/mobile#/pages/nav/service/service?type=my";
+					TplMsgUtils.sendMsg(enroll.getComId(), enroll.getOpenId(), url, TplMsgUtils.TPL_7, data);
+				}
+			});
+		}
+	}
+	
+	// 产品过期发送消息
+	@Scheduled(cron = "0 0 20 * * ?")
+//	@Scheduled(cron = "*/2 * * * * ?")
+	public void newsSysComProduct() throws ParseException {
+		sysComProductBiz.newsSysComProduct();
+	}
+}

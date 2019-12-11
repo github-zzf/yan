@@ -1,0 +1,167 @@
+<div class="xwindow" id="sysComOrders_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">订单管理表单</div>
+		<form class="xform" id="sysComOrders_form" method="post" autocomplete="off" style="overflow-y:auto; height: 490px;>			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业名称<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="companyName" id="f_comName"/>
+					<input type="hidden" name="comIds" id="f_comId"/> 
+				</div>
+			</div> 
+			<div class="xgroup">
+				<label class="g1">应付金额<i>*</i></label>
+				<div class="g2"><input type="text" style="background-color: #ccc;" name="money" readonly="readonly" id ="yf_money"/></div>
+				<label class="g1">实付金额<i>*</i></label>
+				<div class="g2"><input type="text" name="payMoney"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">支付方式<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="payType" value="1" checked="checked">现金&nbsp;&nbsp;
+					<input type="radio" name="payType" value="2">微信&nbsp;&nbsp;
+					<input type="radio" name="payType" value="3">支付宝&nbsp;&nbsp;
+					<input type="radio" name="payType" value="4">刷卡&nbsp;&nbsp;		
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2"><input type="text" name="remark" style="width:530px"/></div>
+			</div>
+			<div class="xgroup" style="width:100%">
+				<table class="xtable" id="demoItem_xtable" style="width:100%">
+					<tr>
+						<th width="40px">序号</th>
+						<th width="135px">产品名称</th>
+						<th width="135px">单价</th>
+						<th width="135px">数量</th>
+						<th width="135px">总价</th>
+						<th class="js_edit_btn"><a class='edit_add fVoucher_edit_add'>添加</a></th>
+					</tr>
+					<tbody class="xtemplate">
+						<tr class="{isEdit} r_{index}">
+							<td>{no}</td>
+							<td style="display:none" data-edit="{name:'id',type:'text'}">{id}</td>
+							<td data-edit="{name:'productName',type:'text',cls:'js_productName'}">{productName}</td>
+							<td style="display:none; " data-edit="{name:'productId',type:'text',cls:'js_productId'}">{productId}</td>
+							<td data-edit="{name:'price',type:'text',link:'js_price'}">{price}</td>
+							<td data-edit="{name:'num',type:'text',cls:'js_num'}">{num}</td>
+							<td data-edit="{name:'money',type:'text',link:'js_money'}">{money}</td>
+							<td class="js_td"><a class='edit_delete fVoucher_edit_delete'>删除</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysComOrders_win').xwindow({width:700,height:550,open:false});
+app.form = $('#sysComOrders_form').xform({
+	url : adminPath + '/sysComOrders/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'应付金额', name:'money', xcheck:'null'},
+		{label:'支付方式', name:'payType', xcheck:'null'},
+		{label:'实付金额', name:'payMoney', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	},
+	submitBefore:function(){
+		var tt = true;
+		$(".js_num").each(function(index, item){
+			var ths = $(this);
+			var val = ths.val();
+			val = isNaN(val) ? 0 : val;
+			var td = ths.parent();
+			var tr = td.parent();
+			var index = tr.attr("class").split("_")[1];
+			var row = app.editTable.getRow(index);
+			if(row.status!='9' && val == 0){
+				$.xalert("数量不能为0!");
+				tt = false;
+				return false;
+			}
+		});
+		return tt;
+	}
+});
+app.editTable = $('#demoItem_xtable').xtable({
+	url:adminPath + '/sysComOrders/listSysComOrdersProduct',
+	attrName:'sysComOrdersProduct',
+	load:false,
+	edit:true,
+	xnodata:'',
+	bodyHeight:250,
+	format:function(row){
+	},
+	editSaveBack:function(row){
+		sumMoney(null);
+	},
+	editDelBack:function(row){
+		sumMoney(null);
+	}
+});
+//商品ID
+$('#demoItem_xtable').on('click', '.js_productName', function(){
+	var td = $(this).parent();
+	var tr = td.parent();
+	product.callBack = function(data) {
+		tr.find(".js_productId").val(data.id);
+		tr.find(".js_productName").val(data.name);
+		tr.find(".js_price").val(data.price);
+		tr.find(".js_num").val(1);
+		sumMoney(tr);
+	}
+	product.open();
+});
+var sumMoney = function(tr){
+	if(tr != null && typeof(tr) != "undefined"){
+		var price = tr.find(".js_price").val();
+		var num = tr.find(".js_num").val();
+		var money = price * num;
+		tr.find(".js_money").val(money);
+	};
+	var yfMoney = 0;
+	$(".js_money").each(function(index, item){
+		var ths = $(this);
+		var val = ths.val();
+		val = isNaN(val) ? 0 : val;
+		var td = ths.parent();
+		var tr = td.parent();
+		var index = tr.attr("class").split("_")[1];
+		var row = app.editTable.getRow(index);
+		if(row.status!='9'){
+			yfMoney = Number(yfMoney) + Number(val);
+		}
+	});
+	$("#yf_money").val(yfMoney);
+}
+//企业ID
+$("#f_comName").click(function(){
+	linkSysCompany.callBack = function(row) {
+		$("#f_comName").val(row.comName);
+		$("#f_comId").val(row.id);
+	};
+	linkSysCompany.open();
+}); 
+//商品ID
+$('#demoItem_xtable').on('input propertychange', '.js_num', function(){
+	var td = $(this).parent();
+	var tr = td.parent();
+	sumMoney(tr);
+});
+
+</script>

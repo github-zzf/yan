@@ -1,0 +1,240 @@
+package com.junkj.module.web.action;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.codec.Md5Utils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.cms.entity.Articles;
+import com.junkj.module.company.biz.StaffNoticeSettingBiz;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.StaffNoticeSetting;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.dao.ComboDao;
+import com.junkj.module.sys.entity.SysUser;
+import com.junkj.module.web.biz.StaffApiBiz;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 员工端action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${staffPath}")
+public class StaffApiAction extends BaseAction {
+
+	@Autowired
+	private StaffApiBiz staffApiBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+	@Autowired
+	private SysUserBiz sysUserBiz;
+	@Autowired
+	private ComboDao comboDao;
+	@Autowired
+	private StaffNoticeSettingBiz staffNoticeSettingBiz;
+
+	/*******************************************************
+	 * 工作台
+	 */
+	/**
+	 * 评价签到完成数量
+	 */
+	@RequestMapping(value = "infoWorkNum", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoWorkNum() {
+		return staffApiBiz.infoWorkNum();
+	}
+
+	/**
+	 * 我的课程
+	 */
+	@RequestMapping(value = "listMyCourse", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourse(Course course) {
+		return staffApiBiz.listMyCourse(course);
+	}
+
+	/**
+	 * 我的课程id
+	 */
+	@RequestMapping(value = "infoMyCourseById", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyCourseById(String id) {
+		return staffApiBiz.infoMyCourseById(id);
+	}
+
+	/**
+	 * 我的课程member
+	 */
+	@RequestMapping(value = "listMyCourseMember", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourseMember(CourseEnroll courseEnroll) {
+		return staffApiBiz.listMyCourseMember(courseEnroll);
+	}
+
+	/**
+	 * 我的课程评价
+	 */
+	@RequestMapping(value = "listMyCourseComplete", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourseComplete(CourseEnroll courseEnroll) {
+		return staffApiBiz.listMyCourseComplete(courseEnroll);
+	}
+
+	/**
+	 * 我的请假
+	 */
+	@RequestMapping(value = "listMyLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyLeave(Leave leave) {
+		return staffApiBiz.listMyLeave(leave);
+	}
+
+	/**
+	 * 我的请假详情
+	 */
+	@RequestMapping(value = "infoMyLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyLeave(Leave leave) {
+		return staffApiBiz.infoMyLeave(leave);
+	}
+
+	/**
+	 * 我的请假取消
+	 */
+	@RequestMapping(value = "updateLeaveIsCancel", method = RequestMethod.GET)
+	@ResponseBody
+	public void updateLeaveIsCancel(Leave leave) {
+		staffApiBiz.updateLeaveIsCancel(leave);
+	}
+
+	/**
+	 * 请假类型
+	 */
+	@RequestMapping(value = "infoLeaveType", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoLeaveType() {
+		return comboDao.findBeanTypeLabel(Leave.LEAVE_TYPE);
+	}
+
+	/**
+	 * 申请请假
+	 */
+	@RequestMapping(value = "saveLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveLeave(Leave leave) {
+		StaffNoticeSetting where = new StaffNoticeSetting();
+		where.setLeaveMsg(StaffNoticeSetting.TYPE_0);
+		List<StaffNoticeSetting> list = staffNoticeSettingBiz.findList(where);
+		if(list.size() <= 0){
+			return sendError("请设置审批人!");
+		}
+		staffApiBiz.saveLeave(leave);
+		return sendOk();
+	}
+	
+	/**
+	 * 请假审核
+	 */
+	@RequestMapping(value = "updateLeaveCheck", method = RequestMethod.GET)
+	@ResponseBody
+	public void updateLeaveCheck(String id, String type, String content) {
+		staffApiBiz.updateLeaveCheck(id, type, content);
+	}
+
+	/**
+	 * 我的业绩
+	 */
+	@RequestMapping(value = "infoAchieve", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoAchieve(String date) {
+		return staffApiBiz.infoAchieve(date);
+	}
+
+	/**
+	 * 员工通知
+	 */
+	@RequestMapping(value = "pageStaffArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageStaffArticles(Articles articles) {
+		return staffApiBiz.pageStaffArticles(articles);
+	}
+
+	/**
+	 * 员工通知详情
+	 */
+	@RequestMapping(value = "infoStaffArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoStaffArticles(String id) {
+		return staffApiBiz.infoStaffArticles(id);
+	}
+
+	/**
+	 * 我的消息
+	 */
+	@RequestMapping(value = "pageMyWorkMsg", method = RequestMethod.GET)
+	@ResponseBody
+	public Object pageMyWorkMsg(Integer pageNum,Integer pageSize) {
+		return staffApiBiz.pageMyWorkMsg(pageNum, pageSize);
+	}
+
+	/**
+	 * 改变我的消息状态
+	 */
+	@RequestMapping(value = "updateMyWorkMsg", method = RequestMethod.GET)
+	@ResponseBody
+	public void updateMyWorkMsg(String id) {
+		staffApiBiz.updateMyWorkMsg(id);
+	}
+
+	/**
+	 * 登陆验证
+	 */
+	@RequestMapping(value = "staffLogin", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonVo loginPost(HttpServletRequest request, String username, String password) {
+		if (username == null || "".equals(username)) {
+			return sendError("用户名不能为空");
+		}
+		if (password == null || "".equals(password)) {
+			return sendError("密码不能为空");
+		}
+		SysUser user = sysUserBiz.getByComUser(ComUtils.getCurrentComId(), username, SysUser.USER_TYPE_STAFF);
+		if (user == null || !SysUser.STATUS_NORMAL.equals(user.getStatus())) {
+			return sendError(2, "密码错误");
+		}
+		if (!user.getPassword().equals(Md5Utils.md5Salt(password, user.getUsername()))) {
+			return sendError(2, "密码错误");
+		}
+		// 登录检查
+		WxUser u = wxUserBiz.getByStaffId(user.getId());
+		if (u != null) {
+			return sendError(2, "账号已登录，请先退出登录");
+		}
+
+		WxUser wxUser = MemberUtils.getWxUser();
+		wxUser.setStaffId(user.getId());
+		wxUserBiz.update(wxUser);
+
+		return sendOk();
+	}
+
+}

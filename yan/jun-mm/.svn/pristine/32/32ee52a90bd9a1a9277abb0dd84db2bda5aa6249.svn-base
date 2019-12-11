@@ -1,0 +1,65 @@
+<div class="xwindow" id="sysCompany_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">企业表单</div>
+		<form class="xform" id="sysCompany_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">联系人<i>*</i></label>
+				<div class="g2"><input type="text" name="contacts"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">联系电话<i>*</i></label>
+				<div class="g2"><input type="text" name="phone"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">经度<i>*</i></label>
+				<div class="g2"><input type="text" name="x"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">纬度<i>*</i></label>
+				<div class="g2"><input type="text" name="y"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">行政区<i>*</i></label>
+				<div class="g2"><input type="text" name="areaId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">详细地址<i>*</i></label>
+				<div class="g2"><input type="text" name="address"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysCompany_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysCompany_form').xform({
+	url : adminPath + '/sysCompany/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'联系人', name:'contacts', xcheck:'null'},
+		{label:'联系电话', name:'phone', xcheck:'null'},
+		{label:'经度', name:'x', xcheck:'null'},
+		{label:'纬度', name:'y', xcheck:'null'},
+		{label:'行政区', name:'areaId', xcheck:'null'},
+		{label:'详细地址', name:'address', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

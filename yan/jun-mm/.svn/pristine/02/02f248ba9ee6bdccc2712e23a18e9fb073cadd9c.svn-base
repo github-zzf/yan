@@ -1,0 +1,40 @@
+<div class="xwindow" id="staffNoticeSetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">通知设置表单</div>
+		<form class="xform" id="staffNoticeSetting_form" method="post" autocomplete="off">			
+			<input type="hidden" name="userId"/>
+			<div class="xgroup">
+				<label class="g1">预约通知(0不通知、1通知)<i>*</i></label>
+				<div class="g2"><input type="text" name="enrollMsg"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">统计通知(0不通知、1通知)<i>*</i></label>
+				<div class="g2"><input type="text" name="censusMsg"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#staffNoticeSetting_win').xwindow({width:500,height:350,open:false});
+app.form = $('#staffNoticeSetting_form').xform({
+	url : adminPath + '/staffNoticeSetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'预约通知(0不通知、1通知)', name:'enrollMsg', xcheck:'null'},
+		{label:'统计通知(0不通知、1通知)', name:'censusMsg', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

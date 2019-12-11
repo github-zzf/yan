@@ -1,0 +1,49 @@
+<div class="xwindow" id="link_saleTeam">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级导购选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_saleTeam_form">
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" id="link_saleTeam_search"/>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="saleTeam_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkSaleTeam = {
+	callBack:function(row){},
+	init:function(){
+		linkSaleTeam.bind();
+		linkSaleTeam.load();
+	},
+	bind:function(){
+		$('#link_saleTeam').on("click",".js_link_saleTeam_sel", function(btn){
+			var index = btn.xv;
+			var row = linkSaleTeam.table.getRow(index);
+			linkSaleTeam.callBack(row);
+			linkSaleTeam.win.close();
+		});
+	},
+	load:function(){
+		linkSaleTeam.win = $('#link_saleTeam').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"saleTeam_tree",
+			url:adminPath + '/list/treeSaleTeamData',
+			click:function(treeId, treeNode){
+				linkSaleTeam.win.close();
+				linkSaleTeam.callBack(treeId, treeNode);
+			}
+		})
+		fuzzySearch('saleTeam_tree','#link_saleTeam_search',false,true);
+	},
+	open:function(callBack){
+		linkSaleTeam.callBack = callBack;
+		linkSaleTeam.win.open();
+	}
+}
+linkSaleTeam.init();
+</script>

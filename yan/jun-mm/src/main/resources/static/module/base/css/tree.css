@@ -1,0 +1,124 @@
+.main_box {
+	position: absolute;
+	top: 71px;
+	left: 15px;
+	right: 15px;
+	bottom: 15px
+}
+
+.tree_box {
+	width: 320px;
+	background: #fafafa;
+	border: 1px solid #ddd;
+	overflow: auto;
+	padding: 0;
+	position: absolute;
+	top: 40px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	color: #666;
+}
+
+.tree_box .file-txt {
+	background-position: -98px -62px;
+}
+
+.data_box {
+	padding-left: 330px;
+}
+
+.xfilter {
+	width: 15px;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	border-left: 1px solid #e1e6eb;
+	cursor: pointer;
+}
+
+.xfilter .xshow {
+	position: absolute;
+	top: 45%;
+	right: 1px;
+	display: inline-block;
+	width: 0;
+	height: 0;
+	border-left: 6px solid transparent;
+	border-right: 6px solid transparent;
+	content: "";
+	border-top: 6px solid #919191;
+}
+
+.search_box {
+	margin-bottom: 15px;
+}
+
+.col_menu .xcombo {
+	width: 50px;
+	float: left;
+}
+
+.col_menu .xinput {
+	width: 110px;
+	margin-left: -1px;
+	float: left;
+}
+
+.col_menu .xbtn {
+	padding: 5px;
+	width: 40px;
+}
+
+.col_menu {
+	width: 210px;
+	background-color: #fff;
+	font-size: 12px;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none;
+	z-index: 3000
+}
+
+.btn_tree_close {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 322px;
+	height: 40px;
+	line-height: 40px; 
+	text-align: center;
+	color: #fff;
+	cursor: pointer;
+	background: #373a5e;
+}
+
+.close .tree_box {
+	display: none;
+}
+
+.close .data_box {
+	padding-left: 20px;
+}
+
+.close .btn_tree_close {
+	width: 17px;
+}
+
+.ent_info{
+	width:100%;
+	border-collapse:collapse; 
+	border:1px solid #ddd;
+}
+.ent_info td{
+	padding: 10px;
+	border:1px solid #ddd;
+}
+.ent_info .lable{
+	width:80px;
+	text-align:right;
+	background: #eee;
+}

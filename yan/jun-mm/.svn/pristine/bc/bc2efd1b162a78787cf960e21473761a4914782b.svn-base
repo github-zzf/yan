@@ -1,0 +1,101 @@
+<!-- 会员选择 -->
+<div class="xwindow" id="goods">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="goods_form">
+			<div class="xgroup">
+				<input type="text" name="id" class="xw2" autocomplete="off" placeholder="商品名" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_goods_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_goods_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="goods_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="80px">商品ID</th>
+					<th width="80px">商品名</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{id}</td>
+							<td>{name}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="goods_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var goods = {
+	callBack:function(row){},
+	init:function(){
+		goods.loadWin();
+		goods.loadTable();
+		goods.bindSearch();
+		goods.bindSelect();
+	},
+	bindSearch:function(){
+		var sf = $("#goods_form").xform();
+		$("#btn_goods_search").xbtn(function(btn){
+			var data = sf.getData();
+			goods.table.reload(data);
+		});
+		$("#btn_goods_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			goods.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				goods.table.reload(data);
+	        }
+	    });
+	},
+	loadWin:function(){
+		goods.win = $('#goods').xwindow({width:500,height:550,open:false});
+	},
+	loadTable:function(){
+		goods.table = $('#goods_xtable').xtable({
+			url:adminPath + '/goods/listPage',
+			paging:'.goods_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_goods_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	bindSelect:function(){
+		$('#goods_xtable').on("click", '.js_goods_sel', function(){
+			var index = $(this).data("xv");
+			var row = goods.table.getRow(index);
+			goods.callBack(row);
+			goods.win.close();
+		});
+	},
+	open:function(){
+		goods.win.open();
+		goods.table.reload();
+	}
+}
+goods.init();
+</script>

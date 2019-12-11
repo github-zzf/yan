@@ -1,0 +1,135 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 消息通知实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月23日
+ * @version: 1.0.0
+ */
+@Table(name = "work_msg", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "user_id", attrName = "userId"),
+		@Column(name = "style", attrName = "style"),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "url", attrName = "url"),
+		@Column(name = "title", attrName = "title"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "read_state", attrName = "readState"),
+		@Column(name = "check_user", attrName = "checkUser"),
+		@Column(name = "check_state", attrName = "checkState"),
+		@Column(name = "check_remark", attrName = "checkRemark"),
+		@Column(name = "check_time", attrName = "checkTime"),
+	}, orderBy = "a.id DESC"
+)
+public class WorkMsg extends DataEntity<WorkMsg> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String userId; // 员工id
+	private String style; // 类型（1通知、2审批）
+	private String bizId; // 关联业务id
+	private String bizType; // 分类（1预约通知、21请假审批）
+	private String url; // 连接地址
+	private String title; // 标题
+	private String content; // 内容
+	private String readState; // 阅读状态（0未读取、1已读取）
+	private String checkUser; // 审批人
+	private String checkState; // 审批状态（1待审批、2审批拒绝、3审批通过）
+	private String checkRemark; // 审批意见
+	private Date checkTime; // 审批时间
+
+
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getStyle() {
+		return style;
+	}
+	public void setStyle(String style) {
+		this.style = style;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public String getReadState() {
+		return readState;
+	}
+	public void setReadState(String readState) {
+		this.readState = readState;
+	}
+
+	public String getCheckUser() {
+		return checkUser;
+	}
+	public void setCheckUser(String checkUser) {
+		this.checkUser = checkUser;
+	}
+
+	public String getCheckState() {
+		return checkState;
+	}
+	public void setCheckState(String checkState) {
+		this.checkState = checkState;
+	}
+
+	public String getCheckRemark() {
+		return checkRemark;
+	}
+	public void setCheckRemark(String checkRemark) {
+		this.checkRemark = checkRemark;
+	}
+
+	public Date getCheckTime() {
+		return checkTime;
+	}
+	public void setCheckTime(Date checkTime) {
+		this.checkTime = checkTime;
+	}
+
+}

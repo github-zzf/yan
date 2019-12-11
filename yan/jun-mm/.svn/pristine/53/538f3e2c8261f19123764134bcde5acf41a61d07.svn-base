@@ -1,0 +1,65 @@
+<div class="xwindow" id="giftExchange_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">商品兑换记录表单</div>
+		<form class="xform" id="giftExchange_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">企业<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">会员<i>*</i></label>
+				<div class="g2"><input type="text" name="memberId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">积分商品<i>*</i></label>
+				<div class="g2"><input type="text" name="giftId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">积分商品名称<i>*</i></label>
+				<div class="g2"><input type="text" name="giftName"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">积分商品数量<i>*</i></label>
+				<div class="g2"><input type="text" name="giftNum"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">兑换积分数<i>*</i></label>
+				<div class="g2"><input type="text" name="giftPoints"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">商品图片<i>*</i></label>
+				<div class="g2"><input type="text" name="giftImg"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#giftExchange_win').xwindow({width:500,height:350,open:false});
+app.form = $('#giftExchange_form').xform({
+	url : adminPath + '/giftExchange/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'企业', name:'comId', xcheck:'null'},
+		{label:'会员', name:'memberId', xcheck:'null'},
+		{label:'积分商品', name:'giftId', xcheck:'null'},
+		{label:'积分商品名称', name:'giftName', xcheck:'null'},
+		{label:'积分商品数量', name:'giftNum', xcheck:'null'},
+		{label:'兑换积分数', name:'giftPoints', xcheck:'null'},
+		{label:'商品图片', name:'giftImg', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

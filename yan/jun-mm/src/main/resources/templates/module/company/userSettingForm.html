@@ -1,0 +1,80 @@
+<div class="xwindow" id="userSetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">企业用户设置表单</div>
+		<form class="xform" id="userSetting_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1"><i>*</i></label>
+				<div class="g2"><input type="text" name="entUserId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">提成比例<i>*</i></label>
+				<div class="g2"><input type="text" name="ratio"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">课时奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="bonus"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">一星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star1"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">二星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star2"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">三星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star3"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">四星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star4"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">五星奖金<i>*</i></label>
+				<div class="g2"><input type="text" name="star5"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">预约通知(0不通知、1通知)<i>*</i></label>
+				<div class="g2"><input type="text" name="enrollMsg"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">统计通知(0不通知、1通知)<i>*</i></label>
+				<div class="g2"><input type="text" name="censusMsg"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#userSetting_win').xwindow({width:500,height:350,open:false});
+app.form = $('#userSetting_form').xform({
+	url : adminPath + '/userSetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'', name:'entUserId', xcheck:'null'},
+		{label:'提成比例', name:'ratio', xcheck:'null'},
+		{label:'课时奖金', name:'bonus', xcheck:'null'},
+		{label:'一星奖金', name:'star1', xcheck:'null'},
+		{label:'二星奖金', name:'star2', xcheck:'null'},
+		{label:'三星奖金', name:'star3', xcheck:'null'},
+		{label:'四星奖金', name:'star4', xcheck:'null'},
+		{label:'五星奖金', name:'star5', xcheck:'null'},
+		{label:'预约通知(0不通知、1通知)', name:'enrollMsg', xcheck:'null'},
+		{label:'统计通知(0不通知、1通知)', name:'censusMsg', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

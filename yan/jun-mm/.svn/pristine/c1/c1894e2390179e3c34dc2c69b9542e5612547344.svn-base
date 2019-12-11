@@ -1,0 +1,112 @@
+package com.junkj;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistration;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
+
+import com.jagregory.shiro.freemarker.ShiroTags;
+import com.jfinal.weixin.sdk.api.ApiConfig;
+import com.jfinal.weixin.sdk.api.ApiConfigKit;
+import com.junkj.common.config.Global;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.log.LogInterceptor;
+import com.junkj.common.mybatis.interceptor.SqlInterceptor;
+import com.junkj.common.utils.ConfigUtils;
+import com.junkj.common.utils.JsonUtils;
+
+@Configuration
+public class WebConfig extends WebMvcConfigurationSupport {
+
+	@Autowired
+	private freemarker.template.Configuration configuration;
+	
+	/**
+	 * freemarker全局变量
+	 */
+	@PostConstruct
+	public void setConfigure() throws Exception {
+		configuration.setSharedVariable("v", ConfigUtils.getSysValByKey("V"));
+		configuration.setSharedVariable("isSaas", Global.isSaas().toString());
+		configuration.setSharedVariable("adminPath", Global.getAdminPath());
+		configuration.setSharedVariable("shiro", new ShiroTags());
+		if(Global.isDev()){
+			configuration.setSharedVariable("devUser", "admin");
+			configuration.setSharedVariable("devPass", "admin");
+		}
+		
+		ApiConfig ac = new ApiConfig();
+        ac.setAppId("wxd36462528b3882d3");
+        ac.setAppSecret("843c4b6adc36368d354461e89eea4e50");
+        ApiConfigKit.putApiConfig(ac);
+	}
+
+	/**
+	 * 路径转换
+	 */
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		// 文件路径映射
+		// 其中upload表示访问的前缀。"file:C:/Temp/upload/"是文件真实的存储路径
+		registry.addResourceHandler("/upload/**").addResourceLocations("file:" + Global.getUploadPath());
+		registry.addResourceHandler("/static/**").addResourceLocations("classpath:/static/");
+	}
+
+	/**
+	 * 日志
+	 */
+	@Override
+	public void addInterceptors(InterceptorRegistry registry) {
+		InterceptorRegistration registration = registry.addInterceptor(new LogInterceptor());
+		String apps = Global.getProperty("web.interceptor.log.addPaths");
+		String epps = Global.getProperty("web.interceptor.log.excludePaths");
+		for (String uri : StrUtils.split(apps, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				registration.addPathPatterns(StrUtils.trim(uri));
+			}
+		}
+		for (String uri : StrUtils.split(epps, ",")) {
+			if (StrUtils.isNotBlank(uri)) {
+				registration.excludePathPatterns(StrUtils.trim(uri));
+			}
+		}
+	}
+
+	/**
+	 * sql拦截
+	 */
+	@Bean
+	public String myInterceptor(SqlSessionFactory sqlSessionFactory) {
+		sqlSessionFactory.getConfiguration().addInterceptor(new SqlInterceptor());
+		return "interceptor";
+	}
+
+	/**
+	 * 设置Json式转换器
+	 */
+	@Bean
+	public MappingJackson2HttpMessageConverter jackson2HttpMessageConverter() {
+		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+		converter.setObjectMapper(JsonUtils.getMapper());
+		return converter;
+	}
+
+	/**
+	 * 添加转换器
+	 */
+	@Override
+	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+		converters.add(jackson2HttpMessageConverter());
+	}
+
+}

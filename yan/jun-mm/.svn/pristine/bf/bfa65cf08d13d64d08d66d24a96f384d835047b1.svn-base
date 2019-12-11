@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/tongJi/myStatistics.js?${v}"></script>
+	<style type="text/css">
+		.divColor{
+			width: 200px;
+			height: 60px;
+			position:absolute;
+		}
+		.div_table{
+			width: 100%;
+			height: 100%;
+			cellpadding : 0;
+			cellspacing : 0;
+			border-collapse:collapse;
+		}
+		.div_table_td1{
+			width: 50%;
+			height: 100%;
+			background-color: #09c;
+			text-align: center;
+			color: #FFFFFF;
+		}
+		.div_table_td2{
+			width: 50%;
+			height: 100%;
+			background-color: #EEEEEE;
+			text-align: center;
+		}
+	</style>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">我的统计</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">月份</label>
+					<input type="text" name="date" class="xw2 xdate" id="sf_date" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center" style="margin-left: 50px; width:500px; height:500px;">
+				<div class="divColor" style="margin-top: 10px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">销售金额</td>
+							<td class="div_table_td2 xiaoshou"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 10px; margin-left: 250px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">提成金额</td>
+							<td class="div_table_td2 ticheng"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">上课次数</td>
+							<td class="div_table_td2 shankeNum"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px; margin-left: 250px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">上课奖金</td>
+							<td class="div_table_td2 shangkeMoney"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 220px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">助教次数</td>
+							<td class="div_table_td2 zhujiaoNum"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 220px; margin-left: 250px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">助教奖金</td>
+							<td class="div_table_td2 zhujiaoMoney"></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>

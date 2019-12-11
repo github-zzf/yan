@@ -1,0 +1,57 @@
+package com.junkj.module.file.utils;
+
+import java.util.List;
+
+import com.junkj.common.action.http.ServletUtils;
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.file.biz.FileUploadBiz;
+import com.junkj.module.file.entity.FileUpload;
+
+public class FileUploadUtils {
+
+	public static FileUploadBiz fileUploadBiz = SpringUtils.getBean(FileUploadBiz.class);
+
+	public static String saveFileUpload(final String bizId, final String bizType) {
+		// 更新文件
+		String imgs = ServletUtils.getParameter(bizType);
+		if (StrUtils.notBlank(imgs)) {
+			String[] arr = imgs.split(",");
+			for (String id : arr) {
+				FileUpload upload = fileUploadBiz.get(id);
+				if (StrUtils.notBlank(upload)) {
+					upload.setBizId(bizId);
+					upload.setBizType(bizType);
+					fileUploadBiz.update(upload);
+				}
+			}
+		}
+		// 删除文件
+		String imgs_del = ServletUtils.getParameter(bizType + "_del");
+		if (StrUtils.notBlank(imgs_del)) {
+			String[] arr = imgs_del.split(",");
+			for (String id : arr) {
+				fileUploadBiz.delete(new FileUpload(id));
+			}
+		}
+		// 返回图片地址
+		FileUpload fileUpload = new FileUpload();
+		fileUpload.setBizId(bizId);
+		fileUpload.setBizType(bizType);
+		List<FileUpload> a = fileUploadBiz.findList(fileUpload);
+		if (a != null && a.size() > 0) {
+			return a.get(0).getFileUrl();
+		}
+		return null;
+	}
+
+	public static List<FileUpload> findFileUpload(String bizId, String bizType) {
+		if (StrUtils.isNotBlank(bizId) && StrUtils.isNotBlank(bizType)) {
+			FileUpload fileUpload = new FileUpload();
+			fileUpload.setBizId(bizId);
+			fileUpload.setBizType(bizType);
+			return fileUploadBiz.findList(fileUpload);
+		}
+		return null;
+	}
+}

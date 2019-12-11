@@ -1,0 +1,40 @@
+<div class="xwindow" id="saleMember_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">导购客户表单</div>
+		<form class="xform" id="saleMember_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">导购<i>*</i></label>
+				<div class="g2"><input type="text" name="userId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">会员<i>*</i></label>
+				<div class="g2"><input type="text" name="memberId"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#saleMember_win').xwindow({width:500,height:350,open:false});
+app.form = $('#saleMember_form').xform({
+	url : adminPath + '/saleMember/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'导购', name:'userId', xcheck:'null'},
+		{label:'会员', name:'memberId', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

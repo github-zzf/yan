@@ -1,0 +1,176 @@
+package com.junkj.module.web.action;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.module.company.entity.Cards;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.company.entity.WorkMsg;
+import com.junkj.module.sys.dao.ComboDao;
+import com.junkj.module.web.biz.StaffApiBiz;
+
+/**
+ * 员工端action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${mobilePath}")
+public class StaffApiAction extends BaseAction {
+
+	@Autowired
+	private StaffApiBiz staffApiBiz;
+	@Autowired
+	private ComboDao comboDao;
+	
+	/*******************************************************
+	 * 工作台
+	 */
+	/**
+	 * 评价签到完成数量
+	 */
+	@RequestMapping(value = "infoWorkNum", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoWorkNum() {
+		return staffApiBiz.infoWorkNum();
+	}
+	
+	/**
+	 * 我的课程
+	 */
+	@RequestMapping(value = "listMyCourse", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourse(Course course) {
+		return staffApiBiz.listMyCourse(course);
+	}
+	
+	/**
+	 * 我的课程id
+	 */
+	@RequestMapping(value = "infoMyCourseById", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyCourseById(String id) {
+		return staffApiBiz.infoMyCourseById(id);
+	}
+	
+	/**
+	 * 我的课程member
+	 */
+	@RequestMapping(value = "listMyCourseMember", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourseMember(CourseEnroll courseEnroll) {
+		return staffApiBiz.listMyCourseMember(courseEnroll);
+	}
+	
+	/**
+	 * 我的课程评价
+	 */
+	@RequestMapping(value = "listMyCourseComplete", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyCourseComplete(CourseEnroll courseEnroll) {
+		return staffApiBiz.listMyCourseComplete(courseEnroll);
+	}
+	
+	/**
+	 * 我的请假
+	 */
+	@RequestMapping(value = "listMyLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listMyLeave(Leave leave) {
+		return staffApiBiz.listMyLeave(leave);
+	}
+	
+	/**
+	 * 我的请假详情
+	 */
+	@RequestMapping(value = "infoMyLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoMyLeave(Leave leave) {
+		return staffApiBiz.infoMyLeave(leave);
+	}
+	
+	/**
+	 * 我的请假取消
+	 */
+	@RequestMapping(value = "updateLeaveIsCancel", method = RequestMethod.GET)
+	@ResponseBody
+	public Object updateLeaveIsCancel(Leave leave) {
+		staffApiBiz.updateLeaveIsCancel(leave);
+		return sendOk();
+	}
+	
+	/**
+	 * 请假类型
+	 */
+	@RequestMapping(value = "infoLeaveType", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoLeaveType() {
+		return comboDao.infoLeaveType(Leave.LEAVE_TYPE);
+	}
+	
+	/**
+	 * 申请请假
+	 */
+	@RequestMapping(value = "saveLeave", method = RequestMethod.GET)
+	@ResponseBody
+	public Object saveLeave(Leave leave) {
+		staffApiBiz.saveLeave(leave);
+		return sendOk();
+	}
+	
+	/**
+	 * 我的业绩
+	 */
+	@RequestMapping(value = "infoAchieve", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoAchieve(String date) {
+		return staffApiBiz.infoAchieve(date);
+	}
+	
+	/**
+	 * 员工通知
+	 */
+	@RequestMapping(value = "listStaffArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object listStaffArticles(String type) {
+		return staffApiBiz.listStaffArticles(type);
+	}
+	
+	/**
+	 * 员工通知详情
+	 */
+	@RequestMapping(value = "infoStaffArticles", method = RequestMethod.GET)
+	@ResponseBody
+	public Object infoStaffArticles(String id) {
+		return staffApiBiz.infoStaffArticles(id);
+	}
+	
+	/**
+	 * 我的消息
+	 */
+	@RequestMapping(value = "pageMyWorkMsg", method = RequestMethod.GET)
+	@ResponseBody
+	public Page<WorkMsg> pageMyWorkMsg(WorkMsg workMsg) {
+		return staffApiBiz.pageMyWorkMsg(workMsg);
+	}
+	
+	/**
+	 * 改变我的消息状态
+	 */
+	@RequestMapping(value = "updateMyWorkMsg", method = RequestMethod.GET)
+	@ResponseBody
+	public void updateMyWorkMsg(String id) {
+		staffApiBiz.updateMyWorkMsg(id);
+	}
+
+}

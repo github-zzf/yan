@@ -1,0 +1,67 @@
+package com.junkj.module.company.biz;
+
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.company.dao.ActivityDao;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.file.utils.FileUploadUtils;
+
+/**
+ * 活动biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ */
+@Service
+@Transactional(readOnly = true)
+public class ActivityBiz extends CrudBiz<ActivityDao, Activity> {
+	
+	@Resource
+	private ActivityDao activityDao;
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Activity> findPage(Activity activity) {
+		return super.findPage(activity);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Activity> findList(Activity activity) {
+		return super.findList(activity);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(Activity activity) {
+		if(activity.getIsNewT()){
+			activity.setStatus(Activity.STATUS_DRAFT);
+		}
+		super.save(activity);
+		// 保存上传图片
+		FileUploadUtils.saveFileUpload(activity.getId(), "demoBase_image");
+	}
+	
+	/**
+	 * 清空会员卡
+	 */
+	@Transactional(readOnly=false)
+	public void updateActivityCardIdNull(Activity activity) {
+		activityDao.updateActivityCardIdNull(activity.getId());
+	}
+	
+}

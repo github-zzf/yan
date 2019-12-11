@@ -1,0 +1,184 @@
+package com.junkj.module.statistics.sql;
+
+import java.util.Map;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class StatisticsSql {
+
+	public String findMyStatistics(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("IFNULL(b.ratio,0) as ratio");
+				SELECT("IFNULL(b.bonus,0) as bonus");
+				SELECT("IFNULL(b.star1,0) as star1");
+				SELECT("IFNULL(b.star2,0) as star2");
+				SELECT("IFNULL(b.star3,0) as star3");
+				SELECT("IFNULL(b.star4,0) as star4");
+				SELECT("IFNULL(b.star5,0) as star5");
+				SELECT("(SELECT IFNULL(SUM(IFNULL(pay_money,0)),0) FROM cash_buy_user WHERE user_id = a.id and DATE_FORMAT(create_time,'%Y-%m') = #{date}) AS xiaoshou");
+				SELECT("(SELECT IFNULL(SUM(IFNULL(money,0)),0) FROM cash_buy_user WHERE user_id = a.id and DATE_FORMAT(create_time,'%Y-%m') = #{date}) AS ticheng");
+				SELECT("IFNULL((SELECT c_value FROM com_config WHERE c_key = 'bonus_mode' and com_id = a.com_id ),1) AS numType");
+				SELECT("(SELECT COUNT(*) FROM com_course WHERE teacher_id = a.id and DATE_FORMAT(course_date,'%Y-%m') = #{date}) AS shangkeNum");
+				SELECT("(SELECT COUNT(*) FROM com_course WHERE assistant_id = a.id and DATE_FORMAT(course_date,'%Y-%m') = #{date}) AS zhujiaoNum");
+				FROM("sys_user a");
+				LEFT_OUTER_JOIN("com_staff_money_setting b ON a.id = b.user_id");
+				WHERE("a.id = #{userId}");
+			}
+		}.toString();
+		
+		// 教师按类型统计提成
+		StringBuffer sql1 = new StringBuffer();
+		sql1.append(" CASE a.numType ");
+		sql1.append(" WHEN 1 THEN a.shangkeNum * a.bonus  ");
+		sql1.append(" WHEN 2 THEN (SELECT COUNT(*) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b. STATUS = 4 AND c.teacher_id = a.id and DATE_FORMAT(b.sign_time,'%Y-%m') = #{date}) * a.bonus ");
+		sql1.append(" WHEN 3 THEN (SELECT IFNULL(sum( CASE b.comment_level WHEN 1 THEN a.star1 WHEN 2 THEN a.star2 WHEN 3 THEN a.star3 WHEN 4 THEN a.star4 WHEN 5 THEN a.star5 END),0) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b.comment_level IS NOT NULL AND c.teacher_id = a.id and DATE_FORMAT(b.comment_time,'%Y-%m') = #{date}) END AS shangkeMoney");
+		
+		// 助教按类型统计提成
+		StringBuffer sql2 = new StringBuffer();
+		sql2.append(" CASE a.numType ");
+		sql2.append(" WHEN 1 THEN a.zhujiaoNum * a.bonus  ");
+		sql2.append(" WHEN 2 THEN (SELECT COUNT(*) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b. STATUS = 4 AND c.assistant_id = a.id and DATE_FORMAT(b.sign_time,'%Y-%m') = #{date}) * a.bonus ");
+		sql2.append(" WHEN 3 THEN (SELECT IFNULL(sum( CASE b.comment_level WHEN 1 THEN a.star1 WHEN 2 THEN a.star2 WHEN 3 THEN a.star3 WHEN 4 THEN a.star4 WHEN 5 THEN a.star5 END),0) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b.comment_level IS NOT NULL AND c.assistant_id = a.id and DATE_FORMAT(b.comment_time,'%Y-%m') = #{date}) END AS zhujiaoMoney");
+		
+		String str1 = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.xiaoshou");
+				SELECT("a.ticheng");
+				SELECT("a.shangkeNum");
+				SELECT("a.zhujiaoNum");
+				SELECT(sql1.toString());
+				SELECT(sql2.toString());
+				FROM("("+str+") a");
+			}
+		}.toString();
+
+		return str1;
+	}
+	
+	public String findDayStatistics(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("ifnull(SUM(if(type = 1, money, 0)),0) as xiaoshou");
+				SELECT("ifnull(SUM(if(type = 2, money, 0)),0) as jine");
+				SELECT("ifnull(SUM(if(type = 3, money, 0)),0) as chuci");
+				SELECT("ifnull(SUM(if(pay_type = 1, money, 0)),0) as xianjin");
+				SELECT("ifnull(SUM(if(pay_type = 2, money, 0)),0) as weixin");
+				SELECT("ifnull(SUM(if(pay_type = 3, money, 0)),0) as zhifubao");
+				SELECT("ifnull(SUM(if(pay_type = 4, money, 0)),0) as shuaka");
+				FROM("cash_money");
+				WHERE("biz_type = 'cash_buy'");
+				WHERE("com_id = #{comId}");
+				WHERE("DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(#{date},'%Y-%m-%d')");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+	public String findAdminStatistics(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("ifnull(SUM(ifnull(a.money, 0)), 0) as zongMoney");
+				SELECT("ifnull(SUM(if(a.pay_type=1, ifnull(a.money, 0), 0)), 0) as xianjin");
+				SELECT("ifnull(SUM(if(a.pay_type=4, ifnull(a.money, 0), 0)), 0) as shuaka");
+				SELECT("ifnull(SUM(if(a.pay_type=3, ifnull(a.money, 0), 0)), 0) as zhifubao");
+				SELECT("ifnull(SUM(if(a.pay_type=2, ifnull(a.money, 0), 0)), 0) as weixin");
+				SELECT("(select ifnull(SUM(if(b.type=1, ifnull(a.stored_num, 0), 0)), 0) from member_card a LEFT JOIN com_cards b on a.card_id=b.id where a.com_id = #{comId} and DATE_FORMAT(a.create_time,'%Y-%m') = #{date}) as chuzhi");
+				SELECT("(select ifnull(SUM(if(b.type=2, ifnull(a.stored_num, 0), 0)), 0) from member_card a LEFT JOIN com_cards b on a.card_id=b.id where a.com_id = #{comId} and DATE_FORMAT(a.create_time,'%Y-%m') = #{date}) as chuci");
+				FROM("cash_money a");
+				WHERE("a.biz_type = 'cash_buy'");
+				WHERE("a.com_id = #{comId}");
+				WHERE("DATE_FORMAT(a.create_time,'%Y-%m') = #{date}");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+	public String findAdminStatisticsTable(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.name");
+				SELECT("IFNULL(b.ratio,0) as ratio");
+				SELECT("IFNULL(b.bonus,0) as bonus");
+				SELECT("IFNULL(b.star1,0) as star1");
+				SELECT("IFNULL(b.star2,0) as star2");
+				SELECT("IFNULL(b.star3,0) as star3");
+				SELECT("IFNULL(b.star4,0) as star4");
+				SELECT("IFNULL(b.star5,0) as star5");
+				SELECT("(SELECT IFNULL(SUM(IFNULL(pay_money,0)),0) FROM cash_buy_user WHERE user_id = a.id and DATE_FORMAT(create_time,'%Y-%m') = #{date}) AS xiaoshou");
+				SELECT("(SELECT IFNULL(SUM(IFNULL(money,0)),0) FROM cash_buy_user WHERE user_id = a.id and DATE_FORMAT(create_time,'%Y-%m') = #{date}) AS ticheng");
+				SELECT("IFNULL((SELECT c_value FROM com_config WHERE c_key = 'bonus_mode' and com_id = #{comId}),1) AS numType");
+				SELECT("(SELECT COUNT(*) FROM com_course WHERE teacher_id = a.id and DATE_FORMAT(course_date,'%Y-%m') = #{date}) AS shangkeNum");
+				SELECT("(SELECT COUNT(*) FROM com_course WHERE assistant_id = a.id and DATE_FORMAT(course_date,'%Y-%m') = #{date}) AS zhujiaoNum");
+				FROM("sys_user a");
+				LEFT_OUTER_JOIN("com_staff_money_setting b ON a.id = b.user_id");
+			}
+		}.toString();
+		
+		// 教师按类型统计提成
+		StringBuffer sql1 = new StringBuffer();
+		sql1.append(" CASE a.numType ");
+		sql1.append(" WHEN 1 THEN a.shangkeNum * a.bonus  ");
+		sql1.append(" WHEN 2 THEN (SELECT COUNT(*) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b. STATUS = 4 AND c.teacher_id = a.id and DATE_FORMAT(b.sign_time,'%Y-%m') = #{date}) * a.bonus ");
+		sql1.append(" WHEN 3 THEN (SELECT IFNULL(sum( CASE b.comment_level WHEN 1 THEN a.star1 WHEN 2 THEN a.star2 WHEN 3 THEN a.star3 WHEN 4 THEN a.star4 WHEN 5 THEN a.star5 END),0) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b.comment_level IS NOT NULL AND c.teacher_id = a.id and DATE_FORMAT(b.comment_time,'%Y-%m') = #{date}) END AS shangkeMoney");
+		
+		
+		// 助教按类型统计提成
+		StringBuffer sql2 = new StringBuffer();
+		sql2.append(" CASE a.numType ");
+		sql2.append(" WHEN 1 THEN a.zhujiaoNum * a.bonus  ");
+		sql2.append(" WHEN 2 THEN (SELECT COUNT(*) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b. STATUS = 4 AND c.assistant_id = a.id and DATE_FORMAT(b.sign_time,'%Y-%m') = #{date}) * a.bonus ");
+		sql2.append(" WHEN 3 THEN (SELECT IFNULL(sum( CASE b.comment_level WHEN 1 THEN a.star1 WHEN 2 THEN a.star2 WHEN 3 THEN a.star3 WHEN 4 THEN a.star4 WHEN 5 THEN a.star5 END),0) FROM com_course_enroll b LEFT JOIN com_course c ON b.course_id = c.id WHERE b.comment_level IS NOT NULL AND c.assistant_id = a.id and DATE_FORMAT(b.comment_time,'%Y-%m') = #{date}) END AS zhujiaoMoney");
+		
+		String str1 = new SQL() {
+			{
+				SELECT("a.id");
+				SELECT("a.name");
+				SELECT("a.xiaoshou");
+				SELECT("a.ticheng");
+				SELECT("a.shangkeNum");
+				SELECT("a.zhujiaoNum");
+				SELECT(sql1.toString());
+				SELECT(sql2.toString());
+				FROM("("+str+") a");
+			}
+		}.toString();
+		
+		String str2 = new SQL() {
+			{
+				SELECT("b.*");
+				FROM("com_staff_money_setting a ");
+				LEFT_OUTER_JOIN("("+str1+") b on a.user_id=b.id");
+				WHERE("a.com_id = #{comId}");
+			}
+		}.toString();
+		
+		return str2;
+	}
+	
+	public String findCommentContent(Map<String, Object> map) {
+		String str = new SQL() {
+			{
+				SELECT("DATE_FORMAT(a.comment_time,'%Y-%m-%d') as commentTime");
+				SELECT("a.comment_level as commentLevel");
+				SELECT("a.comment_content as commentContent");
+				SELECT("m.name as memberName");
+				SELECT("DATE_FORMAT(b.course_date,'%Y-%m-%d') as courseDate");
+				SELECT("b.name as courseName");
+				FROM("com_course_enroll a");
+				LEFT_OUTER_JOIN("com_course b on a.course_id=b.id");
+				LEFT_OUTER_JOIN("member m on a.member_id=m.id");
+				WHERE("a.comment_level is not null");
+				WHERE("b.teacher_id = #{id}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

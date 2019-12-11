@@ -1,0 +1,108 @@
+<!-- 员工选择 -->
+<div class="xwindow" id="link_user">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_user_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" placeholder="请输入帐号/姓名" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_user_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_user_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="link_user_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="80px">登录帐号</th>
+					<th width="80px">姓名</th>
+					<th>角色</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{username}</td>
+							<td>{name}</td>
+							<td>{ps.roleNames}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_user_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkUser = {
+	callBack:function(row){},
+	init:function(){
+		linkUser.bind();
+		linkUser.load();
+	},
+	bind:function(){
+		var sf = $("#link_user_form").xform();
+		$("#btn_link_user_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkUser.table.reload(data);
+		});
+		$("#btn_link_user_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkUser.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				linkUser.table.reload(data);
+	        }
+	    });
+		$("#link_user_xtable").on("click", ".js_link_user_sel", function(btn){
+			var index = btn.xv;
+			var row = linkUser.table.getRow(index);
+			linkUser.callBack(row);
+			linkUser.win.close();
+		});
+	},
+	load:function(){
+		linkUser.win = $('#link_user').xwindow({width:500,height:550,open:false});
+		linkUser.table = $('#link_user_xtable').xtable({
+			url:adminPath + '/list/findSysUserPage',
+			paging:'.link_user_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				if(linkUser.noAdmin){
+					var roleIds = ","+row.roleIds+",";
+					if(roleIds.indexOf(",1,")==-1){
+						row.btnSel = '<a class="js_link_user_sel" data-xv="'+row.index+'">选择</a>&nbsp;';	
+					}					
+				}else{
+					row.btnSel = '<a class="js_link_user_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+				}
+			},
+			bind:function(data){
+				linkUser.bindSelect();
+			}
+		});
+	},
+	open:function(noAdmin){
+		linkUser.noAdmin = noAdmin;
+		linkUser.win.open();
+		linkUser.table.reload();
+	}
+}
+linkUser.init();
+</script>

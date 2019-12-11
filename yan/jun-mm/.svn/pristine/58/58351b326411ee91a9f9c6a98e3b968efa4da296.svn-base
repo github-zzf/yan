@@ -1,0 +1,39 @@
+$(function(){
+	app.init();
+})
+/**
+ * 参数配置
+ */
+var app = {
+	init:function(){
+		app.bind();
+		app.load();
+	},
+	bind : function() {
+		var sf = $("#form_search").xform();
+		$("#btn_search").xbtn(function() {
+			var data = sf.getData();
+			app.table.reload(data);
+		});
+		$("#btn_reset").xbtn(function() {
+			sf.clear();
+			var data = sf.getData();
+			app.table.reload(data);
+		});
+	},
+	load:function(){
+		app.table = $('#sysConfig_xtable').xtable({
+			url:adminPath + '/sysConfig/findList',
+			deleteUrl:adminPath + '/sysConfig/delete',
+			format:function(row){
+				if(row.configLoad==1){
+					row.btnUpdate = "&nbsp;<a class='xupdate' data-xv='"+row.index+"'>修改</a>&nbsp;";
+				}
+			},
+			update:function(row){
+				app.form.setData(row);
+				app.win.open();
+			}
+		});
+	}
+};

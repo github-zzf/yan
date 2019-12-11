@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<#include "/common/__webupload.html">
+	<script type="text/javascript" src="${ctx}/static/module/member/member.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">会员</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">会员级别</label>
+					<div class="xcombo" data-name="levelId" id="sf_levelId">
+				  		<ul class="xtemplate">
+					   		<li data-xv="{id}">{name}</li>
+					   	</ul>
+				  	</div>
+				</div>
+				<div class="xgroup">
+					<label class="label">姓名</label>
+					<input type="text" name="name" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">手机</label>
+					<input type="text" name="phone" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">QQ</label>
+					<input type="text" name="qq" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="xgroup">
+					<label class="label">电子邮件</label>
+					<input type="text" name="email" class="xw2" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="member_xtable" >
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="80px">操作</th>
+							<th width="100px">会员级别</th>
+							<th width="100px">会员姓名</th>
+							<th width="150px">手机号</th>
+							<th width="150px">QQ</th>
+							<th width="200px">电子邮件</th>
+							<th width="200px">地址</th>
+							<th>备注</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+									<td class="tc">{btnUpdate}{btnDelete}</td>
+									<td>{levelTxt}</td>
+									<td>{name}</td>
+									<td>{phone}</td>
+									<td>{qq}</td>
+									<td>{email}</td>
+									<td>{address}</td>
+									<td>{remark}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="member_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "memberForm.html">
+	
+</body>
+</html>

@@ -1,0 +1,49 @@
+<div class="xwindow" id="link_giftType">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级积分商品分类<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_giftType_form">
+			<div class="xgroup">
+				<input type="text" name="search" class="xw2" autocomplete="off" id="link_giftType_search"/>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="giftType_tree" class="ztree" style="width:300px"></div>
+	</div>
+	
+</div>
+<script>
+var linkGiftType = {
+	callBack:function(row){},
+	init:function(){
+		linkGiftType.bind();
+		linkGiftType.load();
+	},
+	bind:function(){
+		$('#link_giftType').on("click",".js_link_giftType_sel", function(btn){
+			var index = btn.xv;
+			var row = linkGiftType.table.getRow(index);
+			linkGiftType.callBack(row);
+			linkGiftType.win.close();
+		});
+	},
+	load:function(){
+		linkGiftType.win = $('#link_giftType').xwindow({width:360,height:500,open:false});
+		$.ztree({
+			id:"giftType_tree",
+			url:adminPath + '/list/treeGiftTypeData',
+			click:function(treeId, treeNode){
+				linkGiftType.win.close();
+				linkGiftType.callBack(treeId, treeNode);
+			}
+		})
+		fuzzySearch('giftType_tree','#link_giftType_search',false,true);
+	},
+	open:function(callBack){
+		linkGiftType.callBack = callBack;
+		linkGiftType.win.open();
+	}
+}
+linkGiftType.init();
+</script>

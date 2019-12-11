@@ -1,0 +1,194 @@
+package com.junkj.module.company.action;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.ActivityBiz;
+import com.junkj.module.company.biz.ActivityEnrollBiz;
+import com.junkj.module.company.entity.Activity;
+import com.junkj.module.company.entity.ActivityEnroll;
+import com.junkj.module.member.biz.MemberCardBiz;
+import com.junkj.module.member.entity.MemberCard;
+
+/**
+ * 活动报名action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/activityEnroll")
+public class ActivityEnrollAction extends BaseAction {
+
+	@Autowired
+	private ActivityEnrollBiz activityEnrollBiz;
+	@Autowired
+	private ActivityBiz activityBiz;
+	@Autowired
+	private MemberCardBiz cardBiz;
+
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping("")
+	public String index(HttpServletRequest request, String id, String name) {
+		request.setAttribute("id", id);
+		request.setAttribute("activityName", name);
+		return "/module/company/activityEnroll";
+	}
+	
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping("/isSigen")
+	public String isSigen() {
+		return "/module/company/activityEnrollIsSigen";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<ActivityEnroll> listPage(ActivityEnroll activityEnroll) {
+		Page<ActivityEnroll> page = activityEnrollBiz.findPage(activityEnroll);
+		return page;
+	}
+	
+	/**
+	 * 签到分页数据
+	 */
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping(value = "listIsPage")
+	@ResponseBody
+	public Page<ActivityEnroll> listIsPage(ActivityEnroll activityEnroll) {
+		if(StrUtils.notBlank(activityEnroll.getActivityStartTime()) && StrUtils.notBlank(activityEnroll.getActivityEndTime())){
+			activityEnroll.setWhere("date_format(ac.start_time,'%Y-%m-%d') >= date_format('"+ 
+					DateUtils.format(activityEnroll.getActivityStartTime()) +
+					"','%Y-%m-%d') and date_format(ac.end_time,'%Y-%m-%d') <= date_format('"+ 
+					DateUtils.format(activityEnroll.getActivityEndTime()) +"','%Y-%m-%d')");
+		}
+		if(StrUtils.notBlank(activityEnroll.getActivityStartTime())){
+			activityEnroll.setWhere("date_format(ac.start_time,'%Y-%m-%d') >= date_format('"+ 
+				DateUtils.format(activityEnroll.getActivityStartTime()) +"','%Y-%m-%d')");
+		}
+		if(StrUtils.notBlank(activityEnroll.getActivityEndTime())){
+			activityEnroll.setWhere("date_format(ac.end_time,'%Y-%m-%d') <= date_format('"+ 
+				DateUtils.format(activityEnroll.getActivityEndTime()) +"','%Y-%m-%d')");
+		}
+		activityEnroll.setActivityStartTime(null);
+		activityEnroll.setActivityEndTime(null);
+		Page<ActivityEnroll> page = activityEnrollBiz.findPage(activityEnroll);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("company:activity:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<ActivityEnroll> findList(ActivityEnroll activityEnroll) {
+		List<ActivityEnroll> list = activityEnrollBiz.findList(activityEnroll);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("company:activity:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated ActivityEnroll activityEnroll, BindingResult result) {
+		if (result.hasErrors()) {
+			return sendError(result.getFieldError().getDefaultMessage());
+		}
+		return activityEnrollBiz.saveActivityEnroll(activityEnroll);
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("company:activity:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(ActivityEnroll activityEnroll) {
+		activityEnrollBiz.delete(activityEnroll);
+		return sendOk("删除成功！");
+	}
+
+	/**
+	 * 签到
+	 */
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "qiandao")
+	@ResponseBody
+	public JsonVo qiandao(ActivityEnroll activityEnroll) {
+		activityEnroll = activityEnrollBiz.get(activityEnroll.getId());
+		// 获取活动
+		Activity activity = activityBiz.get(activityEnroll.getActivityId());
+		MemberCard mc = null;
+		if (StrUtils.notBlank(activity.getCardsTypeId())) {
+			MemberCard cardWhere = new MemberCard();
+			cardWhere.setCardsTypeId(activity.getCardsTypeId());
+			cardWhere.setMemberId(activityEnroll.getMemberId());
+			// 查询会员会员卡
+			List<MemberCard> cardList = cardBiz.getMemberCardList(cardWhere);
+			if (cardList.size() > 0) {
+				for (MemberCard mCard : cardList) {
+					// 判断余额
+					if (mCard.getStoredNum() < activity.getCardNum()) {
+						continue;
+					}
+					mc = mCard;
+				}
+				if (mc == null) {
+					return sendError("会员卡余额不足!");
+				}
+			} else {
+				return sendError("没有满足条件的会员卡!");
+			}
+		}
+		activityEnrollBiz.qiandao(activityEnroll, mc);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 取消
+	 */
+	@RequiresPermissions("company:course:edit")
+	@RequestMapping(value = "updateEnrollStatus")
+	@ResponseBody
+	public JsonVo updateEnrollStatus(ActivityEnroll activityEnroll) {
+		activityEnrollBiz.updateEnrollStatus(activityEnroll);
+		return sendOk("取消成功！");
+	}
+
+	/**
+	 * 到店支付
+	 */
+	@FormToken
+	@RequiresPermissions("company:activity:edit")
+	@RequestMapping(value = "savePy")
+	@ResponseBody
+	public JsonVo savePy(ActivityEnroll activityEnroll) {
+		activityEnrollBiz.savePy(activityEnroll);
+		return sendOk("修改成功！");
+	}
+}

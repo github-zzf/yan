@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/tongJi/dayStatistics.js?${v}"></script>
+	<style type="text/css">
+		.divColor{
+			width: 200px;
+			height: 60px;
+			position:absolute;
+		}
+		.div_table{
+			width: 100%;
+			height: 100%;
+			cellpadding : 0;
+			cellspacing : 0;
+			border-collapse:collapse;
+		}
+		.div_table_td1{
+			width: 50%;
+			height: 100%;
+			background-color: #44B559;
+			text-align: center;
+			color: #FFFFFF;
+		}
+		.div_table_td2{
+			width: 50%;
+			height: 100%;
+			background-color: #EEEEEE;
+			text-align: center;
+		}
+	</style>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">每日统计</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="xgroup">
+					<label class="label">统计时间</label>
+					<input type="text" name="date" class="xw2 xdate" id="sf_date" autocomplete="off"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center" style="margin-left: 50px; width:1000px; height:500px;">
+				<div class="divColor" style="margin-top: 10px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">当日销售金额</td>
+							<td class="div_table_td2 xiaoshou"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 10px; margin-left: 250px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">当日消耗金额</td>
+							<td class="div_table_td2 jine"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 10px; margin-left: 500px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">当日消耗储次</td>
+							<td class="div_table_td2 chuci"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">现金</td>
+							<td class="div_table_td2 xianjin"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px; margin-left: 250px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">刷卡</td>
+							<td class="div_table_td2 shuaka"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px; margin-left: 500px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">支付宝</td>
+							<td class="div_table_td2 zhifubao"></td>
+						</tr>
+					</table>
+				</div>
+				<div class="divColor" style="margin-top: 120px; margin-left: 750px;">
+					<table class="div_table">
+						<tr>
+							<td class="div_table_td1">微信</td>
+							<td class="div_table_td2 weixin"></td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false" scan="false">
+
+	<!-- 日志路径 -->
+	<property name="log.path" value="c:/logs" />
+
+	<!-- 日志级别单独设置
+ 	-->
+	<logger name="com.junkj.common.mybatis.mapper" level="DEBUG" />
+ 
+	<!-- 控制台输出 -->
+	<appender name="console"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- 调试输出 -->
+	<appender name="debug" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.path}/debug.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${log.path}/debug.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+			<!-- 日志保存周期 -->
+			<maxHistory>30</maxHistory>
+			<!-- 文件大小 -->
+			<maxFileSize>50MB</maxFileSize>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Log file error output -->
+	<appender name="error" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.path}/error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${log.path}/error.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+			<!-- 日志保存周期 -->
+			<maxHistory>30</maxHistory>
+			<!-- 文件大小 -->
+			<maxFileSize>50MB</maxFileSize>
+		</rollingPolicy>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} %contextName [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+	</appender>
+
+	<!-- Level: FATAL 0 ERROR 3 WARN 4 INFO 6 DEBUG 7 -->
+	<root level="ERROR">
+		<appender-ref ref="console" />
+		<appender-ref ref="debug" />
+		<appender-ref ref="error" />
+	</root>
+
+</configuration>

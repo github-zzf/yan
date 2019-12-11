@@ -1,0 +1,23 @@
+package com.junkj.module.company.dao;
+
+
+import org.apache.ibatis.jdbc.SQL;
+
+
+public class StaffNoticeSettingSql {
+
+	
+	public String findStaByUserId(String userId) {
+		
+		String str = new SQL() {
+			{
+				SELECT("a.user_id ");
+				FROM("com_staff_notice_setting a ");
+				WHERE("a.user_id = #{userId}");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+}

@@ -1,0 +1,74 @@
+package com.junkj.module.base;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.module.sys.dao.ComboDao;
+
+@Controller
+@RequestMapping(value = "${adminPath}/combo")
+public class ComboAction extends BaseAction {
+
+	@Autowired
+	private ComboDao comboDao;
+
+	/**
+	 * excel_out查询导出字段
+	 */
+	@PostMapping("/findCols")
+	@ResponseBody
+	public Object findCols(String tableCode) {
+		return comboDao.findCols(tableCode);
+	}
+
+	/**
+	 * sys_bean_data数据字典查询
+	 */
+	@PostMapping(value = "/findBeanType")
+	@ResponseBody
+	public Object findBeanType(String tKey) {
+		return comboDao.findBeanType(tKey);
+	}
+
+	/**
+	 * 企业会员级别查询
+	 */
+	@PostMapping(value = "/findMemberLevel")
+	@ResponseBody
+	public Object findMemberLevel() {
+		return comboDao.findMemberLevel(ComUtils.getCurrentComId());
+	}
+
+	/**
+	 * 企业会员卡查询
+	 */
+	@PostMapping(value = "/findComCards")
+	@ResponseBody
+	public Object findComCards() {
+		return comboDao.findComCards(ComUtils.getCurrentComId());
+	}
+
+	/**
+	 * 企业员工查询
+	 */
+	@PostMapping("/findStaff")
+	@ResponseBody
+	public Object findStaff(String search) {
+		return comboDao.findStaff(ComUtils.getCurrentComId(), search);
+	}
+	
+	/**
+	 * 会员卡类型
+	 */
+	@PostMapping("/findCardsType")
+	@ResponseBody
+	public Object findCardsType(String search) {
+		return comboDao.findCardsType(ComUtils.getCurrentComId(), search);
+	}
+
+}

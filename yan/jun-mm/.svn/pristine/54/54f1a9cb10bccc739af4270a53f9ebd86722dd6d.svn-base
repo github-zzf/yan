@@ -1,0 +1,50 @@
+<div class="xwindow" id="album_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">相册表单</div>
+		<form class="xform" id="album_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">相册名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">封面图片<i>*</i></label>
+				<div class="g2"><input type="text" name="img"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">浏览量<i>*</i></label>
+				<div class="g2"><input type="text" name="clicks"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">相册描述<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#album_win').xwindow({width:500,height:350,open:false});
+app.form = $('#album_form').xform({
+	url : adminPath + '/album/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'相册名称', name:'name', xcheck:'null'},
+		{label:'封面图片', name:'img', xcheck:'null'},
+		{label:'浏览量', name:'clicks', xcheck:'null'},
+		{label:'相册描述', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

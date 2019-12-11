@@ -1,0 +1,158 @@
+package com.junkj.module.file.entity;
+
+import java.util.Map;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.config.Global;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.lang.ByteUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.utils.JsonUtils;
+
+@Table(name = "sys_file_entity", alias = "a", columns = {
+		@Column(name = "file_id", attrName = "fileId", label = "文件编号", isPK = true),
+		@Column(name = "file_md5", attrName = "fileMd5", label = "文件MD5"),
+		@Column(name = "file_path", attrName = "filePath", label = "文件相对路径"),
+		@Column(name = "file_type", attrName = "fileType", label = "文件内容类型"),
+		@Column(name = "file_extension", attrName = "fileExtension", label = "文件后缀扩展名"),
+		@Column(name = "file_size", attrName = "fileSize", label = "文件大小", comment = "文件大小(单位B)", isQuery = false),
+		@Column(name = "file_meta", attrName = "fileMeta", label = "文件信息(JSON格式)")
+	}, orderBy = "a.file_id DESC"
+)
+public class FileEntity extends DataEntity<FileEntity> {
+
+	private static final long serialVersionUID = 1L;
+	private String fileId;
+	private String fileMd5;
+	private String filePath;
+	private String fileType;
+	private String fileExtension;
+	private Long fileSize;
+	private String fileMeta;
+	private Map<String, Object> fileMetaMap;
+	private FileUploadParams fileUploadParams;
+
+	public FileEntity() {
+	}
+
+	public FileEntity(String fileId) {
+		this.fileId = fileId;
+	}
+
+	public void setFileId(String fileId) {
+		this.fileId = fileId;
+	}
+
+	@Length(min = 0, max = 64, message = "文件编号不能超过 64 个字符")
+	public String getFileId() {
+		return this.fileId;
+	}
+
+	public void setFileMd5(String fileMd5) {
+		this.fileMd5 = fileMd5;
+	}
+
+	@NotBlank(message = "文件MD5不能为空")
+	@Length(min = 0, max = 64, message = "文件MD5长度不能超过 64 个字符")
+	public String getFileMd5() {
+		return this.fileMd5;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	@NotBlank(message = "文件相对路径不能为空")
+	@Length(min = 0, max = 1000, message = "文件相对路径长度不能超过 1000 个字符")
+	public String getFilePath() {
+		return this.filePath;
+	}
+
+	public void setFileType(String fileType) {
+		this.fileType = fileType;
+	}
+
+	@NotBlank(message = "文件内容类型不能为空")
+	@Length(min = 0, max = 200, message = "文件内容类型长度不能超过 200 个字符")
+	public String getFileType() {
+		return this.fileType;
+	}
+
+	public void setFileExtension(String fileExtension) {
+		this.fileExtension = fileExtension;
+	}
+
+	@NotBlank(message = "文件后缀扩展名不能为空")
+	@Length(min = 0, max = 100, message = "文件后缀扩展名长度不能超过 100 个字符")
+	public String getFileExtension() {
+		return this.fileExtension;
+	}
+
+	public void setFileSize(Long fileSize) {
+		this.fileSize = fileSize;
+	}
+
+	@NotNull(message = "文件大小不能为空")
+	public Long getFileSize() {
+		return this.fileSize;
+	}
+
+	public void setFileMeta(String fileMeta) {
+		if (StrUtils.isNotBlank(fileMeta)) {
+			this.fileMetaMap = JsonUtils.toObject(fileMeta, Map.class);
+		}
+		this.fileMeta = fileMeta;
+	}
+
+	public String getFileMeta() {
+		if (this.fileMetaMap != null) {
+			this.fileMeta = JsonUtils.toString(this.fileMetaMap);
+		}
+		return this.fileMeta;
+	}
+
+	public void setFileMetaMap(Map fileMetaMap) {
+		this.fileMetaMap = fileMetaMap;
+	}
+
+	public Map<String, Object> getFileMetaMap() {
+		if (this.fileMetaMap == null) {
+			this.fileMetaMap = MapUtils.newHashMap();
+		}
+		return this.fileMetaMap;
+	}
+
+	public void setFileUploadParams(FileUploadParams fileUploadParams) {
+		this.fileUploadParams = fileUploadParams;
+	}
+
+	@JsonIgnore
+	public FileUploadParams getFileUploadParams() {
+		return this.fileUploadParams;
+	}
+
+	public String getFileSizeFormat() {
+		if (this.fileSize == null)
+			return null;
+		return ByteUtils.formatByteSize(this.fileSize.longValue());
+	}
+
+	@JsonIgnore
+	public String getFileRealPath() {
+		return Global.getUploadPath(this.filePath) + this.fileId + "." + this.fileExtension;
+		 
+	}
+
+	@JsonIgnore
+	public String getFileUrl() {
+		return Global.UPLOAD_PATH + this.filePath + this.fileId + "." + this.fileExtension;
+	}
+}

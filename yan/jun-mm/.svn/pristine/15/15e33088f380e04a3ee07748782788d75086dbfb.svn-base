@@ -1,0 +1,104 @@
+package com.junkj.module.sys.biz;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.DateUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.demo.entity.DemoItem;
+import com.junkj.module.sys.dao.SysComOrdersDao;
+import com.junkj.module.sys.entity.SysComOrders;
+import com.junkj.module.sys.entity.SysComOrdersProduct;
+import com.junkj.module.sys.entity.SysCompany;
+
+/**
+ * 消费记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SysComOrdersBiz extends CrudBiz<SysComOrdersDao, SysComOrders> {
+	
+	@Autowired
+	private SysComOrdersDao sysComOrdersDao;
+	@Autowired
+	private SysComOrdersProductBiz sysComOrdersProductBiz;
+	@Autowired
+	private SysCompanyBiz sysCompanyBiz;
+	
+	/**
+	 * 获取子表数据
+	 */
+	public List<SysComOrdersProduct> listSysComOrdersProduct(SysComOrdersProduct sysComOrdersProduct) {
+		return sysComOrdersProductBiz.findList(sysComOrdersProduct);
+	}
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<SysComOrders> findPage(SysComOrders sysComOrders) {
+		return super.findPage(sysComOrders);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<SysComOrders> findList(SysComOrders sysComOrders) {
+		return super.findList(sysComOrders);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(SysComOrders sysComOrders) {
+		SysCompany aa = sysCompanyBiz.get(sysComOrders.getComIds());
+		sysComOrders.setCode(getCode(aa.getComId()));
+		super.save(sysComOrders);// 保存子表
+		for (SysComOrdersProduct item : sysComOrders.getSysComOrdersProduct()){
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())){
+				item.setOrdersId(sysComOrders.getId());
+				if (item.getIsNewT()){
+					sysComOrdersProductBiz.save(item);
+				}else{
+					item.preUpdate();
+					sysComOrdersProductBiz.update(item);
+				}
+			}else{
+				sysComOrdersProductBiz.delete(item);
+			}
+		}
+	}
+	
+	public String getCode(String orders_code){
+		Date now = new Date();
+		String year = DateUtils.format(now, "yyyy");
+		String day = DateUtils.format(now, "yyyyMMdd");
+		String code = "";
+		// 订单编号生成
+		
+		String maxCode = sysComOrdersDao.getCode(year);
+		if(StrUtils.notBlank(maxCode)){
+			String str = maxCode.substring(maxCode.length()-6);
+			Long num = Long.valueOf(str)+1;
+			code = orders_code + day + String.format("%06d", num);
+		}else{
+			code = orders_code + day + "000101";
+		}
+		return code;
+	}
+	
+}

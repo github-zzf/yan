@@ -1,0 +1,9 @@
+.spec_box a {
+  color: #07d;
+  text-decoration: none;
+}
+.xform .group{
+	margin-bottom: 15px;
+}
+.xform .text{width:300px;}
+

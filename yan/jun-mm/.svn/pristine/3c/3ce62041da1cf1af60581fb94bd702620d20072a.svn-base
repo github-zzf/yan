@@ -1,0 +1,123 @@
+package com.junkj.module.web.biz;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.company.biz.CourseBiz;
+import com.junkj.module.company.biz.CourseEnrollBiz;
+import com.junkj.module.company.biz.LeaveBiz;
+import com.junkj.module.company.entity.Course;
+import com.junkj.module.company.entity.CourseEnroll;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.statistics.dao.StatisticsDao;
+
+/**
+ * 员工端biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class StaffApiBiz {
+	
+	@Autowired
+	private CourseBiz courseBiz;
+	@Autowired
+	private CourseEnrollBiz courseEnrollBiz;
+	@Autowired
+	private LeaveBiz leaveBiz;
+	@Autowired
+	private StatisticsDao statisticsDao;
+	
+
+	/*******************************************************
+	 * 工作台
+	 */
+	/**
+	 * 评价签到完成数量
+	 */
+	public Map<String, Object> infoWorkNum() {
+		return courseEnrollBiz.getByWorkNum(UserUtils.getStaffId());
+	}
+	
+	/**
+	 * 我的课程
+	 */
+	public List<Map<String, Object>> listMyCourse(Course course) {
+		if(!StrUtils.notBlank(course.getCourseDate())){
+			course.setCourseDate(new Date());
+		}
+		course.setTeacherId(UserUtils.getStaffId());
+		course.setAssistantId(UserUtils.getStaffId());
+		return courseBiz.listMyCourse(course);
+	}
+	
+	/**
+	 * 我的课程member
+	 */
+	public List<CourseEnroll> listMyCourseMember(CourseEnroll courseEnroll) {
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+	
+	/**
+	 * 我的课程评价
+	 */
+	public List<CourseEnroll> listMyCourseComplete(CourseEnroll courseEnroll) {
+		courseEnroll.setWhere("a.comment_time is not null");
+		return courseEnrollBiz.findList(courseEnroll);
+	}
+	
+	/**
+	 * 我的请假
+	 */
+	public List<Leave> listMyLeave(Leave leave) {
+		leave.setStaffId(UserUtils.getStaffId());
+		return leaveBiz.findList(leave);
+	}
+	
+	/**
+	 * 我的请假详情
+	 */
+	public Leave infoMyLeave(Leave leave) {
+		return leaveBiz.get(leave);
+	}
+	
+	/**
+	 * 我的请假详情
+	 */
+	@Transactional(readOnly = false)
+	public void updateLeaveIsCancel(Leave leave) {
+		leaveBiz.updateIsCancel(leave);
+	}
+	
+	/**
+	 * 申请请假
+	 */
+	@Transactional(readOnly = false)
+	public void saveLeave(Leave leave) {
+		leave.setStaffId(UserUtils.getStaffId());
+		leaveBiz.save(leave);
+	}
+	
+	/**
+	 * 我的业绩
+	 */
+	public Map<String, Object> infoAchieve(String date) {
+		Map<String, Object> map = new HashMap<>();
+		map.put("date", date + "-00");
+		map.put("userId", UserUtils.getStaffId());
+		return statisticsDao.findMyStatistics(map);
+	}
+	
+}

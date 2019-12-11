@@ -1,0 +1,69 @@
+<div class="xwindow" id="staffNoticeSetting_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">通知设置表单</div>
+		<form class="xform" id="staffNoticeSetting_form" method="post" autocomplete="off">		
+		<input type="hidden" name="id" />
+			<div class="xgroup">
+				<label class="g1">服务人员<i>*</i></label>
+				<div class="g2">
+				<input type="text" name="userName" id="f_userName"/>
+				<input type="hidden" name="userId" id="f_userId"/>
+				</div>
+			</div>	
+			<div class="xgroup">
+				<label class="g1">预约通知<i>*</i></label>
+				<div class="g2">
+				<input type="radio" name="enrollMsg" value="0" checked/>通知
+				<input type="radio" name="enrollMsg" value="1"/>不通知
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">统计通知<i>*</i></label>
+				<div class="g2">
+				<input type="radio" name="censusMsg" value="0" checked/>通知
+				<input type="radio" name="censusMsg" value="1"/>不通知
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">请假通知<i>*</i></label>
+				<div class="g2">
+				<input type="radio" name="leaveMsg" value="0" checked/>通知
+				<input type="radio" name="leaveMsg" value="1"/>不通知
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#staffNoticeSetting_win').xwindow({width:700,height:400,open:false});
+app.form = $('#staffNoticeSetting_form').xform({
+	url : adminPath + '/staffNoticeSetting/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'服务人员', name:'userName', xcheck:'null'},
+		{label:'预约通知', name:'enrollMsg', xcheck:'null'},
+		{label:'统计通知', name:'censusMsg', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+//服务人员
+$("#f_userName").click(function(){
+	linkUser.callBack = function(row) {
+		$("#f_userName").val(row.name);
+		$("#f_userId").val(row.id);
+	};
+	linkUser.open();
+});
+</script>

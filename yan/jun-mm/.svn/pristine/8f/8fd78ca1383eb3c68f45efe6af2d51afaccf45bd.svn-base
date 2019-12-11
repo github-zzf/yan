@@ -1,0 +1,49 @@
+package com.junkj.module.member.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.member.dao.CardDao;
+import com.junkj.module.member.entity.Card;
+
+/**
+ * 会员卡记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CardBiz extends CrudBiz<CardDao, Card> {
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Card> findPage(Card card) {
+		return super.findPage(card);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Card> findList(Card card) {
+		return super.findList(card);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(Card card) {
+		super.save(card);
+	}
+}

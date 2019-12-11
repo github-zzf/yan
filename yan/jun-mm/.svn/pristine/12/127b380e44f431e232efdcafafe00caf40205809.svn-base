@@ -1,0 +1,61 @@
+package com.junkj.module.company.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.module.company.entity.WorkMsg;
+
+public class WorkMsgSql {
+	
+	public String findWorkMsgPage(Object userId, Integer srow, Integer erow, String type) {
+		
+		String str = new SQL() {
+			{
+				SELECT("a.id AS 'id'");
+				SELECT("a.user_id AS 'userId'");
+				SELECT("a.style AS 'style'");
+				SELECT("a.biz_id AS 'bizId'");
+				SELECT("a.biz_type AS 'bizType'");
+				SELECT("a.url AS 'url'");
+				SELECT("a.title AS 'title'");
+				SELECT("a.content AS 'content'");
+				SELECT("a.read_state AS 'readState'");
+				SELECT("a.check_user AS 'checkUser'");
+				SELECT("a.check_state AS 'checkState'");
+				SELECT("a.check_remark AS 'checkRemark'");
+				SELECT("a.check_time AS 'checkTime'");
+				SELECT("a.create_time AS 'createTime'");
+				SELECT("a.com_id AS 'comId'");
+				SELECT("b. NAME AS 'userName'");
+				FROM("work_msg a");
+				LEFT_OUTER_JOIN("sys_user b on (b.id = a.user_id)");
+				WHERE("a.com_id = b.com_id");
+				WHERE("a.user_id = #{userId}");
+				if("limit".equals(type)){
+					ORDER_BY("a.read_state asc LIMIT #{srow},#{erow}");
+				}else{
+					ORDER_BY("a.read_state asc");
+				}
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+	public String updateWorkMsgCheckStatus(WorkMsg workMsg) {
+		
+		String str = new SQL() {
+			{
+				UPDATE("work_msg");
+				SET("check_state = #{checkState}");
+				SET("check_remark = #{checkRemark}");
+				SET("check_time = #{checkTime}");
+				WHERE("biz_id = #{bizId}");
+				WHERE("biz_type = #{bizType}");
+				WHERE("style = #{style}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

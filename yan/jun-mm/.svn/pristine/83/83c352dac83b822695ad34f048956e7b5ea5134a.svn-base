@@ -1,0 +1,39 @@
+package com.junkj.module.weixin.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.module.weixin.entity.WxConfig;
+
+public class WxConfigSql {
+
+	public String getByComId(String tokenId) {
+		String str = new SQL() {
+			{
+				SELECT("appid");
+				SELECT("appname");
+				SELECT("appsecret");
+				SELECT("mch_id as 'mchId'");
+				SELECT("mch_key as 'mchKey'");
+				SELECT("mch_cert as 'mchCert'");
+				SELECT("remark");
+				FROM("wx_config");
+				WHERE("com_id=#{comId}");
+			}
+		}.toString();
+
+		return str;
+	}
+	
+	public String updateConfigStatus(WxConfig wxConfig) {
+		String str = new SQL() {
+			{
+				UPDATE("wx_config");
+				SET("status = #{status}");
+				WHERE("com_id = #{comId}");
+			}
+		}.toString();
+		
+		return str;
+	}
+
+}

@@ -1,0 +1,116 @@
+package com.junkj.module.company.action;
+
+import java.util.Date;
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.LeaveBiz;
+import com.junkj.module.company.entity.Leave;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 员工请假表action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${adminPath}/leave")
+public class LeaveAction extends BaseAction {
+
+	@Autowired
+	private LeaveBiz leaveBiz;
+
+	@RequiresPermissions("company:leave:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/company/leave";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("company:leave:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<Leave> listPage(Leave leave) {
+		Page<Leave> page = leaveBiz.findPage(leave);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("company:leave:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<Leave> findList(Leave leave) {
+		List<Leave> list = leaveBiz.findList(leave);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("company:leave:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated Leave leave, BindingResult result) {
+		if(result.hasErrors()){
+			return sendError(result.getFieldError().getDefaultMessage());
+        }
+		leaveBiz.save(leave);
+		return sendOk("保存成功！");
+	}
+	
+	/**
+	 * 审批
+	 */
+	@FormToken
+	@RequiresPermissions("company:leave:edit")
+	@RequestMapping(value = "updateCheckState")
+	@ResponseBody
+	public JsonVo updateCheckState(Leave leave) {
+		leaveBiz.updateCheckState(leave);
+		return sendOk("审批成功！");
+	}
+	
+	/**
+	 * 取消
+	 */
+	@FormToken
+	@RequiresPermissions("company:leave:edit")
+	@RequestMapping(value = "updateIsCancel")
+	@ResponseBody
+	public JsonVo updateIsCancel(Leave leave) {
+		leaveBiz.updateIsCancel(leave);
+		return sendOk("审批成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("company:leave:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(Leave leave) {
+		leaveBiz.delete(leave);
+		return sendOk("删除成功！");
+	}
+
+}

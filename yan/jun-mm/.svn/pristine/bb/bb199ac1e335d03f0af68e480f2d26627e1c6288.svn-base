@@ -1,0 +1,82 @@
+package com.junkj.module.sale.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sale.biz.SaleMemberBiz;
+import com.junkj.module.sale.entity.SaleMember;
+
+/**
+ * 导购客户action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月11日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/saleMember")
+public class SaleMemberAction extends BaseAction {
+
+	@Autowired
+	private SaleMemberBiz saleMemberBiz;
+
+	@RequiresPermissions("sale:saleMember:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/sale/saleMember";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("sale:saleMember:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<SaleMember> listPage(SaleMember saleMember) {
+		Page<SaleMember> page = saleMemberBiz.findPage(saleMember);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("sale:saleMember:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<SaleMember> findList(SaleMember saleMember) {
+		List<SaleMember> list = saleMemberBiz.findList(saleMember);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@RequiresPermissions("sale:saleMember:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(SaleMember saleMember) {
+		saleMemberBiz.save(saleMember);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("sale:saleMember:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(SaleMember saleMember) {
+		saleMemberBiz.delete(saleMember);
+		return sendOk("删除成功！");
+	}
+
+}

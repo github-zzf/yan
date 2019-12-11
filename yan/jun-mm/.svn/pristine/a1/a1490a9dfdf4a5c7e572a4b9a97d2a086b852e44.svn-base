@@ -1,0 +1,82 @@
+package com.junkj.module.sys.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sys.biz.SysBeanTypeBiz;
+import com.junkj.module.sys.entity.SysBeanType;
+
+/**
+ * 数据字典类型action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/sysBeanType")
+public class SysBeanTypeAction extends BaseAction {
+
+	@Autowired
+	private SysBeanTypeBiz sysBeanTypeBiz;
+
+	@RequiresPermissions("sys:sysBeanType:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/sys/sysBeanType";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("sys:sysBeanType:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<SysBeanType> listPage(SysBeanType sysBeanType) {
+		Page<SysBeanType> page = sysBeanTypeBiz.findPage(sysBeanType);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("sys:sysBeanType:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<SysBeanType> findList(SysBeanType sysBeanType) {
+		List<SysBeanType> list = sysBeanTypeBiz.findList(sysBeanType);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@RequiresPermissions("sys:sysBeanType:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(SysBeanType sysBeanType) {
+		sysBeanTypeBiz.save(sysBeanType);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("sys:sysBeanType:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(SysBeanType sysBeanType) {
+		sysBeanTypeBiz.delete(sysBeanType);
+		return sendOk("删除成功！");
+	}
+
+}

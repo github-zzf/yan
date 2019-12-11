@@ -1,0 +1,50 @@
+<div class="xwindow" id="sysComProduct_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费记录表单</div>
+		<form class="xform" id="sysComProduct_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">产品<i>*</i></label>
+				<div class="g2"><input type="text" name="productId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">开始时间<i>*</i></label>
+				<div class="g2"><input type="text" name="startTime"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">结束时间<i>*</i></label>
+				<div class="g2"><input type="text" name="endTime"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注<i>*</i></label>
+				<div class="g2"><input type="text" name="remark"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysComProduct_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysComProduct_form').xform({
+	url : adminPath + '/sysComProduct/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'产品', name:'productId', xcheck:'null'},
+		{label:'开始时间', name:'startTime', xcheck:'null'},
+		{label:'结束时间', name:'endTime', xcheck:'null'},
+		{label:'备注', name:'remark', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

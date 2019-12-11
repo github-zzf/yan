@@ -1,0 +1,212 @@
+package com.junkj.module.sys.entity;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+
+/**
+ * 系统用户实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019-08-25
+ * @version: 1.0.0
+ */
+@Table(name = "sys_user", alias = "a", columns = { 
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "role_ids", attrName = "roleIds"),
+		@Column(name = "username", attrName = "username"),
+		@Column(name = "password", attrName = "password"),
+		@Column(name = "name", attrName = "name", queryType = QueryType.LIKE),
+		@Column(name = "phone", attrName = "phone", queryType = QueryType.LIKE),
+		@Column(name = "email", attrName = "email", queryType = QueryType.LIKE),
+		@Column(name = "qq", attrName = "qq", queryType = QueryType.LIKE),
+		@Column(name = "wx", attrName = "wx", queryType = QueryType.LIKE),
+		@Column(name = "user_type", attrName = "userType"),
+		@Column(name = "sys_type", attrName = "sysType"),
+		@Column(includeEntity = DataEntity.class),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "b", on = "b.bean_key = 'sys_user_status' and b.bean_val = a.status", columns = {
+			@Column(name = "bean_txt", attrName = "statusTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysCompany.class, alias = "c", on = "a.com_id = c.com_id", columns = {
+			@Column(name = "com_name", attrName = "comName", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.id DESC"
+)
+public class SysUser extends DataEntity<SysUser> {
+	
+	private static final long serialVersionUID = 1L;
+	
+	private String roleIds; // 角色列表
+	private String username; // 登录账号
+	private String password; // 登录密码
+	private String name; // 用户昵称
+	private String phone; // 手机号码
+	private String email; // 电子邮箱
+	private String qq; // QQ
+	private String wx; // 微信
+	private String userType; // 用户类型
+	private String sysType; // 管理员类型
+	
+	// 业务字段
+	private String statusTxt; // 状态
+	private String roleNames; // 角色
+	private String comName; // 企业名称
+
+	/**
+	 * 用户类型：员工
+	 */
+	public static final String USER_TYPE_STAFF = "staff";
+	/**
+	 * 用户类型：导购
+	 */
+	public static final String USER_TYPE_SALE = "sale";
+	/**
+	 * 用户类型：无
+	 */
+	public static final String USER_TYPE_NONE = "none";
+	/**
+	 * 管理员类型：0非管理员
+	 */
+	public static final String SYS_TYPE_NONE = "0";
+	/**
+	 * 管理员类型：1系统管理员
+	 */
+	public static final String SYS_TYPE_ADMIN = "1";
+	/**
+	 * 管理员类型：2二级管理员
+	 */
+	public static final String SYS_TYPE_SECOND = "2";
+
+	public SysUser() {
+		this(null);
+	}
+
+	public SysUser(String id){
+		super(id);
+	}
+	
+	public String getRoleIds() {
+		return roleIds;
+	}
+
+	public void setRoleIds(String roleIds) {
+		this.roleIds = roleIds;
+	}
+
+	@NotEmpty(message = "登录账号不能为空")
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
+	@JsonIgnore
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@NotEmpty(message = "昵称不能为空")
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getQq() {
+		return qq;
+	}
+
+	public void setQq(String qq) {
+		this.qq = qq;
+	}
+
+	public String getWx() {
+		return wx;
+	}
+
+	public void setWx(String wx) {
+		this.wx = wx;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getSysType() {
+		return sysType;
+	}
+
+	public void setSysType(String sysType) {
+		this.sysType = sysType;
+	}
+
+	public String getStatusTxt() {
+		return statusTxt;
+	}
+
+	public void setStatusTxt(String statusTxt) {
+		this.statusTxt = statusTxt;
+	}
+
+	public String getRoleNames() {
+		return roleNames;
+	}
+
+	public void setRoleNames(String roleNames) {
+		this.roleNames = roleNames;
+	}
+
+	public boolean isAdmin(){
+		return isAdmin(this.id);
+	}
+	
+	public static boolean isAdmin(String id){
+		return id != null && "junAdmin".equals(id);
+	}
+
+	public String getComName() {
+		return comName;
+	}
+
+	public void setComName(String comName) {
+		this.comName = comName;
+	}
+
+}

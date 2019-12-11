@@ -1,0 +1,118 @@
+package com.junkj.module.member.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.member.dao.CardChangeDao;
+import com.junkj.module.member.dao.CardDao;
+import com.junkj.module.member.dao.CardUserDao;
+import com.junkj.module.member.entity.Card;
+import com.junkj.module.member.entity.CardChange;
+import com.junkj.module.member.entity.CardUser;
+
+/**
+ * 会员卡消费明细表biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CardChangeBiz extends CrudBiz<CardChangeDao, CardChange> {
+
+	@Autowired
+	private CardBiz cardBiz;
+	@Autowired
+	private CardUserDao cardUserDao;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CardChange> findPage(CardChange cardChange) {
+		return super.findPage(cardChange);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CardChange> findList(CardChange cardChange) {
+		return super.findList(cardChange);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(CardChange cardChange) {
+		super.save(cardChange);
+	}
+	
+	/**
+	 * 失效
+	 */
+	@Transactional(readOnly=false)
+	public void shixiao(CardChange cardChange) {
+		Card card = cardBiz.get(cardChange.getMcId());
+		cardChange.setNum(card.getNum());
+		// 修改状态
+		card.setNum(0D);
+		cardBiz.update(card);
+		
+		cardChange.setMemberId(card.getMemberId());
+		cardChange.setType(CardChange.TYPE_4);
+		cardChange.setNumNew(0D);
+		super.save(cardChange);
+	}
+	
+	/**
+	 * 消费/储值
+	 */
+	@Transactional(readOnly=false)
+	public void xiaoFei(CardChange cardChange) {
+		Card card = cardBiz.get(cardChange.getMcId());
+		Double newNum = 0D;
+		// 消耗
+		if(CardChange.TYPE_1.equals(cardChange.getType())){
+			newNum = card.getNum()-cardChange.getNum();
+			// 赠送
+		}else if(CardChange.TYPE_3.equals(cardChange.getType())){
+			newNum = card.getNum()+cardChange.getNum();
+		}
+		card.setNum(newNum);
+		cardBiz.update(card);
+
+		cardChange.setMemberId(card.getMemberId());
+		cardChange.setNumNew(newNum);
+		super.save(cardChange);
+		// 消耗
+		if(CardChange.TYPE_1.equals(cardChange.getType())){
+			// 保存子表
+			for (CardUser item : cardChange.getCardUserItem()){
+				if (!CardUser.STATUS_DELETE.equals(item.getStatus())){
+					item.setChangeId(cardChange.getId());
+					item.setNum(cardChange.getNum());
+					if (item.getIsNewT()){
+						item.preInsert();
+						cardUserDao.insert(item);
+					}else{
+						item.preUpdate();
+						cardUserDao.update(item);
+					}
+				}else{
+					cardUserDao.delete(item);
+				}
+			}
+		}
+	}
+	
+}

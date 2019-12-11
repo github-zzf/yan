@@ -1,0 +1,34 @@
+package com.junkj.module.sys.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class SysComProductSql {
+
+	public String newsSysComProduct(String sendTime, String endTime) {
+		String str = new SQL() {
+			{
+				SELECT("'1' as type");
+				SELECT("'产品过期通知' as title");
+				SELECT("replace(replace(content,'(name)', b.name),'(date)', DATE_FORMAT(a.end_time,'%Y-%m-%d')) as content");
+				SELECT("'1' as receiveType");
+				SELECT("a.com_id as receiveIds");
+				SELECT("c.com_name as receiveNames");
+				SELECT("'0' as sendId");
+				SELECT("'定时通知' as sendName");
+				SELECT("now() as sendDate");
+				SELECT("now() as createTime");
+				SELECT("now() as updateTime");
+				SELECT("'0' as createId"); 
+				SELECT("'0' as updateId"); 
+				FROM("sys_com_product a");
+				LEFT_OUTER_JOIN("sys_product b on b.id = a.product_id");
+				LEFT_OUTER_JOIN("sys_company c on c.com_id = a.com_id");
+				WHERE("date_format(a.end_time,'%Y-%m-%d') >= date_format(#{sendTime},'%Y-%m-%d')");
+				WHERE("date_format(a.end_time,'%Y-%m-%d') <= date_format(#{endTime},'%Y-%m-%d')");
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

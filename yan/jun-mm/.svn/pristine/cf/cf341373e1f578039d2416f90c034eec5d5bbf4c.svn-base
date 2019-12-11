@@ -1,0 +1,52 @@
+<div class="xwindow" id="sysProduct_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">平台产品表单</div>
+		<form class="xform" id="sysProduct_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">产品名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+				<label class="g1">排序<i>*</i></label>
+				<div class="g2"><input type="text" name="sort"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">销售价格<i>*</i></label>
+				<div class="g2"><input type="text" name="price"/></div>
+				<label class="g1">产品天数<i>*</i></label>
+				<div class="g2"><input type="text" name="days"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+				<textarea type="text" name="remark" style="width:540px;height:80px"/></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysProduct_win').xwindow({width:700,height:350,open:false});
+app.form = $('#sysProduct_form').xform({
+	url : adminPath + '/sysProduct/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'产品名称', name:'name', xcheck:'null'},
+		{label:'销售价格', name:'price', xcheck:'null'},
+		{label:'产品天数', name:'days', xcheck:'null'},
+		{label:'排序', name:'sort', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

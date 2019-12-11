@@ -1,0 +1,26 @@
+package com.junkj.module.sys.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.sys.entity.SysMenu;
+
+public class SysMenuSql {
+
+	public String findByMenuIds(SysMenu sysMenu) {
+		String str = new SQL() {
+			{
+				SELECT("*");
+				FROM("sys_menu");
+				WHERE("FIND_IN_SET(id, #{id})");
+				if(StrUtils.notBlank(sysMenu.getType())){
+					WHERE("type=#{type}");
+				}
+				ORDER_BY("sort ASC");
+			}
+		}.toString();
+
+		return str;
+	}
+
+}

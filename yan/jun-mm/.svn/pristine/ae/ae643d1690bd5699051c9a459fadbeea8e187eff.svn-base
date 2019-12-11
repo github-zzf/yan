@@ -1,0 +1,63 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 留言信息表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_message", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "com_id", attrName = "comId"),
+		@Column(name = "phone", attrName = "phone"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "status", attrName = "status"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+	}, orderBy = "a.id DESC"
+)
+public class Message extends DataEntity<Message> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String comId; // 企业
+	private String phone; // 手机
+	private String content; // 留言内容
+
+
+	public String getComId() {
+		return comId;
+	}
+	public void setComId(String comId) {
+		this.comId = comId;
+	}
+
+	@NotEmpty(message="手机不能为空")
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	@NotEmpty(message="留言内容不能为空")
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+}

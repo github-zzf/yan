@@ -1,0 +1,49 @@
+<div class="xwindow" id="comConfig_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">基础设置表单</div>
+		<form class="xform" id="comConfig_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>		
+			<input type="hidden" name="configKey"/>
+			<div class="xgroup">
+				<label class="g1">参数名称<i>*</i></label>
+				<div class="g2"><input type="text" class="xw5 readonly" name="configName" readonly="readonly"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">参数值<i>*</i></label>
+				<div class="g2"><input type="text" class="xw5" name="configValue"/></div>
+				<a class="xbtn" id="ditu" style="display:none;" href="http://lbs.qq.com/tool/getpoint/getpoint.html" target="_blank" style="padding: 2px 4px;font-size: 12px;margin-top: -4px;">获取坐标</a>
+			</div>
+			<div class="xgroup">
+				<label class="g1">参数说明</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px;height:80px" class="readonly" readonly="readonly"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#comConfig_win').xwindow({width:700,height:500,open:false});
+app.form = $('#comConfig_form').xform({
+	url : adminPath + '/comConfig/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'参数名称', name:'configName', xcheck:'null'},
+		{label:'参数值', name:'configValue', xcheck:'null'},
+		{label:'参数说明', name:'remark', xcheck:'max:500'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

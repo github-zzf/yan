@@ -1,0 +1,44 @@
+package com.junkj.module.stock.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 库存实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Table(name = "stock", alias = "a", columns = {
+		@Column(name = "goods_id", attrName = "goodsId"),
+		@Column(name = "num", attrName = "num"),
+	}, orderBy = "a.id DESC"
+)
+public class Stock extends DataEntity<Stock> {
+
+	private static final long serialVersionUID = 1L;
+
+	private Long goodsId; // 商品id
+	private Double num; // 库存数量
+
+
+	public Long getGoodsId() {
+		return goodsId;
+	}
+	public void setGoodsId(Long goodsId) {
+		this.goodsId = goodsId;
+	}
+
+	public Double getNum() {
+		return num;
+	}
+	public void setNum(Double num) {
+		this.num = num;
+	}
+
+}

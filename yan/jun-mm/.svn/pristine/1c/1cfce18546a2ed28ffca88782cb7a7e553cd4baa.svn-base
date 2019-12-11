@@ -1,0 +1,96 @@
+package com.junkj.module.member.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.file.utils.FileUploadUtils;
+import com.junkj.module.member.dao.MemberDao;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.Points;
+
+/**
+ * 会员biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ */
+@Service
+@Transactional(readOnly = true)
+public class MemberBiz extends CrudBiz<MemberDao, Member> {
+	
+	@Autowired
+	private PointsBiz pointsBiz;
+	@Autowired
+	private MemberBiz memberBiz;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Member> findPage(Member member) {
+		return super.findPage(member);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Member> findList(Member member) {
+		return super.findList(member);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(Member member) {
+		super.save(member);
+		// 保存上传图片
+		String img = FileUploadUtils.saveFileUpload(member.getId(), Member.FILE_TYPE);
+		if(StrUtils.notBlank(img)){
+			member.setHeadImg(img);
+			super.update(member);
+		}
+	}
+	
+	/**
+	 * 添加积分
+	 */
+	@Transactional(readOnly=false)
+	public void updateAddPoints(Member member) {
+		member.setPoints((Double.valueOf(member.getNewPoints()) + Double.valueOf(member.getPoints()))+"");
+		super.update(member);
+		Points points = new Points();
+		points.setMemberId(member.getId());
+		points.setBizType(Points.BIZTYPE_4);
+		points.setType(Points.TYPE_1);
+		points.setNum(Long.valueOf(member.getNewPoints()));
+		pointsBiz.save(points);
+	}
+	
+	/**
+	 * 积分兑换
+	 */
+	@Transactional(readOnly=false)
+	public void updateReducePoints(String id, String points1) {
+		Member member = memberBiz.get(id);
+		member.setPoints((Double.valueOf(member.getPoints()) - Double.valueOf(points1))+"");
+		super.update(member);
+		
+		Points points = new Points();
+		points.setMemberId(member.getId());
+		points.setBizType(Points.BIZTYPE_1);
+		points.setType(Points.TYPE_2);
+		points.setNum(Long.valueOf(points1));
+		pointsBiz.save(points);
+	}
+	
+}

@@ -1,0 +1,64 @@
+<div class="xwindow" id="cashBuyUser_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费提成比例表单</div>
+		<form class="xform" id="cashBuyUser_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">公司ID<i>*</i></label>
+				<div class="g2"><input type="text" name="comId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">消费记录主键<i>*</i></label>
+				<div class="g2"><input type="text" name="buyId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">提成用户id<i>*</i></label>
+				<div class="g2"><input type="text" name="userId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">销售金额<i>*</i></label>
+				<div class="g2"><input type="text" name="payMoney"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">员工提成比例<i>*</i></label>
+				<div class="g2"><input type="text" name="ratioUser"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">分成比例<i>*</i></label>
+				<div class="g2"><input type="text" name="ratio"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">提成金额<i>*</i></label>
+				<div class="g2"><input type="text" name="money"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#cashBuyUser_win').xwindow({width:500,height:350,open:false});
+app.form = $('#cashBuyUser_form').xform({
+	url : adminPath + '/cashBuyUser/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'公司ID', name:'comId', xcheck:'null'},
+		{label:'消费记录主键', name:'buyId', xcheck:'null'},
+		{label:'提成用户id', name:'userId', xcheck:'null'},
+		{label:'销售金额', name:'payMoney', xcheck:'null'},
+		{label:'员工提成比例', name:'ratioUser', xcheck:'null'},
+		{label:'分成比例', name:'ratio', xcheck:'null'},
+		{label:'提成金额', name:'money', xcheck:'null'}	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

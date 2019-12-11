@@ -1,0 +1,112 @@
+<div class="xwindow" id="course_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">排课表表单</div>
+		<form class="xform" id="course_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">课程名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">教师<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="teacherName" id="f_teacherName"/>
+					<input type="hidden" name="teacherId" id="f_teacherId"/>
+				</div>
+				<label class="g1">助教</label>
+				<div class="g2">
+					<input type="text" name="assistantName" id="f_assistantName"/>
+					<input type="hidden" name="assistantId" id="f_assistantId"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">课程日期<i>*</i></label>
+				<div class="g2"><input type="text" class="xdate" id="f_courseDate" name="courseDate"/></div>
+				<label class="g1">报名上限<i>*</i></label>
+				<div class="g2"><input type="text" name="peopleMax"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">开始时间<i>*</i></label>
+				<div class="g2"><input type="text" id="f_startTime" name="startTime"/></div>
+				<label class="g1">结束时间<i>*</i></label>
+				<div class="g2"><input type="text" id="f_endTime" name="endTime"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">会员卡</label>
+				<div class="g2">
+					<input type="text" name="cardName" id="f_cardName"/>
+					<input type="hidden" name="cardId" id="f_cardId"/>
+				</div>
+				<label class="g1">消耗数值</label>
+				<div class="g2"><input type="text" name="cardNum"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">每周重复<i>*</i></label>
+				<div class="g2" style="width:230px;">
+					<input type="radio" name="isWeek" value="1"/>是&nbsp;&nbsp;
+					<input type="radio" name="isWeek" value="0"/>否
+				</div>
+				<label class="g1">预约验证<i>*</i></label>
+				<div class="g2">
+					<input type="radio" name="isCheck" value="1"/>开&nbsp;&nbsp;
+					<input type="radio" name="isCheck" value="0"/>关
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$("#f_courseDate").xdate();
+app.win = $('#course_win').xwindow({width:700,height:400,open:false});
+app.form = $('#course_form').xform({
+	url : adminPath + '/course/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'教师', name:'teacherId', xcheck:'null'},
+		{label:'课程名称', name:'name', xcheck:'null'},
+		{label:'课程日期', name:'courseDate', xcheck:'null'},
+		{label:'开始时间', name:'startTime', xcheck:'null'},
+		{label:'结束时间', name:'endTime', xcheck:'null'},
+		{label:'报名上限', name:'peopleMax', xcheck:'null'},
+		{label:'每周重复', name:'isWeek', xcheck:'null'},
+		{label:'预约验证预约', name:'isCheck', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+// 教师
+$("#f_teacherName").click(function(){
+	linkUser.callBack = function(row) {
+		$("#f_teacherName").val(row.name);
+		$("#f_teacherId").val(row.id);
+	};
+	linkUser.open();
+});
+// 助教
+$("#f_assistantName").click(function(){
+	linkUser.callBack = function(row) {
+		$("#f_assistantName").val(row.name);
+		$("#f_assistantId").val(row.id);
+	};
+	linkUser.open();
+});
+// 会员卡
+$("#f_cardName").click(function(){
+	linkCards.callBack = function(row) {
+		$("#f_cardName").val(row.name);
+		$("#f_cardId").val(row.id);
+	};
+	linkCards.open();
+});
+</script>

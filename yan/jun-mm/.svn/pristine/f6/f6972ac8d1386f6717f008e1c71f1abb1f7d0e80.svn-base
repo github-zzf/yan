@@ -1,0 +1,50 @@
+package com.junkj.module.sale.biz;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.sale.dao.SaleTeamDao;
+import com.junkj.module.sale.entity.SaleTeam;
+
+/**
+ * 销售团队biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月11日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SaleTeamBiz extends CrudBiz<SaleTeamDao, SaleTeam> {
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<SaleTeam> findPage(SaleTeam saleTeam) {
+		return super.findPage(saleTeam);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<SaleTeam> findList(SaleTeam saleTeam) {
+		return super.findList(saleTeam);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(SaleTeam saleTeam) {
+		super.save(saleTeam);
+	}
+	
+}

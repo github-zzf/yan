@@ -1,0 +1,108 @@
+package com.junkj.module.cash.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.cash.dao.CashBuyDao;
+import com.junkj.module.cash.dao.CashBuyGoodsDao;
+import com.junkj.module.cash.dao.CashBuyUserDao;
+import com.junkj.module.cash.entity.CashBuy;
+import com.junkj.module.cash.entity.CashBuyGoods;
+import com.junkj.module.cash.entity.CashBuyUser;
+import com.junkj.module.demo.entity.DemoItem;
+
+/**
+ * 消费记录biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月28日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class CashBuyBiz extends CrudBiz<CashBuyDao, CashBuy> {
+	
+	@Autowired
+	private CashBuyGoodsDao cashBuyGoodsDao;
+	@Autowired
+	private CashBuyUserDao cashBuyUserDao;
+
+	
+	/**
+	 * 获取子表数据
+	 */
+	public List<CashBuyGoods> findChild(CashBuyGoods  cashBuyGoods) {
+		return cashBuyGoodsDao.findList(cashBuyGoods);
+	}
+	
+	/**
+	 * 获取子表数据
+	 */
+	public List<CashBuyUser> findChild1(CashBuyUser  cashBuyUser) {
+		return cashBuyUserDao.findList(cashBuyUser);
+	}
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<CashBuy> findPage(CashBuy cashBuy) {
+		return super.findPage(cashBuy);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<CashBuy> findList(CashBuy cashBuy) {
+		return super.findList(cashBuy);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(CashBuy cashBuy) {
+		//默认为2.储值扣费
+		cashBuy.setType("2");
+		super.save(cashBuy);
+		// 保存子表
+		for (CashBuyGoods item : cashBuy.getCashBuyGoods()){
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())){
+				item.setBuyId(cashBuy.getId());
+				if (item.getIsNewT()){
+					item.preInsert();
+					cashBuyGoodsDao.insert(item);
+				}else{
+					item.preUpdate();
+					cashBuyGoodsDao.update(item);
+				}
+			}else{
+				cashBuyGoodsDao.delete(item);
+			}
+		}
+		// 保存子表
+		for (CashBuyUser item : cashBuy.getCashBuyUser()){
+			if (!DemoItem.STATUS_DELETE.equals(item.getStatus())){
+				item.setBuyId(cashBuy.getId());
+				if (item.getIsNewT()){
+					item.preInsert();
+					cashBuyUserDao.insert(item);
+				}else{
+					item.preUpdate();
+					cashBuyUserDao.update(item);
+				}
+			}else{
+				cashBuyUserDao.delete(item);
+			}
+		}
+	}
+	
+}

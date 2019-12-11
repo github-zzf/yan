@@ -1,0 +1,39 @@
+<div class="xwindow" id="memberPoints_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员积分表单</div>
+		<form class="xform" id="memberPoints_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">剩余积分</label>
+				<div class="g2"><input type="text" name="points" class="readonly" disabled="disabled"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">赠送积分</label>
+				<div class="g2"><input type="text" name="newPoints"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#memberPoints_win').xwindow({width:700,height:400,open:false});
+app.form = $('#memberPoints_form').xform({
+	url : adminPath + '/memberPoints/updateAddPoints',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'积分', name:'newPoints', xcheck:'null'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

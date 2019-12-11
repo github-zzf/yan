@@ -1,0 +1,82 @@
+package com.junkj.module.cms.entity;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.TreeEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysBeanData;
+
+/**
+ * 栏目表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月18日
+ * @version: 1.0.0
+ */
+@Table(name = "cms_arttype", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "type_type", attrName = "typeType"),
+		@Column(name = "type_name", attrName = "typeName"),
+		@Column(name = "remark", attrName = "remark"),
+		@Column(includeEntity = BaseEntity.class),
+		@Column(includeEntity = TreeEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Arttype.class, alias = "b", on = "b.id = a.parent_id", columns = {
+			@Column(name = "type_name", attrName = "parentName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "c", on = "c.bean_key='arttype_type' and c.bean_val = a.type_type", columns = {
+			@Column(name = "bean_txt", attrName = "typeTypeTxt", queryType = QueryType.LIKE)
+		})
+	}, orderBy = "a.tree_sorts, a.id DESC"
+)
+public class Arttype extends TreeEntity<Arttype> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String typeType; // 栏目类型
+	private String typeName; // 栏目名称
+	private String remark; // 备注
+	
+	// 业务字段
+	private String typeTypeTxt; //栏目类型
+
+	@NotEmpty(message="栏目类型不能为空")
+	public String getTypeType() {
+		return typeType;
+	}
+	public void setTypeType(String typeType) {
+		this.typeType = typeType;
+	}
+	
+	@NotEmpty(message="栏目名称不能为空")
+	public String getTypeName() {
+		return typeName;
+	}
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	
+	@Override
+	public String getTreeName() {
+		return this.typeName;
+	}
+	public String getTypeTypeTxt() {
+		return typeTypeTxt;
+	}
+	public void setTypeTypeTxt(String typeTypeTxt) {
+		this.typeTypeTxt = typeTypeTxt;
+	}
+
+}

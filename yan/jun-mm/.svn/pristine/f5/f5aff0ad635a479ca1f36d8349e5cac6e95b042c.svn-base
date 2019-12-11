@@ -1,0 +1,170 @@
+package com.junkj.common.utils;
+
+import java.util.List;
+
+import org.apache.shiro.session.Session;
+
+import com.junkj.common.config.Global;
+import com.junkj.common.exception.SpringUtils;
+import com.junkj.module.company.biz.ComTemplateBiz;
+import com.junkj.module.sys.biz.SysCompanyBiz;
+import com.junkj.module.sys.entity.SysCompany;
+import com.junkj.module.weixin.biz.WxConfigBiz;
+import com.junkj.module.weixin.entity.WxConfig;
+
+public class ComUtils {
+
+	private static SysCompanyBiz sysCompanyBiz = SpringUtils.getBean(SysCompanyBiz.class);
+	private static WxConfigBiz wxConfigBiz = SpringUtils.getBean(WxConfigBiz.class);
+	private static ComTemplateBiz comTemplateBiz = SpringUtils.getBean(ComTemplateBiz.class);
+
+	public static final String RS_COM_ID = "COM_ID";
+	public static final String RS_COM_NAME = "COM_NAME";
+	public static final String CACHE_COM_ID_ = "COM_ID_";
+	public static final String CACHE_COM_TPL_ = "COM_TPL_";
+	public static final String CACHE_COM_WXCONFIG = "WXCONFIG";
+
+	/**
+	 * 通过session获取公司名称
+	 */
+	public static String getCurrentComName() {
+		return getSessionCache(RS_COM_NAME);
+	}
+
+	/**
+	 * 通过session获取公司id
+	 */
+	public static String getCurrentComId() {
+		return getSessionCache(RS_COM_ID);
+	}
+
+	/**
+	 * 缓存企业id
+	 */
+	public static void setComId(String comId) {
+		putSessionCache(ComUtils.RS_COM_ID, comId);
+	}
+
+	/**
+	 * 缓存企业
+	 */
+	public static void setCom(String comId, String comName) {
+		putSessionCache(ComUtils.RS_COM_ID, comId);
+		putSessionCache(ComUtils.RS_COM_NAME, comName);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <V> V getSessionCache(String key) {
+		V v = null;
+		Session session = UserUtils.getSession();
+		if (session != null) {
+			Object obj = session.getAttribute(key);
+			if (obj != null) {
+				v = (V) obj;
+			}
+		}
+		return v;
+	}
+
+	private static void putSessionCache(String key, Object value) {
+		Session session = UserUtils.getSession();
+		if (session != null) {
+			session.setAttribute(key, value);
+		}
+	}
+
+	/**
+	 * 获取公司
+	 */
+	public static SysCompany getCurrentCom() {
+		return getById(getCurrentComId());
+	}
+
+	/**
+	 * 根据ID获取公司
+	 */
+	public static SysCompany getById(String comId) {
+		SysCompany company = getCache(comId, comId);
+		if (company == null) {
+			company = sysCompanyBiz.get(comId);
+			if (company != null) {
+				putCache(comId, comId, company);
+			}
+		}
+		return company;
+	}
+
+	/**
+	 * 根据ID获取公司配置 synchronized
+	 */
+	public static WxConfig getWxConfig() {
+		return getWxConfig(getCurrentComId());
+	}
+
+	/**
+	 * 根据ID获取公司配置
+	 */
+	public static WxConfig getWxConfig(String comId) {
+		WxConfig wxConfig = getCache(comId, CACHE_COM_WXCONFIG);
+		if (wxConfig == null) {
+			wxConfig = wxConfigBiz.getByComId(comId);
+			if (wxConfig != null) {
+				putCache(comId, CACHE_COM_WXCONFIG, wxConfig);
+			}
+		}
+		return wxConfig;
+	}
+
+	/**
+	 * 根据ID获取模板消息
+	 */
+	public static List<Template> getTemplate(String comId, String key) {
+		List<Template> tpls = getCache(comId, CACHE_COM_TPL_ + key);
+		if (tpls == null) {
+			tpls = comTemplateBiz.getByCode(comId, key);
+			if (tpls != null) {
+				putCache(comId, CACHE_COM_TPL_ + key, tpls);
+			}
+		}
+		return tpls;
+	}
+
+	/**
+	 * 删除模板缓存
+	 */
+	public static void removeTemplate(String comId, String key) {
+		removeCache(comId, CACHE_COM_TPL_ + key);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <V> V getCache(String comId, String key) {
+		key = CACHE_COM_ID_.concat(comId).concat("__").concat(key);
+		return (V) CacheUtils.get(CacheUtils.COM_CACHE, key);
+	}
+
+	public static void putCache(String comId, String key, Object value) {
+		key = CACHE_COM_ID_.concat(comId).concat("__").concat(key);
+		CacheUtils.put(CacheUtils.COM_CACHE, key, value);
+	}
+
+	/**
+	 * 删除企业配置缓存
+	 */
+	public static void removeCache(String comId, String key) {
+		key = CACHE_COM_ID_.concat(comId).concat("__").concat(key);
+		CacheUtils.remove(CacheUtils.COM_CACHE, key);
+	}
+
+	public static String getComUrl(String path) {
+		if (Global.isDev()) {
+			return Global.devUri() + path;
+		} else {
+			return "http://" + getCurrentComId() + "." + Global.mobileUri() + path;
+		}
+	}
+
+	public static String getMobileUrl(String path) {
+		return "http://" + Global.mobileUri() + path;
+	}
+
+}

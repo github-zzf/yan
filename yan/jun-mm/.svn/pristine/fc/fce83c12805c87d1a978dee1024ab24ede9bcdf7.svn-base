@@ -1,0 +1,172 @@
+package com.junkj.module.member.entity;
+
+import java.util.List;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.BeanType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 会员卡消费明细表实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ */
+@Table(name = "member_card_change", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "mc_id", attrName = "mcId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(name = "type", attrName = "type"),
+		@Column(name = "stored_num", attrName = "storedNum"),
+		@Column(name = "stored_new", attrName = "storedNew"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "m", on = "m.id = a.member_id", columns = {
+			@Column(name = "name", attrName = "memberName", queryType = QueryType.LIKE),
+			@Column(name = "phone", attrName = "memberPhone", queryType = QueryType.LIKE) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "u", on = "u.id = a.update_id", columns = {
+			@Column(name = "name", attrName = "updateName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = BeanType.class, alias = "d", on = "d.t_key='card_change_type' and d.val = a.type", columns = {
+			@Column(name = "txt", attrName = "typeName", queryType = QueryType.LIKE) 
+		}), 
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = MemberCard.class, alias = "mc", on = "mc.id = a.mc_id", columns = {
+			@Column(name = "card_id", attrName = "cardId"),
+			@Column(name = "card_name", attrName = "cardName")
+		}), 
+	}, orderBy = "a.id DESC")
+public class CardChange extends DataEntity<CardChange> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String mcId; // 会员卡记录
+	private String memberId; // 用户id
+	private String type; // 记录类型（1消耗，2储值，3赠送，4失效）
+	private Double storedNum; // 金额/次数
+	private Double storedNew; // 余额
+
+	// 业务字段
+	private List<CardUser> cardUserItem = ListUtils.newArrayList(); // 子表数据
+	private String memberName;// 会员姓名
+	private String memberPhone;// 会员电话
+	private String typeName; // 记录类型
+	private String cardId; // 会员卡id
+	private String cardName; // 会员卡名称
+	/**
+	 * 1消耗
+	 */
+	public static final String TYPE_1 = "1";
+	/**
+	 * 2储值
+	 */
+	public static final String TYPE_2 = "2";
+	/**
+	 * 3赠送
+	 */
+	public static final String TYPE_3 = "3";
+	/**
+	 * 4失效
+	 */
+	public static final String TYPE_4 = "4";
+
+	public String getMcId() {
+		return mcId;
+	}
+
+	public void setMcId(String mcId) {
+		this.mcId = mcId;
+	}
+
+	public String getMemberId() {
+		return memberId;
+	}
+
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public Double getStoredNum() {
+		return storedNum;
+	}
+
+	public void setStoredNum(Double storedNum) {
+		this.storedNum = storedNum;
+	}
+
+	public Double getStoredNew() {
+		return storedNew;
+	}
+
+	public void setStoredNew(Double storedNew) {
+		this.storedNew = storedNew;
+	}
+
+	public List<CardUser> getCardUserItem() {
+		return cardUserItem;
+	}
+
+	public void setCardUserItem(List<CardUser> cardUserItem) {
+		this.cardUserItem = cardUserItem;
+	}
+
+	public String getMemberName() {
+		return memberName;
+	}
+
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+
+	public String getMemberPhone() {
+		return memberPhone;
+	}
+
+	public void setMemberPhone(String memberPhone) {
+		this.memberPhone = memberPhone;
+	}
+
+	public String getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
+	}
+
+	public String getCardId() {
+		return cardId;
+	}
+
+	public void setCardId(String cardId) {
+		this.cardId = cardId;
+	}
+
+	public String getCardName() {
+		return cardName;
+	}
+
+	public void setCardName(String cardName) {
+		this.cardName = cardName;
+	}
+
+}

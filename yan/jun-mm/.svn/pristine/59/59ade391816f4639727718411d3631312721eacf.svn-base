@@ -1,0 +1,156 @@
+package com.junkj.module.member.biz;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.company.biz.ComMemberBiz;
+import com.junkj.module.company.entity.ComMember;
+import com.junkj.module.member.dao.MemberDao;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.member.entity.Points;
+import com.junkj.module.shop.biz.GiftBiz;
+import com.junkj.module.shop.entity.Gift;
+
+/**
+ * 会员biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月26日
+ */
+@Service
+@Transactional(readOnly = true)
+public class MemberBiz extends CrudBiz<MemberDao, Member> {
+
+	@Autowired
+	private PointsBiz pointsBiz;
+	@Autowired
+	private MemberDao memberDao;
+	@Autowired
+	private GiftBiz giftBiz;
+	@Autowired
+	private ComMemberBiz comMemberBiz;
+
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<Member> findPage(Member member) {
+		return super.findPage(member);
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<Member> findList(Member member) {
+		return super.findList(member);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly = false)
+	public void save(Member member) {
+		boolean isNewT = member.getIsNewT();
+		super.save(member);
+		ComMember cm = new ComMember();
+		cm.setMemberId(member.getId());
+		cm.setLevelId(member.getLevelId());
+		cm.setRemark(member.getRemark());
+		if (isNewT) {
+			// 保存企业关联
+			cm.setPoints(0L);
+			cm.setSource(ComMember.SOURCE_1);
+			comMemberBiz.insert(cm);
+		}else {
+			comMemberBiz.update(cm);
+		}
+	}
+	
+	@Transactional(readOnly = false)
+	public void delete(Member member) {
+		ComMember cm = new ComMember();
+		cm.setMemberId(member.getId());
+		comMemberBiz.delete(cm);
+	}
+
+	/**
+	 * 添加积分
+	 */
+	@Transactional(readOnly = false)
+	public void updateAddPoints(Member member) {
+		ComMember comMember = comMemberBiz.get(member.getId());
+		comMember.setPoints(comMember.getPoints() + member.getNewPoints());
+		comMemberBiz.update(comMember);
+		Points points = new Points();
+		points.setMemberId(member.getId());
+		points.setBizType(Points.BIZTYPE_4);
+		points.setType(Points.TYPE_1);
+		points.setNum(member.getNewPoints());
+		pointsBiz.save(points);
+	}
+
+	/**
+	 * 积分兑换
+	 */
+	@Transactional(readOnly = false)
+	public JsonVo updateReducePoints(String id, String giftId) {
+		Gift gift = giftBiz.get(giftId);
+		if (gift.getNum() < 1) {
+			return JsonVo.sendError("库存不足!");
+		}
+		// 所需积分
+		Long points = gift.getPoints();
+
+		ComMember comMember = comMemberBiz.get(id);
+		if (comMember.getPoints() < points) {
+			return JsonVo.sendError("积分不足!");
+		}
+		// 更新会员积分余额
+		comMember.setPoints(comMember.getPoints() - points);
+		comMemberBiz.update(comMember);
+
+		// 添加积分变更记录
+		Points mp = new Points();
+		mp.setMemberId(id);
+		mp.setBizType(Points.BIZTYPE_5);
+		mp.setType(Points.TYPE_2);
+		mp.setNum(points);
+		pointsBiz.save(mp);
+
+		// 减少库存
+		gift.setNum(gift.getNum() - 1);
+		giftBiz.update(gift);
+		return JsonVo.sendOk("兑换成功！");
+	}
+
+	/**
+	 * 会员信息
+	 * 
+	 * @param memberId
+	 * @return
+	 */
+	@Transactional(readOnly = false)
+	public Map<String, Object> getMemberInfo(String memberId, String comId) {
+		return memberDao.getMemberInfo(memberId, comId);
+	}
+
+	public Member getByMemberId(String memberId) {
+		Member where = new Member();
+		where.setComId(ComUtils.getCurrentComId());
+		where.setId(memberId);
+		where.setWhere("cm.com_id = #{comId}");
+		return get(where);
+	}
+
+}

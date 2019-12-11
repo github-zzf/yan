@@ -1,0 +1,50 @@
+<div class="xwindow" id="sysComOrdersProduct_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">消费记录表单</div>
+		<form class="xform" id="sysComOrdersProduct_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1"><i>*</i></label>
+				<div class="g2"><input type="text" name="productId"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">单价<i>*</i></label>
+				<div class="g2"><input type="text" name="price"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">数量<i>*</i></label>
+				<div class="g2"><input type="text" name="num"/></div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">总价<i>*</i></label>
+				<div class="g2"><input type="text" name="money"/></div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#sysComOrdersProduct_win').xwindow({width:500,height:350,open:false});
+app.form = $('#sysComOrdersProduct_form').xform({
+	url : adminPath + '/sysComOrdersProduct/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'', name:'productId', xcheck:'null'},
+		{label:'单价', name:'price', xcheck:'null'},
+		{label:'数量', name:'num', xcheck:'null'},
+		{label:'总价', name:'money', xcheck:'null'},
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/workMsg.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">消息通知</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">查询参数名称</label>
+					<input type="text" name="name" class="xw2"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="workMsg_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th class="ck"><input type="checkbox" class="xcheckbox"/></th>
+							<th width="80px">操作</th>
+							<th>员工id</th>
+							<th>类型（1通知、2审批）</th>
+							<th>关联业务id</th>
+							<th>分类（1预约通知、21请假审批）</th>
+							<th>连接地址</th>
+							<th>标题</th>
+							<th>阅读状态（0未读取、1已读取）</th>
+							<th>审批人</th>
+							<th>审批状态（1待审批、2审批拒绝、3审批通过）</th>
+							<th>审批意见</th>
+							<th>审批时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td>
+									<td class="tc">{btnUpdate}{btnDelete}</td>
+									<td>{userId}</td>
+									<td>{style}</td>
+									<td>{bizId}</td>
+									<td>{bizType}</td>
+									<td>{url}</td>
+									<td>{title}</td>
+									<td>{readState}</td>
+									<td>{checkUser}</td>
+									<td>{checkState}</td>
+									<td>{checkRemark}</td>
+									<td>{checkTime}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="workMsg_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "workMsgForm.html">
+	
+</body>
+</html>

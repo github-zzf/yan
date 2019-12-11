@@ -1,0 +1,46 @@
+<div class="xwindow" id="level_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">会员级别表单</div>
+		<form class="xform" id="level_form" method="post" autocomplete="off">			
+			<input type="hidden" name="id"/>
+			<div class="xgroup">
+				<label class="g1">等级名称<i>*</i></label>
+				<div class="g2"><input type="text" name="name"/></div>
+				<label class="g1" style="width:100px">折扣率(0-10)<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="ratio" />
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:540px;height:80px"></textarea>
+				</div>
+			</div>
+		</form>
+		<div class="bottombar">
+			<span class="xbtn" id="btn_submit">保存</span><span class="xbtn xclose">取消</span>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#level_win').xwindow({width:700,height:350,open:false});
+app.form = $('#level_form').xform({
+	url : adminPath + '/level/save',
+	xbtn:'#btn_submit',
+	xcheck:[
+		{label:'名称', name:'name', xcheck:'null'},
+		{label:'折扣率', name:'ratio', xcheck:'null,maxnum:10'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else {
+			$.xalert(e.msg);
+		}
+	}
+});
+</script>

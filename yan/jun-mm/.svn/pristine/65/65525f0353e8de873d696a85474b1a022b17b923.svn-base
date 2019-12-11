@@ -1,0 +1,52 @@
+<div class="xwindow" id="link_memberPoints">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">积分明细<span class="title_close xclose">X</span></div>
+	    <div class="xtable" id="link_memberPoints_xtable">
+			<table class="xhead">
+				<tr>
+					<th>用户</th>
+					<th width="80px">消费类型</th>
+					<th width="80px">类型</th>
+					<th width="80px">消耗积分</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td>{memberName}</td>
+							<td>{bizTypeTxt}</td>
+							<td>{typeTxt}</td>
+							<td>{num}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_memberPoints_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkMemberPoints = {
+	init:function(){
+		linkMemberPoints.load();
+	},
+	load:function(){
+		linkMemberPoints.win = $('#link_memberPoints').xwindow({width:500,height:550,open:false});
+		linkMemberPoints.table = $('#link_memberPoints_xtable').xtable({
+			url:adminPath + '/memberPoints/finfPointsList',
+			paging:'.link_memberPoints_paging',
+			bodyHeight:440,
+			load:false
+		});
+	},
+	open:function(memberId){
+		linkMemberPoints.win.open();
+		linkMemberPoints.table.reload({memberId:memberId});
+	}
+}
+linkMemberPoints.init();
+</script>

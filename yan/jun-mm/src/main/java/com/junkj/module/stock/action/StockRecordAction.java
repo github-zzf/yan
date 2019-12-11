@@ -1,0 +1,126 @@
+package com.junkj.module.stock.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.demo.entity.DemoItem;
+import com.junkj.module.stock.biz.StockBiz;
+import com.junkj.module.stock.biz.StockRecordBiz;
+import com.junkj.module.stock.biz.StockRecordItemBiz;
+import com.junkj.module.stock.entity.Stock;
+import com.junkj.module.stock.entity.StockRecord;
+import com.junkj.module.stock.entity.StockRecordItem;
+
+/**
+ * 出入库记录action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/stockRecord")
+public class StockRecordAction extends BaseAction {
+
+	@Autowired
+	private StockRecordBiz stockRecordBiz;
+	@Autowired
+	private StockRecordItemBiz stockRecordItemBiz;
+	@Autowired
+	private StockBiz stockBiz;
+
+	@RequiresPermissions("stock:stockRecord:view")
+	@RequestMapping("")
+	public String index() {
+		return "/module/stock/stockRecord";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("stock:stockRecord:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<StockRecord> listPage(StockRecord stockRecord) {
+		Page<StockRecord> page = stockRecordBiz.findPage(stockRecord);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("stock:stockRecord:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<StockRecord> findList(StockRecord stockRecord) {
+		List<StockRecord> list = stockRecordBiz.findList(stockRecord);
+		return list;
+	}
+
+	/**
+	 * 字表数据
+	 */
+	@RequiresPermissions("stock:stockRecord:view")
+	@RequestMapping(value = "listStockRecordItem")
+	@ResponseBody
+	public List<StockRecordItem> listStockRecordItem(StockRecordItem stockRecordItem) {
+		return stockRecordItemBiz.findList(stockRecordItem);
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("stock:stockRecord:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(@Validated StockRecord stockRecord, BindingResult result) {
+		if(result.hasErrors()){
+			return sendError(result.getFieldError().getDefaultMessage());
+        }
+		// 出库报损验证
+		if (StockRecord.RECORD_TYPE_2.equals(stockRecord.getRecordType())
+				|| StockRecord.RECORD_TYPE_3.equals(stockRecord.getRecordType())) {
+
+			for (StockRecordItem item : stockRecord.getStockRecordItem()) {
+				if (!DemoItem.STATUS_DELETE.equals(item.getStatus())) {
+					Stock where = new Stock();
+					where.setGoodsId(item.getGoodsId());
+					Stock stock = stockBiz.getByEntity(where);
+					if (stock == null) {
+						return sendError(item.getGoodsName() + "库存不足！");
+					}
+					if (stock.getNum() < item.getNum()) {
+						return sendError(item.getGoodsName() + "库存不足！");
+					}
+				}
+			}
+		}
+		stockRecordBiz.save(stockRecord);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("stock:stockRecord:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(StockRecord stockRecord) {
+		stockRecordBiz.delete(stockRecord);
+		return sendOk("删除成功！");
+	}
+
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<#include "/common/__ztree.html">
+	<#include "/common/open_img.html">
+	<script type="text/javascript" src="${ctx}/static/module/sys/sysMenu.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">菜单管理</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" autocomplete="off" id="form_search">
+				<div class="xgroup">
+					<label class="label">菜单名称查询</label>
+					<input type="text" name="name" class="xw2"/>
+				</div>
+				<div class="clear"></div>
+				<div class="xgroup">
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_search">查询</button>
+					<button type="button" class="xbtn" id="btn_reset">重置</button>
+					<@shiro.hasPermission name="sys:sysMenu:edit">
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">添加</b></button>
+					</@shiro.hasPermission>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="sysMenu_xtable" style="width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th width="120px">操作</th>
+							<th width="250px">菜单名称</th>
+							<th width="100px">菜单类型</th>
+							<th width="200px">菜单地址</th>
+							<th width="200px">权限</th>
+							<th >排序</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr class="r_{index}">
+									<td class="tc">
+									<@shiro.hasPermission name="sys:sysMenu:edit">
+									{btnUpdate}{btnDelete}{btnAddSon}
+									</@shiro.hasPermission>
+									</td>
+									<td>{treeClick}{name}</td>
+									<td>{type}</td>
+									<td>{url}</td>
+									<td>{permission}</td>
+									<td>{treeSort}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				
+			</div>
+			<#assign cls="sysMenu_paging">
+			<#include "/common/_paging.html">
+		</div>
+	</div>
+	<#include "sysMenuForm.html">
+	<#include "../link/tree_sysMenu.html">
+</body>
+</html>

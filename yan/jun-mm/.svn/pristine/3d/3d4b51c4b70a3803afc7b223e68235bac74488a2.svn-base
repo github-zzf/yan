@@ -1,0 +1,62 @@
+package com.junkj.module.sys.entity;
+
+import java.util.Date;
+
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.Table;
+
+/**
+ * 消费记录实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月14日
+ * @version: 1.0.0
+ */
+@Table(name = "sys_com_product", alias = "a", columns = {
+		@Column(name = "product_id", attrName = "productId"),
+		@Column(name = "start_time", attrName = "startTime"),
+		@Column(name = "end_time", attrName = "endTime"),
+		@Column(name = "remark", attrName = "remark"),
+	}, orderBy = "a.id DESC"
+)
+public class SysComProduct extends DataEntity<SysComProduct> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String productId; // 产品
+	private Date startTime; // 开始时间
+	private Date endTime; // 结束时间
+	private String remark; // 备注
+
+
+	public String getProductId() {
+		return productId;
+	}
+	public void setProductId(String productId) {
+		this.productId = productId;
+	}
+
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+
+}

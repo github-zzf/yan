@@ -1,0 +1,84 @@
+package com.junkj.module.weixin.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 微信用户action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月22日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/wxUser")
+public class WxUserAction extends BaseAction {
+
+	@Autowired
+	private WxUserBiz wxUserBiz;
+
+	@RequiresPermissions("weixin:wxUser:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/weixin/wxUser";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("weixin:wxUser:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<WxUser> listPage(WxUser wxUser) {
+		Page<WxUser> page = wxUserBiz.findPage(wxUser);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("weixin:wxUser:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<WxUser> findList(WxUser wxUser) {
+		List<WxUser> list = wxUserBiz.findList(wxUser);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("weixin:wxUser:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(WxUser wxUser) {
+		wxUserBiz.save(wxUser);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("weixin:wxUser:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(WxUser wxUser) {
+		wxUserBiz.delete(wxUser);
+		return sendOk("删除成功！");
+	}
+
+}

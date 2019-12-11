@@ -1,0 +1,124 @@
+package com.junkj.module.stock.entity;
+
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 出入库记录实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月16日
+ * @version: 1.0.0
+ */
+@Table(name = "stock_record", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "code", attrName = "code", queryType = QueryType.LIKE),
+		@Column(name = "biz_id", attrName = "bizId"),
+		@Column(name = "biz_type", attrName = "bizType"),
+		@Column(name = "record_type", attrName = "recordType"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime", isQuery = false),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime", isQuery = false),
+		@Column(name = "remark", attrName = "remark", queryType = QueryType.LIKE),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.update_id ", columns = {
+			@Column(name = "name", attrName = "updateName", queryType = QueryType.LIKE) 
+		})
+	}, orderBy = "a.id DESC")
+public class StockRecord extends DataEntity<StockRecord> {
+
+	private static final long serialVersionUID = 1L;
+
+	private String code; // 单据编号
+	private String bizId; // 关联id
+	private String bizType; // 关联业务（1消费收银）
+	private String recordType; // 类型（1入库、2出库、3报损、4盘点）
+
+	// 业务字段
+	private List<StockRecordItem> stockRecordItem = ListUtils.newArrayList(); // 子表数据
+	private String year; // 查询年
+
+	/**
+	 * 关联业务（1消费收银）
+	 */
+	public static final String BIZ_CASH_BUY = "cash_buy";
+	/**
+	 * 类型（1入库）
+	 */
+	public static final String RECORD_TYPE_1 = "1";
+	/**
+	 * 类型（2出库）
+	 */
+	public static final String RECORD_TYPE_2 = "2";
+	/**
+	 * 类型（3报损）
+	 */
+	public static final String RECORD_TYPE_3 = "3";
+	/**
+	 * 类型（4盘点）
+	 */
+	public static final String RECORD_TYPE_4 = "4";
+
+	public String getCode() {
+		return code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getBizType() {
+		return bizType;
+	}
+
+	public void setBizType(String bizType) {
+		this.bizType = bizType;
+	}
+
+	@NotEmpty(message = "类型不能为空")
+	public String getRecordType() {
+		return recordType;
+	}
+
+	public void setRecordType(String recordType) {
+		this.recordType = recordType;
+	}
+
+	public List<StockRecordItem> getStockRecordItem() {
+		return stockRecordItem;
+	}
+
+	public void setStockRecordItem(List<StockRecordItem> stockRecordItem) {
+		this.stockRecordItem = stockRecordItem;
+	}
+
+	public String getYear() {
+		return year;
+	}
+
+	public void setYear(String year) {
+		this.year = year;
+	}
+
+}

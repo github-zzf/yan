@@ -1,0 +1,72 @@
+<div class="xwindow" id="link_sysArea">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">上级分类<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="link_sysArea_form" >
+			<div class="xgroup">
+				<input type="text" name="name" class="xw2" autocomplete="off" placeholder="菜单名称" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_link_sysArea_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_link_sysArea_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div id="sysArea_tree" class="ztree" style="overflow-y:auto; height: 500px;"></div>
+	</div>
+	
+</div>
+<script>
+var linkSysArea = {
+	callBack:function(row){},
+	init:function(){
+		linkSysArea.bind();
+		linkSysArea.load();
+	},
+	bind:function(){
+		var sf = $("#link_sysArea_form").xform();
+		$("#btn_link_sysArea_search").xbtn(function(btn){
+			var data = sf.getData();
+			linkSysArea.table.reload(data);
+		});
+		$("#btn_link_sysArea_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			linkSysArea.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				linkSysArea.table.reload(data);
+	        }
+	    });
+		$('#link_sysArea').on("click",".js_link_sysArea_sel", function(btn){
+			var index = btn.xv;
+			var row = linkSysArea.table.getRow(index);
+			linkSysArea.callBack(row);
+			linkSysArea.win.close();
+		});
+	},
+	load:function(){
+		linkSysArea.win = $('#link_sysArea').xwindow({width:360,height:600,open:false});
+		$.ztree({
+			id:"sysArea_tree",
+			url:adminPath + '/list/treeSysAreaData',
+			click:function(treeId, treeNode){
+				linkSysArea.win.close();
+				linkSysArea.callBack(treeId, treeNode);
+			}
+		})
+	},
+	open:function(callBack){
+		linkSysArea.callBack = callBack;
+		linkSysArea.win.open();
+	}
+}
+linkSysArea.init();
+</script>

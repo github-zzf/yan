@@ -1,0 +1,159 @@
+<div class="xwindow" id="user_win">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">
+			用户表单<span class="title_close xclose">X</span>
+		</div>
+		<form class="xform" id="user_form" method="post" autocomplete="off">
+			<input type="hidden" name="id" />
+			<#if isSaas=="true">
+				<div class="xgroup">
+					<label class="g1">企业名称<i>*</i></label>
+					<div class="g2">
+						<input type="text" name="comName" readonly="readonly" id="f_comName"/>
+						<input type="hidden" name="comId" id="f_comId"/>
+					</div>
+				</div>
+			</#if>
+			<div class="xgroup">
+				<label class="g1">登录帐号<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="username" id="f_username" maxlength="20"/>
+				</div>
+				<label class="g1">用户昵称<i>*</i></label>
+				<div class="g2">
+					<input type="text" name="name" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">密码</label>
+				<div class="g2">
+					<input type="password" name="password" maxlength="20" id="f_password"/>
+				</div>
+				<label class="g1">确认密码</label>
+				<div class="g2">
+					<input type="password" name="passwordAffirm" maxlength="50" id="f_passwordAffirm"/>
+					<div class="error f_rols_error1"></div>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">手机号码</label>
+				<div class="g2">
+					<input type="text" name="phone" maxlength="50"/>
+				</div>
+				<label class="g1">电子邮箱</label>
+				<div class="g2">
+					<input type="text" name="email" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">QQ</label>
+				<div class="g2">
+					<input type="text" name="qq" maxlength="50"/>
+				</div>
+				<label class="g1">微信</label>
+				<div class="g2">
+					<input type="text" name="wx" maxlength="50"/>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">备注</label>
+				<div class="g2">
+					<textarea name="remark" style="width:530px" maxlength="500"></textarea>
+				</div>
+			</div>
+			<div class="xgroup">
+				<label class="g1">用户角色<i>*</i></label>
+				<div class="g2">
+					<div class="select_role_box"></div>
+					<div class="error f_rols_error"></div>
+				</div>
+			</div>
+			<div class="bottombar">
+				<span class="xbtn btn_submit">保存</span><span class="xbtn xclose">取消</span>
+			</div>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+app.win = $('#user_win').xwindow({width:700,height:450,open:false});
+app.form = $('#user_form').xform({
+	url : adminPath + '/sysUser/save',
+	xbtn:'.btn_submit',
+	submitBefore:function(){
+		var data=[];
+		$(".role_row").each(function(i,v){
+			var id =$(v).children(".checkbox_role").data("id");
+			if ($(v).children(".checkbox_role").is(':checked')) {
+				data.push(id);
+			}
+		});
+		if (data.length>=1) {
+			var rolesId = data.join(",");
+			app.form.addData({roleIds:rolesId})
+		}else{
+			$(".f_rols_error").html("用户角色不能为空");
+			return false;
+		}
+		var password = $("#f_password").val(); 
+		var passwordAffirm = $("#f_passwordAffirm").val();
+		if(password==passwordAffirm){
+			return true;
+		}
+		else{
+			$(".f_rols_error1").html("输入的密码不一致");
+			return false;
+		}
+		return true;
+	},
+	xcheck:[
+		{label:'企业代码', name:'comId', xcheck:'null,max:20'},
+		{label:'企业名称', name:'comName', xcheck:'null,max:50'},
+		{label:'登录账号', name:'username', xcheck:'null,min:4,max:20'},
+		{label:'用户昵称', name:'name', xcheck:'null,max:50'}
+	],
+	success:function(e){
+		if(e.code==1){
+			app.table.reload();
+			app.win.close();
+			$.ok('操作成功');
+		}else{
+			$.xalert(e.msg);
+		}
+	}
+});
+$('#btn_add').click(function(){
+	app.pass_required = true;
+	app.form.clear();
+	$(".checkbox_role").prop("checked",false);
+	$("#f_comId").removeClass("readonly").removeAttr("readonly");
+	$("#f_comName").removeClass("readonly").removeAttr("readonly");
+	$("#f_username").removeClass("readonly").removeAttr("readonly");
+	app.win.open();
+	app.bind();
+});
+$.xpost({
+	url:adminPath+'/sysRole/listData',
+	success:function(e){
+		var html='';
+		$.each(e,function(index,item){
+			if(item.id=="adminRole"){
+				html+='<div class="role_row">'
+				html+='<input type="checkbox" class="checkbox_role" data-id='+item.id+' id="check_'+item.id+'">'
+				html+='<label for="check_'+item.id+'" class="check_label" style="margin: 0";>'+item.name+'</label>'
+				html+='</div>'
+			}
+			$(".select_role_box").html(html);
+		});
+	}
+});
+//企业ID
+$("#f_comName").click(function(){
+	linkSysCompany.callBack = function(row) {
+		$("#f_comName").val(row.comName);
+		$("#f_comId").val(row.id);
+	};
+	linkSysCompany.open();
+}); 
+
+</script>

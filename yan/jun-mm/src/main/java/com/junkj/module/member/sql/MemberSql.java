@@ -1,0 +1,33 @@
+package com.junkj.module.member.sql;
+
+import org.apache.ibatis.jdbc.SQL;
+
+public class MemberSql {
+	
+	public String getMemberInfo(String memberId, String comId) {
+		StringBuffer sql = new StringBuffer();
+		sql.append(" (select sum(stored_num) from member_card c where a.id=c.member_id and  ");
+		sql.append(" DATE_FORMAT(c.invalid_time,'%Y-%m-%d-%H-%i-%S')>date_format(now(),'%Y-%m-%d-%H-%i-%S') ");
+		sql.append(" and c.card_id in (select id from com_cards where type=1 and com_id=#{comId}) ");
+		sql.append(" ) as chuzhi" );
+		
+		sql.append(" ,(select sum(stored_num) from member_card c where a.id=c.member_id and  ");
+		sql.append(" DATE_FORMAT(c.invalid_time,'%Y-%m-%d-%H-%i-%S')>date_format(now(),'%Y-%m-%d-%H-%i-%S') ");
+		sql.append(" and c.card_id in (select id from com_cards where type=2 and com_id=#{comId}) ");
+		sql.append(" ) as chuci" );
+		
+		String str = new SQL() {
+			{
+				SELECT("b.points ");
+				SELECT(sql.toString());
+				FROM("member as a");
+				LEFT_OUTER_JOIN("com_member b on(b.member_id = a.id)");
+				WHERE("b.member_id=#{memberId}");
+				WHERE("b.com_id=#{comId}");
+			}
+		}.toString();
+		
+		return str;
+	}
+	
+}

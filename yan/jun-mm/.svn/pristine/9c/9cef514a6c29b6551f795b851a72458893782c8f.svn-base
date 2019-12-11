@@ -1,0 +1,157 @@
+package com.junkj.module.sys.biz;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.TreeBiz;
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.collect.MapUtils;
+import com.junkj.common.lang.StrUtils;
+import com.junkj.common.utils.CacheUtils;
+import com.junkj.common.utils.UserUtils;
+import com.junkj.module.sys.dao.SysMenuDao;
+import com.junkj.module.sys.entity.SysMenu;
+import com.junkj.module.sys.entity.SysRole;
+import com.junkj.module.sys.entity.SysUser;
+
+@Service
+@Transactional(readOnly = true)
+public class SysMenuBiz extends TreeBiz<SysMenuDao, SysMenu> {
+
+	public static final String CACHE_MENU_NAME_PATH_MAP = "menuNamePathMap";
+
+	@Autowired
+	private SysRoleBiz sysRoleBiz;
+
+	/**
+	 * 获取当前用户授权权限
+	 */
+	public List<String> findPermissions() {
+		List<String> list = ListUtils.newArrayList();
+		SysUser user = UserUtils.getUser();
+		if (user.isAdmin()) {
+			list = dao.findPermissions(null);
+		} else {
+			StringBuffer menuIds = new StringBuffer();
+			List<SysRole> roleList = sysRoleBiz.findByRoleIds(user.getRoleIds());
+			if (roleList.size() > 0) {
+				roleList.forEach(role -> {
+					menuIds.append(role.getMenus());
+					menuIds.append(",");
+				});
+			}
+			list = dao.findPermissions(menuIds.toString());
+		}
+		return list;
+	}
+
+	/**
+	 * 获取当前用户授权菜单
+	 */
+	public List<SysMenu> findMenuList() {
+
+		SysUser user = UserUtils.getUser();
+		List<SysMenu> menuList = null;
+		if (user.isAdmin()) {
+			// 获取全部菜单树
+			SysMenu where = new SysMenu();
+			where.setIsSys(SysMenu.ISSYS_1);
+			where.setType("menu");
+			menuList = dao.findList(where);
+		} else {
+			StringBuffer menuIds = new StringBuffer();
+			List<SysRole> roleList = sysRoleBiz.findByRoleIds(user.getRoleIds());
+			if (roleList.size() > 0) {
+				roleList.forEach(role -> {
+					menuIds.append(role.getMenus());
+					menuIds.append(",");
+				});
+			}
+			SysMenu where = new SysMenu();
+			where.setType("menu");
+			where.setIds(menuIds.toString());
+			menuList = dao.findList(where);
+		}
+
+		List<SysMenu> menusTree = getMenusTree(menuList, "0");
+		return menusTree;
+	}
+
+	/**
+	 * 查询可设置的菜单树
+	 */
+	public List<SysMenu> findSetMenu() {
+
+		SysUser user = UserUtils.getUser();
+		List<SysMenu> menuList = null;
+		if (user.isAdmin()) {
+			// 获取全部菜单树
+			SysMenu where = new SysMenu();
+			menuList = dao.findList(where);
+		} else {
+			SysRole role = sysRoleBiz.get("adminRole");
+			SysMenu where = new SysMenu();
+			where.setIds(role.getMenus());
+			menuList = dao.findList(where);
+		}
+
+		List<SysMenu> menusTree = getMenusTree(menuList, "0");
+		return menusTree;
+	}
+
+	// 获取权限TreeListMap
+	private List<SysMenu> getMenusTree(List<SysMenu> menus, String id) {
+		List<SysMenu> result = new ArrayList<SysMenu>();
+		for (SysMenu row : menus) {
+			String rowid = row.getId();
+			String rowpid = row.getParentId();
+			if (id.equals(rowpid)) {
+				List<SysMenu> list = getMenusTree(menus, rowid);
+				if (list.size() > 0) {
+					row.setSon(list);
+				}
+				result.add(row);
+			}
+		}
+		return result;
+	}
+
+	public String getMenuNamePath(String href, String permission) {
+		@SuppressWarnings("unchecked")
+		Map<String, String> menuMap = (Map<String, String>) CacheUtils.get(CACHE_MENU_NAME_PATH_MAP);
+		if (menuMap == null) {
+			menuMap = MapUtils.newHashMap();
+
+			List<SysMenu> menuList = dao.findList(new SysMenu());
+			for (SysMenu menu : menuList) {
+				if (StrUtils.isNotBlank(menu.getUrl())) {
+					menuMap.put(menu.getUrl(), menu.getUrl());
+				} else if (StrUtils.isNotBlank(menu.getPermission())) {
+					for (String p : StrUtils.split(menu.getPermission())) {
+						menuMap.put(p, menu.getUrl());
+					}
+				}
+			}
+			CacheUtils.put(CACHE_MENU_NAME_PATH_MAP, menuMap);
+		}
+		String namePath = menuMap.get(href);
+		if (namePath == null) {
+			for (String p : StrUtils.split(permission)) {
+				namePath = menuMap.get(p);
+				if (StrUtils.isNotBlank(namePath)) {
+					break;
+				}
+			}
+			if (namePath == null) {
+				return "";
+			}
+		}
+		return namePath;
+	}
+
+}

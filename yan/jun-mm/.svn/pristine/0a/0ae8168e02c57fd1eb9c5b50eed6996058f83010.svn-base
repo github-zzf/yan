@@ -1,0 +1,101 @@
+<!-- 会员选择 -->
+<div class="xwindow" id="cardUser">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">用户选择<span class="title_close xclose">X</span></div>
+		<form class="xform search_box" id="cardUser_form">
+			<div class="xgroup">
+				<input type="text" name="id" class="xw2" autocomplete="off" placeholder="人员ID" id="f_search"/>
+			</div>
+			<div class="xgroup">
+				<button type="button" class="xbtn" id="btn_cardUser_search">
+					<b class="icon_search icon_all">查询</b>
+				</button>
+				<button type="button" class="xbtn" id="btn_cardUser_reset">
+					<b class="icon_reast icon_all">重置</b>
+				</button>
+			</div>
+			<div class="clear"></div>
+            <input style="display:none" type="text">
+		</form>
+	    <div class="xtable" id="cardUser_xtable">
+			<table class="xhead">
+				<tr>
+					<th width="80px">操作</th>
+					<th width="80px">人员ID</th>
+					<th width="80px">提成次数</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td class="tc">{btnSel}</td>
+							<td>{userId}</td>
+							<td>{num}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="cardUser_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var cardUser = {
+	callBack:function(row){},
+	init:function(){
+		cardUser.loadWin();
+		cardUser.loadTable();
+		cardUser.bindSearch();
+		cardUser.bindSelect();
+	},
+	bindSearch:function(){
+		var sf = $("#cardUser_form").xform();
+		$("#btn_cardUser_search").xbtn(function(btn){
+			var data = sf.getData();
+			cardUser.table.reload(data);
+		});
+		$("#btn_cardUser_reset").xbtn(function(btn){
+			sf.clear();
+			var data = sf.getData();
+			user.table.reload(data);
+		});
+		$('#f_search').bind('keyup', function(event) {
+	        if (event.keyCode == "13") {
+				var data = sf.getData();
+				cardUser.table.reload(data);
+	        }
+	    });
+	},
+	loadWin:function(){
+		cardUser.win = $('#cardUser').xwindow({width:500,height:550,open:false});
+	},
+	loadTable:function(){
+		cardUser.table = $('#cardUser_xtable').xtable({
+			url:adminPath + '/cardUser/listPage',
+			paging:'.cardUser_paging',
+			bodyHeight:395,
+			load:false,
+			format:function(row){
+				row.btnSel = '<a class="js_cardUser_sel" data-xv="'+row.index+'">选择</a>&nbsp;';
+			}
+		});
+	},
+	bindSelect:function(){
+		$('#cardUser_xtable').on("click", '.js_cardUser_sel', function(){
+			var index = $(this).data("xv");
+			var row = cardUser.table.getRow(index);
+			cardUser.callBack(row);
+			cardUser.win.close();
+		});
+	},
+	open:function(){
+		cardUser.win.open();
+		cardUser.table.reload();
+	}
+}
+cardUser.init();
+</script>

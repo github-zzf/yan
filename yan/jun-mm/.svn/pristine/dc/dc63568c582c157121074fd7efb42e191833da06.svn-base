@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/tongJi/adminStatistics.js?${v}"></script>
+	<style type="text/css">
+		.divColor{
+			width: 250px;
+			height: 60px;
+			position:absolute;
+		}
+		.div_table{
+			width: 100%;
+			height: 100%;
+			cellpadding : 0;
+			cellspacing : 0;
+			border-collapse:collapse;
+		}
+		.div_table_td1{
+			width: 50%;
+			height: 100%;
+			background-color: #09c;
+			text-align: center;
+			color: #FFFFFF;
+		}
+		.div_table_td2{
+			width: 50%;
+			height: 100%;
+			background-color: #EEEEEE;
+			text-align: center;
+		}
+	</style>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">课时奖金统计</b></span>
+		</div>
+		<div class="main_content main_change">
+			<div class="body_center">
+				<div class="xtable" id="admin_xtable"  style="width:1400px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>
+							<th width="200px">姓名</th>
+							<th width="100px">销售金额</th>
+							<th width="100px">提成金额</th>
+							<th width="100px">上课次数</th>
+							<th width="100px">上课奖金</th>
+							<th width="100px">助教次数</th>
+							<th width="100px">助教奖金</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">{btnUpdate}</td>
+									<td>{name}</td>
+									<td>{xiaoshou}</td>
+									<td>{ticheng}</td>
+									<td>{shangkeNum}</td>
+									<td>{shangkeMoney}</td>
+									<td>{zhujiaoNum}</td>
+									<td>{zhujiaoMoney}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "../link/link_commentContent.html">
+	
+</body>
+</html>

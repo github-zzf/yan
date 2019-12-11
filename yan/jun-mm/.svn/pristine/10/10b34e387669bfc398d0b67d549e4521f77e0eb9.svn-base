@@ -1,0 +1,84 @@
+package com.junkj.module.sys.action;
+
+import java.util.List;
+
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.entity.Page;
+import com.junkj.common.form.FormToken;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sys.biz.SysConfigBiz;
+import com.junkj.module.sys.entity.SysConfig;
+
+/**
+ * 参数配置action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月12日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "/${adminPath}/sysConfig")
+public class SysConfigAction extends BaseAction {
+
+	@Autowired
+	private SysConfigBiz sysConfigBiz;
+
+	@RequiresPermissions("sys:sysConfig:view")
+    @RequestMapping("")
+	public String index() {
+		return "/module/sys/sysConfig";
+	}
+
+	/**
+	 * 分页数据
+	 */
+	@RequiresPermissions("sys:sysConfig:view")
+	@RequestMapping(value = "listPage")
+	@ResponseBody
+	public Page<SysConfig> listPage(SysConfig sysConfig) {
+		Page<SysConfig> page = sysConfigBiz.findPage(sysConfig);
+		return page;
+	}
+
+	/**
+	 * 列表数据
+	 */
+	@RequiresPermissions("sys:sysConfig:view")
+	@RequestMapping(value = "findList")
+	@ResponseBody
+	public List<SysConfig> findList(SysConfig sysConfig) {
+		List<SysConfig> list = sysConfigBiz.findList(sysConfig);
+		return list;
+	}
+
+	/**
+	 * 添加或更新
+	 */
+	@FormToken
+	@RequiresPermissions("sys:sysConfig:edit")
+	@RequestMapping(value = "save")
+	@ResponseBody
+	public JsonVo save(SysConfig sysConfig) {
+		sysConfigBiz.save(sysConfig);
+		return sendOk("保存成功！");
+	}
+
+	/**
+	 * 删除
+	 */
+	@RequiresPermissions("sys:sysConfig:edit")
+	@RequestMapping(value = "delete")
+	@ResponseBody
+	public JsonVo delete(SysConfig sysConfig) {
+		sysConfigBiz.delete(sysConfig);
+		return sendOk("删除成功！");
+	}
+
+}

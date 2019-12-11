@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript" src="${ctx}/static/module/company/courseCancelTime.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">课程提前取消时间</b></span>
+		</div>
+		<div class="main_content main_change">
+			<div class="body_center">
+		
+				<div class="xtable" id="courseCancelTime_xtable" style="min-width:1000px;">
+					<table class="xhead">
+						<tr>
+							<th width="80px">操作</th>
+							<th width="200px">参数名称</th>
+							<th width="300px">参数值</th>
+							<th>参数说明</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<td class="tc">
+									<@shiro.hasPermission name="company:courseCancelTime:edit">
+									{btnUpdate}
+									</@shiro.hasPermission>
+									</td>
+									<td>{configName}</td>
+									<td>{configValue}</td>
+									<td>{remark}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "comConfigForm.html">
+</body>
+</html>

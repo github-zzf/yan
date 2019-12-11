@@ -1,0 +1,79 @@
+package com.junkj.module.sale.entity;
+
+
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.member.entity.Member;
+import com.junkj.module.sys.entity.SysUser;
+
+/**
+ * 导购客户实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月11日
+ * @version: 1.0.0
+ */
+@Table(name = "sale_member", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "user_id", attrName = "userId"),
+		@Column(name = "member_id", attrName = "memberId"),
+		@Column(includeEntity= BaseEntity.class),
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysUser.class, alias = "b", on = "b.id = a.user_id ", columns = {
+				@Column(name = "name", attrName = "userName", queryType = QueryType.LIKE) 
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = Member.class, alias = "c", on = "c.id = a.member_id ", columns = {
+				@Column(name = "name", attrName = "memberName", queryType = QueryType.LIKE) 
+		})
+	}, orderBy = "a.id DESC"
+)
+public class SaleMember extends DataEntity<SaleMember> {
+
+	private static final long serialVersionUID = 1L;
+	
+	private String Id; // id主键
+	private String userId; // 导购
+	private String memberId; // 会员
+	
+	// 业务字段
+	private String userName; // 导购名字
+	private String memberName; // 会员名字
+
+	public String getId() {
+		return Id;
+	}
+	public void setId(String id) {
+		Id = id;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	public String getMemberName() {
+		return memberName;
+	}
+	public void setMemberName(String memberName) {
+		this.memberName = memberName;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getMemberId() {
+		return memberId;
+	}
+	public void setMemberId(String memberId) {
+		this.memberId = memberId;
+	}
+
+}

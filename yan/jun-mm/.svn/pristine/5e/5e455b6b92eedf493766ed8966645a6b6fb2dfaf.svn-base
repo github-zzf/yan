@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<#include "/common/_admin.html">
+	<script type="text/javascript">var id="${id}"; var activityName="${activityName}";</script>
+	<script type="text/javascript" src="${ctx}/static/module/company/activityEnroll.js?${v}"></script>
+<body>
+	<div class="main_body">
+		<div class="main_title main_title_border">
+			<span class="content_titel"><b class="top_icon">活动报名</b></span>
+		</div>
+		<div class="main_content main_change">
+			<form class="xform search_box" id="form_search">
+				<div class="clear"></div>
+				<div class="xgroup" style="float:left; font-size: 18px; margin-top: 20px;" id="activityEnroll_name"></div>
+				<div class="xgroup" style="float:right;>
+					<label class="label">&nbsp;</label>
+					<button type="button" class="xbtn" id="btn_add"><b class="icon_add icon_all">活动预约</b></button>
+					<button type="button" class="xbtn" id="btn_fanHui">返回</button>
+				</div>
+				<div class="clear"></div>
+			</form>
+			<div class="body_center">
+		
+				<div class="xtable" id="activityEnroll_xtable" style="width:1040px;">
+					<table class="xhead">
+						<tr>
+							<!-- <th class="ck"><input type="checkbox" class="xcheckbox"/></th> -->
+							<th width="220px">操作</th>
+							<th width="200px">报名用户</th>
+							<th width="80px">状态</th>
+							<th width="150px">报名日期</th>
+							<th width="150px">等位编号</th>
+							<th width="80px">是否签到</th>
+							<th width="150px">签到时间</th>
+						</tr>
+					</table>
+					<div class="xbody">
+						<table>
+							<tbody class="xtemplate">
+								<tr>
+									<!-- <td class="ck"><input type="checkbox" class="xcheckrow" data-xv="{id}"/></td> -->
+									<td class="tc">{btnUpdate}{btnQuXiao}{btnShenPi}{btnQianDao}{btnDelete}</td>
+									<td>{memberName}</td>
+									<td>{statusTxt}</td>
+									<td>{enrollTime}</td>
+									<td>{wait_num}</td>
+									<td>{isSigenTxt}</td>
+									<td>{sign_time}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<#include "activityEnrollForm.html">
+	
+</body>
+</html>

@@ -1,0 +1,54 @@
+<div class="xwindow" id="link_stockRecordItem">
+	<div class="cover"></div>
+	<div class="xbox">
+		<div class="title">查看明细<span class="title_close xclose">X</span></div>
+	    <div class="xtable" id="link_stockRecordItem_xtable">
+			<table class="xhead">
+				<tr>
+					<th>商品名称</th>
+					<th>类型</th>
+					<th>数量</th>
+					<th>新数量</th>
+					<th>创建时间</th>
+				</tr>
+			</table>
+			<div class="xbody">
+				<table>
+					<tbody class="xtemplate">
+						<tr>
+							<td>{goodsName}</td>
+							<td>{numTypeName}</td>
+							<td>{num}</td>
+							<td>{numNew}</td>
+							<td>{createTime}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<#assign cls="link_stockRecordItem_paging">
+		<#include "/common/_paging.html">
+	</div>
+	
+</div>
+<script>
+var linkStockRecordItem = {
+	init:function(){
+		linkStockRecordItem.load();
+	},
+	load:function(){
+		linkStockRecordItem.win = $('#link_stockRecordItem').xwindow({width:760,height:550,open:false});
+		linkStockRecordItem.table = $('#link_stockRecordItem_xtable').xtable({
+			url:adminPath + '/list/listStockRecordItemPage',
+			paging:'.link_stockRecordItem_paging',
+			bodyHeight:440,
+			load:false
+		});
+	},
+	open:function(goodsId){
+		linkStockRecordItem.win.open();
+		linkStockRecordItem.table.reload({goodsId:goodsId});
+	}
+}
+linkStockRecordItem.init();
+</script>

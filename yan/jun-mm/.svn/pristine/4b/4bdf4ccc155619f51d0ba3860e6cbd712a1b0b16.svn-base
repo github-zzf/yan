@@ -1,0 +1,318 @@
+package com.junkj.module.company.entity;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.Length;
+
+import com.junkj.common.collect.ListUtils;
+import com.junkj.common.entity.BaseEntity;
+import com.junkj.common.entity.DataEntity;
+import com.junkj.common.mybatis.annotation.Column;
+import com.junkj.common.mybatis.annotation.JoinTable;
+import com.junkj.common.mybatis.annotation.Table;
+import com.junkj.common.mybatis.query.QueryType;
+import com.junkj.module.file.entity.FileUpload;
+import com.junkj.module.sys.entity.SysBeanData;
+
+/**
+ * 活动实体
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年09月27日
+ * @version: 1.0.0
+ */
+@Table(name = "com_activity", alias = "a", columns = {
+		@Column(name = "id", attrName = "id", isPK = true),
+		@Column(name = "status", attrName = "status"),
+		@Column(name = "pay_status", attrName = "payStatus"),
+		@Column(name = "name", attrName = "name", queryType = QueryType.LIKE),
+		@Column(name = "img", attrName = "img"),
+		@Column(name = "start_time", attrName = "startTime"),
+		@Column(name = "end_time", attrName = "endTime"),
+		@Column(name = "enroll_start", attrName = "enrollStart"),
+		@Column(name = "enroll_end", attrName = "enrollEnd"),
+		@Column(name = "address", attrName = "address"),
+		@Column(name = "coordinate", attrName = "coordinate"),
+		@Column(name = "content", attrName = "content"),
+		@Column(name = "people_max", attrName = "peopleMax"),
+		@Column(name = "money", attrName = "money"),
+		@Column(name = "give_points", attrName = "givePoints"),
+		@Column(name = "cards_type_id", attrName = "cardsTypeId"),
+		@Column(name = "card_num", attrName = "cardNum"),
+		@Column(name = "clicks", attrName = "clicks"),
+		@Column(name = "goods", attrName = "goods"),
+		@Column(name = "create_id", attrName = "createId"),
+		@Column(name = "create_time", attrName = "createTime"),
+		@Column(name = "update_id", attrName = "updateId"),
+		@Column(name = "update_time", attrName = "updateTime"),
+		@Column(includeEntity = BaseEntity.class)
+	}, joinTable = {
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = CardsType.class, alias = "ct", on = "ct.id = a.cards_type_id", columns = {
+				@Column(name = "type_name", attrName = "cardsTypeName", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "c", on = "c.bean_key='activity_payStatus' and c.bean_val = a.pay_status", columns = {
+			@Column(name = "bean_txt", attrName = "payStatusTxt", queryType = QueryType.LIKE)
+		}),
+		@JoinTable(type = JoinTable.Type.LEFT_JOIN, entity = SysBeanData.class, alias = "d", on = "d.bean_key='activity_status' and d.bean_val = a.status", columns = {
+			@Column(name = "bean_txt", attrName = "statusTxt", queryType = QueryType.LIKE)
+		}),
+	}, orderBy = "a.id DESC"
+)
+public class Activity extends DataEntity<Activity> {
+
+	private static final long serialVersionUID = 1L;
+	public static final String FILE_TYPE = "activity_img";
+
+	private String payStatus; // 支付方式（1在线支付、2到店支付、3不限）
+	private String name; // 活动名称
+	private String img; // 封面图片
+	private Date startTime; // 开始时间
+	private Date endTime; // 结束时间
+	private Date enrollStart; // 报名开始时间
+	private Date enrollEnd; // 报名结束时间
+	private String address; // 活动地址
+	private String coordinate; // 经纬度
+	private Long peopleMax; // 报名上限
+	private String content; // 活动详情
+	private Double money; // 活动费
+	private Long givePoints; // 赠送积分
+	private String cardsTypeId; // 会员卡类型
+	private Double cardNum; // 消耗数值
+	private Long clicks; // 浏览数量
+	private Long goods; // 点赞数量
+	
+	// 业务字段
+	List<FileUpload> fileUpload = ListUtils.newArrayList(); // 活动封面集合
+	List<ActivityEnroll> enrollList = ListUtils.newArrayList(); // 报名集合
+	List<ActivityEnroll> waitList = ListUtils.newArrayList(); // 等位集合
+	private String statusTxt; // 状态
+	private String payStatusTxt; // 支付方式
+	private String cardsTypeName; // 会员卡类型
+	private String enrollState; // 我的活动状态
+	private String myEnrollState;// 我的报名状态
+	/**
+	 * 1在线支付
+	 */
+	public static final String PAY_STATUS_1 = "1";
+	/**
+	 * 2到店支付
+	 */
+	public static final String PAY_STATUS_2 = "2";
+	/**
+	 * 3不限
+	 */
+	public static final String PAY_STATUS_3 = "3";
+	
+	//状态（0未开始、1报名中、2报名结束、3活动结束、4活动取消）
+	/**
+	 * 0未开始
+	 */
+	public static final String STATUS_0 = "0";
+	/**
+	 * 1报名中
+	 */
+	public static final String STATUS_1 = "1";
+	/**
+	 * 2报名结束
+	 */
+	public static final String STATUS_2 = "2";
+	/**
+	 * 3活动结束
+	 */
+	public static final String STATUS_3 = "3";
+	/**
+	 * 4活动取消
+	 */
+	public static final String STATUS_4 = "4";
+	
+	@NotEmpty(message="支付方式不能为空")
+	@Length(min=0, max=1, message="支付方式长度不能超过1个字符")
+	public String getPayStatus() {
+		return payStatus;
+	}
+	public void setPayStatus(String payStatus) {
+		this.payStatus = payStatus;
+	}
+
+	@NotEmpty(message="活动名称不能为空")
+	@Length(min=0, max=30, message="活动名称长度不能超过30个字符")
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getImg() {
+		return img;
+	}
+	public void setImg(String img) {
+		this.img = img;
+	}
+
+	@NotNull(message="开始时间不能为空")
+	public Date getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	@NotNull(message="结束时间不能为空")
+	public Date getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
+
+	@NotNull(message="报名开始时间不能为空")
+	public Date getEnrollStart() {
+		return enrollStart;
+	}
+	public void setEnrollStart(Date enrollStart) {
+		this.enrollStart = enrollStart;
+	}
+
+	@NotNull(message="报名结束时间不能为空")
+	public Date getEnrollEnd() {
+		return enrollEnd;
+	}
+	public void setEnrollEnd(Date enrollEnd) {
+		this.enrollEnd = enrollEnd;
+	}
+
+	@NotEmpty(message="活动地址不能为空")
+	@Length(min=0, max=200, message="活动地址长度不能超过200个字符")
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	@NotEmpty(message="经纬度不能为空")
+	@Length(min=0, max=50, message="经纬度长度不能超过50个字符")
+	public String getCoordinate() {
+		return coordinate;
+	}
+	public void setCoordinate(String coordinate) {
+		this.coordinate = coordinate;
+	}
+
+	@NotEmpty(message="活动详情不能为空")
+	public String getContent() {
+		return content;
+	}
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	@NotNull(message="报名上限不能为空")
+	public Long getPeopleMax() {
+		return peopleMax;
+	}
+	public void setPeopleMax(Long peopleMax) {
+		this.peopleMax = peopleMax;
+	}
+
+	@NotNull(message="活动费不能为空")
+	public Double getMoney() {
+		return money;
+	}
+	public void setMoney(Double money) {
+		this.money = money;
+	}
+
+	@NotNull(message="赠送积分不能为空")
+	public Long getGivePoints() {
+		return givePoints;
+	}
+	public void setGivePoints(Long givePoints) {
+		this.givePoints = givePoints;
+	}
+
+	public String getCardsTypeId() {
+		return cardsTypeId;
+	}
+	public void setCardsTypeId(String cardsTypeId) {
+		this.cardsTypeId = cardsTypeId;
+	}
+	
+	public Double getCardNum() {
+		return cardNum;
+	}
+	public void setCardNum(Double cardNum) {
+		this.cardNum = cardNum;
+	}
+
+	public Long getClicks() {
+		return clicks;
+	}
+	public void setClicks(Long clicks) {
+		this.clicks = clicks;
+	}
+
+	public Long getGoods() {
+		return goods;
+	}
+	public void setGoods(Long goods) {
+		this.goods = goods;
+	}
+	public String getStatusTxt() {
+		return statusTxt;
+	}
+	public void setStatusTxt(String statusTxt) {
+		this.statusTxt = statusTxt;
+	}
+	public String getPayStatusTxt() {
+		return payStatusTxt;
+	}
+	public void setPayStatusTxt(String payStatusTxt) {
+		this.payStatusTxt = payStatusTxt;
+	}
+
+	public String getCardsTypeName() {
+		return cardsTypeName;
+	}
+	public void setCardsTypeName(String cardsTypeName) {
+		this.cardsTypeName = cardsTypeName;
+	}
+	public List<FileUpload> getFileUpload() {
+		return fileUpload;
+	}
+	public void setFileUpload(List<FileUpload> fileUpload) {
+		this.fileUpload = fileUpload;
+	}
+	public List<ActivityEnroll> getEnrollList() {
+		return enrollList;
+	}
+	public void setEnrollList(List<ActivityEnroll> enrollList) {
+		this.enrollList = enrollList;
+	}
+	public List<ActivityEnroll> getWaitList() {
+		return waitList;
+	}
+	public void setWaitList(List<ActivityEnroll> waitList) {
+		this.waitList = waitList;
+	}
+	public String getMyEnrollState() {
+		return myEnrollState;
+	}
+	public void setMyEnrollState(String myEnrollState) {
+		this.myEnrollState = myEnrollState;
+	}
+	public String getEnrollState() {
+		return enrollState;
+	}
+	public void setEnrollState(String enrollState) {
+		this.enrollState = enrollState;
+	}
+	
+
+}

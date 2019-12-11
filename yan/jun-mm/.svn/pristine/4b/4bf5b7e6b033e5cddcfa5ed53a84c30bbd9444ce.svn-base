@@ -1,0 +1,115 @@
+package com.junkj.module.web.action;
+
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.junkj.common.action.BaseAction;
+import com.junkj.common.codec.Md5Utils;
+import com.junkj.common.utils.ComUtils;
+import com.junkj.common.utils.MemberUtils;
+import com.junkj.common.vo.JsonVo;
+import com.junkj.module.sys.biz.SysUserBiz;
+import com.junkj.module.sys.entity.SysUser;
+import com.junkj.module.web.biz.SaleApiBiz;
+import com.junkj.module.weixin.biz.WxUserBiz;
+import com.junkj.module.weixin.entity.WxUser;
+
+/**
+ * 导购端action
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月19日
+ * @version: 1.0.0
+ */
+@Controller
+@RequestMapping(value = "${salePath}")
+public class SaleApiAction extends BaseAction {
+
+	@Autowired
+	private SaleApiBiz saleApiBiz;
+	@Autowired
+	private WxUserBiz wxUserBiz;
+	@Autowired
+	private SysUserBiz sysUserBiz;
+
+	// 导购我的业绩
+	@RequestMapping(value = "listSalePer", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Map<String, Object>> listSalePer(@RequestParam Map<String, Object> map) {
+		List<Map<String, Object>> list = saleApiBiz.listSalePer(map);
+		return list;
+	}
+
+	// 导购我的团队业绩
+	@RequestMapping(value = "listTeamSalePer", method = RequestMethod.GET)
+	@ResponseBody
+	public List<Map<String, Object>> listTeamSalePer(@RequestParam Map<String, Object> map) {
+		List<Map<String, Object>> list = saleApiBiz.listTeamSalePer(map);
+		return list;
+	}
+
+	// 导购登录验证
+	@RequestMapping(value = "saleLogin", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonVo saleLogin(HttpServletRequest request, String account, String password) throws Exception {
+
+		if (account == null || "".equals(account)) {
+			return sendError("用户名不能为空");
+		}
+		if (password == null || "".equals(password)) {
+			return sendError("密码不能为空");
+		}
+		SysUser user = sysUserBiz.getByComUser(ComUtils.getCurrentComId(), account, SysUser.USER_TYPE_SALE);
+		if (user == null || !SysUser.STATUS_NORMAL.equals(user.getStatus())) {
+			return sendError(2, "密码错误");
+		}
+		if (!user.getPassword().equals(Md5Utils.md5Salt(password, user.getUsername()))) {
+			return sendError(2, "密码错误");
+		}
+
+		String openid = MemberUtils.getOpenid();
+		if (openid != null) {
+			// 登录检查
+			WxUser u = wxUserBiz.getBySaleId(user.getId());
+			if (u != null && !u.getOpenid().equals(openid)) {
+				return sendError(2, "账号已登录，请先退出登录");
+			}
+			if (u == null) {
+				u = wxUserBiz.get(openid);
+			}
+			u.setSaleId(user.getId());
+			wxUserBiz.update(u);
+			MemberUtils.setWxUser(u);
+			return sendOk();
+		}
+		return sendError(402, "登录失效");
+	}
+
+	// 导购退出登录
+	@RequestMapping(value = "saleLogout", method = RequestMethod.GET)
+	@ResponseBody
+	public JsonVo saleLogout(HttpServletRequest request) throws Exception {
+		// 退出登录
+		String openid = MemberUtils.getOpenid();
+		if (openid != null) {
+			WxUser update = new WxUser();
+			update.setOpenid(openid);
+			update.setSaleId("");
+			wxUserBiz.update(update);
+			return sendOk();
+		}
+		return sendError("退出登录失败");
+	}
+	
+	
+}

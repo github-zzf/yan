@@ -1,0 +1,61 @@
+package com.junkj.module.sys.biz;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.junkj.common.biz.CrudBiz;
+import com.junkj.common.entity.Page;
+import com.junkj.module.sys.dao.SysConfigDao;
+import com.junkj.module.sys.entity.SysConfig;
+
+/**
+ * 参数配置biz
+ * 
+ * @copyright 大连骏骁网络科技有限公司
+ * @author 骏骁(cxmail@qq.com)
+ * @createDate 2019年10月12日
+ * @version: 1.0.0
+ */
+@Service
+@Transactional(readOnly = true)
+public class SysConfigBiz extends CrudBiz<SysConfigDao, SysConfig> {
+	
+	@Autowired
+	private SysConfigDao sysConfigDao;
+	
+	/**
+	 * 分页数据
+	 */
+	@Override
+	public Page<SysConfig> findPage(SysConfig sysConfig) {
+		return super.findPage(sysConfig);
+	}
+	
+	/**
+	 * 列表数据
+	 */
+	@Override
+	public List<SysConfig> findList(SysConfig sysConfig) {
+		return super.findList(sysConfig);
+	}
+	
+	/**
+	 * 添加或更新
+	 */
+	@Override
+	@Transactional(readOnly=false)
+	public void save(SysConfig sysConfig) {
+		super.save(sysConfig);
+	}
+	
+	/**
+	 * 通过key查询
+	 */
+	public String getValByKey(String string) {
+		return sysConfigDao.getValByKey(string);
+	}
+	
+}

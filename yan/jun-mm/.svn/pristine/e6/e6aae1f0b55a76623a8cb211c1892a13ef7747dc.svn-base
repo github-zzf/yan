@@ -1,0 +1,39 @@
+package com.junkj.module.company.dao;
+
+import org.apache.ibatis.jdbc.SQL;
+
+import com.junkj.common.lang.StrUtils;
+import com.junkj.module.company.entity.ComConfig;
+
+public class ComConfigSql {
+
+	/**
+	 * 查询企业配置
+	 */
+	public String findList(ComConfig comConfig){
+		String str = new SQL() {
+			{
+				SELECT("a.id AS 'id'");
+				SELECT("a.c_value AS 'configValue'");
+				SELECT("a.c_type AS 'configType'");
+				SELECT("a.com_id AS 'comId'");
+				SELECT("a.com_name AS 'comName'");
+				SELECT("b.bean_txt AS 'configName'");
+				SELECT("b.bean_val AS 'configKey'");
+				SELECT("b.remark AS 'remark'");
+				FROM("com_config AS a");
+				RIGHT_OUTER_JOIN("sys_bean_data AS b on(b.bean_val = a.c_key)");
+				WHERE("b.bean_key = 'company_config'");
+				WHERE("(a.com_id is null OR a.com_id = #{comId})");
+				
+				if(StrUtils.notBlank(comConfig.getConfigName())){
+					WHERE("b.bean_txt LIKE CONCAT('%',#{configName},'%')");
+				}
+			}
+		}.toString();
+
+		return str;
+	}
+
+
+}
